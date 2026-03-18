@@ -1,1 +1,667 @@
-<\!DOCTYPE html><html><head><title>PRETIVE</title></head><body><h1>PRETIVE</h1></body></html>
+<!DOCTYPE html>
+<html lang="tr" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PRETIVE — AI Eş Zamanlı Sunum Asistanı</title>
+  <meta name="description" content="Pretive, konuşmacının yanında çalışan gerçek zamanlı AI sunum asistanıdır. Eğitim, webinar ve kurumsal sunumlarınızı güçlendirin.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          colors: {
+            brand: {
+              50: '#eef5ff',
+              100: '#d9e8ff',
+              200: '#bbd7ff',
+              300: '#8cbfff',
+              400: '#569cff',
+              500: '#2f76ff',
+              600: '#1755f5',
+              700: '#1040e1',
+              800: '#1435b6',
+              900: '#17318f',
+              950: '#121f57',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .gradient-text {
+      background: linear-gradient(135deg, #2f76ff 0%, #8b5cf6 50%, #ec4899 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-gradient {
+      background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(47, 118, 255, 0.15), transparent);
+    }
+    .card-hover {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .card-hover:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px -12px rgba(47, 118, 255, 0.15);
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+    .float-animation {
+      animation: float 6s ease-in-out infinite;
+    }
+    .feature-icon {
+      background: linear-gradient(135deg, #2f76ff 0%, #8b5cf6 100%);
+    }
+    .section-divider {
+      background: linear-gradient(90deg, transparent, rgba(47, 118, 255, 0.2), transparent);
+      height: 1px;
+    }
+    .nav-blur {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+  </style>
+</head>
+<body class="font-sans text-gray-900 antialiased bg-white">
+
+  <!-- Navigation -->
+  <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 nav-blur border-b border-gray-100/50 transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16 lg:h-18">
+        <a href="#" class="flex items-center gap-2">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-500 to-purple-600 flex items-center justify-center">
+            <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23.693L5 14.5m14.8.8l1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0112 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5"/>
+            </svg>
+          </div>
+          <span class="text-xl font-bold tracking-tight">PRETIVE</span>
+        </a>
+        <div class="hidden md:flex items-center gap-8">
+          <a href="#features" class="text-sm font-medium text-gray-600 hover:text-brand-600 transition-colors">Ozellikler</a>
+          <a href="#how-it-works" class="text-sm font-medium text-gray-600 hover:text-brand-600 transition-colors">Nasil Calisir</a>
+          <a href="#pricing" class="text-sm font-medium text-gray-600 hover:text-brand-600 transition-colors">Fiyatlandirma</a>
+          <a href="#waitlist" class="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-600 text-white text-sm font-semibold rounded-full hover:bg-brand-700 transition-all shadow-lg shadow-brand-500/25 hover:shadow-brand-500/40">
+            Erken Erisim
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+          </a>
+        </div>
+        <button id="mobile-menu-btn" class="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors">
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/></svg>
+        </button>
+      </div>
+    </div>
+    <div id="mobile-menu" class="hidden md:hidden border-t border-gray-100 bg-white">
+      <div class="px-4 py-4 space-y-3">
+        <a href="#features" class="block px-3 py-2 text-sm font-medium text-gray-600 hover:text-brand-600 rounded-lg hover:bg-gray-50">Ozellikler</a>
+        <a href="#how-it-works" class="block px-3 py-2 text-sm font-medium text-gray-600 hover:text-brand-600 rounded-lg hover:bg-gray-50">Nasil Calisir</a>
+        <a href="#pricing" class="block px-3 py-2 text-sm font-medium text-gray-600 hover:text-brand-600 rounded-lg hover:bg-gray-50">Fiyatlandirma</a>
+        <a href="#waitlist" class="block px-3 py-2 text-sm font-semibold text-white bg-brand-600 rounded-lg text-center">Erken Erisim</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="relative min-h-screen flex items-center hero-gradient pt-16">
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+      <div class="absolute top-1/4 left-1/4 w-72 h-72 bg-brand-200/30 rounded-full blur-3xl"></div>
+      <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-200/20 rounded-full blur-3xl"></div>
+    </div>
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
+      <div class="text-center max-w-4xl mx-auto">
+        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-50 border border-brand-100 mb-8">
+          <span class="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span>
+          <span class="text-sm font-medium text-brand-700">AI Destekli Sunum Teknolojisi</span>
+        </div>
+        <h1 class="text-4xl sm:text-5xl lg:text-7xl font-black tracking-tight leading-[1.1] mb-6">
+          Sunumlarinizda<br>
+          <span class="gradient-text">gercek zamanli</span><br>
+          AI asistaniniz
+        </h1>
+        <p class="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto mb-10 leading-relaxed">
+          Pretive, konusmacinin yaninda calisan es zamanli sunum asistanidir. Iceriginizi anlatiya donusturur, canli ipuclari verir, sorularinizi yonetir ve sunumunuzu guclendirir.
+        </p>
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
+          <a href="#waitlist" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-brand-600 text-white font-semibold rounded-2xl hover:bg-brand-700 transition-all shadow-xl shadow-brand-500/25 hover:shadow-brand-500/40 hover:scale-[1.02]">
+            Erken Erisim Icin Kaydol
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+          </a>
+          <a href="#how-it-works" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-gray-700 font-semibold rounded-2xl border border-gray-200 hover:border-brand-200 hover:bg-brand-50/50 transition-all">
+            <svg class="w-5 h-5 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 010 1.972l-11.54 6.347a1.125 1.125 0 01-1.667-.986V5.653z"/></svg>
+            Nasil Calisir?
+          </a>
+        </div>
+
+        <!-- Hero Visual - Mock UI -->
+        <div class="relative max-w-4xl mx-auto float-animation">
+          <div class="relative rounded-2xl lg:rounded-3xl overflow-hidden shadow-2xl shadow-brand-900/10 border border-gray-200/50">
+            <div class="bg-gradient-to-br from-gray-900 via-gray-800 to-brand-950 p-6 lg:p-10">
+              <div class="flex items-center gap-2 mb-6">
+                <div class="w-3 h-3 rounded-full bg-red-400"></div>
+                <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
+                <div class="w-3 h-3 rounded-full bg-green-400"></div>
+                <span class="ml-4 text-gray-400 text-sm font-mono">pretive.app — Live Session</span>
+              </div>
+              <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                <div class="lg:col-span-2 bg-gray-800/50 rounded-xl p-6 border border-gray-700/50">
+                  <div class="flex items-center gap-3 mb-4">
+                    <div class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+                    <span class="text-green-400 text-xs font-semibold tracking-wider uppercase">Canli Oturum</span>
+                    <span class="text-gray-500 text-xs ml-auto">23:45 / 60:00</span>
+                  </div>
+                  <div class="space-y-3">
+                    <div class="h-3 bg-gray-700/50 rounded-full w-full"></div>
+                    <div class="h-3 bg-gray-700/50 rounded-full w-4/5"></div>
+                    <div class="h-3 bg-gray-700/50 rounded-full w-3/5"></div>
+                  </div>
+                  <div class="mt-6 p-4 bg-brand-500/10 border border-brand-500/20 rounded-xl">
+                    <div class="flex items-center gap-2 mb-2">
+                      <svg class="w-4 h-4 text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
+                      <span class="text-brand-300 text-xs font-semibold">AI Oneri</span>
+                    </div>
+                    <p class="text-gray-300 text-sm">"Bu noktada kisa bir ornek verin — katilimci ilgisi yukselecektir."</p>
+                  </div>
+                </div>
+                <div class="space-y-4">
+                  <div class="bg-gray-800/50 rounded-xl p-4 border border-gray-700/50">
+                    <span class="text-gray-400 text-xs font-semibold uppercase tracking-wider">Siradaki Bolum</span>
+                    <p class="text-white text-sm mt-2 font-medium">Vaka Calismasi: Kurumsal Egitim ROI</p>
+                    <div class="mt-3 h-1.5 bg-gray-700 rounded-full overflow-hidden">
+                      <div class="h-full bg-brand-500 rounded-full" style="width: 40%"></div>
+                    </div>
+                  </div>
+                  <div class="bg-gray-800/50 rounded-xl p-4 border border-gray-700/50">
+                    <span class="text-gray-400 text-xs font-semibold uppercase tracking-wider">Canli Q&A</span>
+                    <div class="mt-3 space-y-2">
+                      <div class="p-2 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
+                        <p class="text-yellow-200 text-xs">"Bu hangi sektorlerde kullanilabilir?"</p>
+                      </div>
+                      <div class="p-2 bg-gray-700/30 rounded-lg">
+                        <p class="text-gray-400 text-xs">"Fiyatlandirma detaylari?"</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="bg-green-500/10 border border-green-500/20 rounded-xl p-4">
+                    <div class="flex items-center gap-2">
+                      <div class="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center">
+                        <svg class="w-3.5 h-3.5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+                      </div>
+                      <span class="text-green-300 text-xs font-semibold">Dikkat Seviyesi: Yuksek</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="absolute -inset-4 bg-gradient-to-r from-brand-500/10 via-purple-500/10 to-pink-500/10 rounded-3xl blur-2xl -z-10"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Trust bar -->
+  <section class="py-16 border-y border-gray-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <p class="text-center text-sm font-medium text-gray-400 uppercase tracking-wider mb-8">Hedef Kullanim Alanlari</p>
+      <div class="flex flex-wrap items-center justify-center gap-8 lg:gap-16 text-gray-400">
+        <div class="flex items-center gap-2">
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.438 60.438 0 00-.491 6.347A48.62 48.62 0 0112 20.904a48.62 48.62 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.636 50.636 0 00-2.658-.813A59.906 59.906 0 0112 3.493a59.903 59.903 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0112 13.489a50.702 50.702 0 017.74-3.342"/></svg>
+          <span class="font-semibold text-gray-500">Egitim</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
+          <span class="font-semibold text-gray-500">Webinar</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21"/></svg>
+          <span class="font-semibold text-gray-500">Kurumsal Egitim</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5M9 11.25v1.5M12 9v3.75m3-6v6"/></svg>
+          <span class="font-semibold text-gray-500">Sales Demo</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z"/></svg>
+          <span class="font-semibold text-gray-500">Yatirimci Pitch</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Problem Section -->
+  <section class="py-20 lg:py-28">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="max-w-3xl mx-auto text-center mb-16">
+        <span class="inline-block text-sm font-semibold text-brand-600 uppercase tracking-wider mb-4">Problem</span>
+        <h2 class="text-3xl lg:text-5xl font-bold tracking-tight mb-6">
+          Icerik guclu olsa bile<br>
+          <span class="text-gray-400">anlatim bozulabiliyor</span>
+        </h2>
+        <p class="text-lg text-gray-500 leading-relaxed">
+          Egitmenler ve sunumcular ayni anda slaydi, notu, sorulari, sureyi ve katilimci ilgisini yonetmeye calisirken bilissel yuk artiyor, anlatim kalitesi dususyor.
+        </p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="p-6 rounded-2xl bg-red-50/50 border border-red-100">
+          <div class="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center mb-4">
+            <svg class="w-5 h-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <h3 class="font-semibold text-gray-900 mb-2">Sure yonetimi zorlasiyor</h3>
+          <p class="text-sm text-gray-500">Ayni icerik 15, 30, 60 dakikaya uyarlanirken her seferinde yeniden hazirlaniyor.</p>
+        </div>
+        <div class="p-6 rounded-2xl bg-orange-50/50 border border-orange-100">
+          <div class="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center mb-4">
+            <svg class="w-5 h-5 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z"/></svg>
+          </div>
+          <h3 class="font-semibold text-gray-900 mb-2">Q&A anlatiyi dagitiyor</h3>
+          <p class="text-sm text-gray-500">Soru-cevap bolumu, guclu icerikli oturumlarda bile ana anlatimin ritmini bozabiliyor.</p>
+        </div>
+        <div class="p-6 rounded-2xl bg-yellow-50/50 border border-yellow-100">
+          <div class="w-10 h-10 rounded-xl bg-yellow-100 flex items-center justify-center mb-4">
+            <svg class="w-5 h-5 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          </div>
+          <h3 class="font-semibold text-gray-900 mb-2">Dikkat kaybi fark edilmiyor</h3>
+          <p class="text-sm text-gray-500">Katilimci dikkatinin dustugu anlar cogu zaman konusmaci tarafindan gec fark ediliyor.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider max-w-5xl mx-auto"></div>
+
+  <!-- Features Section -->
+  <section id="features" class="py-20 lg:py-28">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="max-w-3xl mx-auto text-center mb-16">
+        <span class="inline-block text-sm font-semibold text-brand-600 uppercase tracking-wider mb-4">Ozellikler</span>
+        <h2 class="text-3xl lg:text-5xl font-bold tracking-tight mb-6">
+          Sunumun her aninda<br>
+          <span class="gradient-text">yaninizda</span>
+        </h2>
+        <p class="text-lg text-gray-500">
+          Pretive, pasif bir teleprompter degil — anlatiminizi aktif olarak guclendiren tam kapsamli bir sunum asistanidir.
+        </p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="card-hover p-8 rounded-2xl bg-white border border-gray-100 shadow-sm">
+          <div class="w-12 h-12 rounded-2xl feature-icon flex items-center justify-center mb-5">
+            <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>
+          </div>
+          <h3 class="text-lg font-bold text-gray-900 mb-2">Dokuman → Anlati</h3>
+          <p class="text-sm text-gray-500 leading-relaxed">PDF, DOCX, URL ve ders notlarinizi otomatik olarak akici anlati planina donusturur. 5, 15, 30, 60 dakikalik modlar.</p>
+        </div>
+        <div class="card-hover p-8 rounded-2xl bg-white border border-gray-100 shadow-sm">
+          <div class="w-12 h-12 rounded-2xl feature-icon flex items-center justify-center mb-5">
+            <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
+          </div>
+          <h3 class="text-lg font-bold text-gray-900 mb-2">AI Prompter</h3>
+          <p class="text-sm text-gray-500 leading-relaxed">Konusma hiziniza gore metni, ana fikri ve ipuclarini gosterir. Sabit script bagimliligini ortadan kaldirir.</p>
+        </div>
+        <div class="card-hover p-8 rounded-2xl bg-white border border-gray-100 shadow-sm">
+          <div class="w-12 h-12 rounded-2xl feature-icon flex items-center justify-center mb-5">
+            <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/></svg>
+          </div>
+          <h3 class="text-lg font-bold text-gray-900 mb-2">Live Speaking Copilot</h3>
+          <p class="text-sm text-gray-500 leading-relaxed">"Kisalt", "ornek ver", "toparla" gibi sessiz yonlendirmelerle canli performansinizi artirir.</p>
+        </div>
+        <div class="card-hover p-8 rounded-2xl bg-white border border-gray-100 shadow-sm">
+          <div class="w-12 h-12 rounded-2xl feature-icon flex items-center justify-center mb-5">
+            <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z"/></svg>
+          </div>
+          <h3 class="text-lg font-bold text-gray-900 mb-2">Q&A Orchestrator</h3>
+          <p class="text-sm text-gray-500 leading-relaxed">Gelen sorulari siniflandirir, ekrana yansitilaçak olanlari secer, kisa veya detayli yanit onerileri sunar.</p>
+        </div>
+        <div class="card-hover p-8 rounded-2xl bg-white border border-gray-100 shadow-sm">
+          <div class="w-12 h-12 rounded-2xl feature-icon flex items-center justify-center mb-5">
+            <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182"/></svg>
+          </div>
+          <h3 class="text-lg font-bold text-gray-900 mb-2">Recovery Mode</h3>
+          <p class="text-sm text-gray-500 leading-relaxed">Takildiginizda ayni konunun kisa, sade veya teknik surumunu aninda verir. Guven kaybi olmadan devam edin.</p>
+        </div>
+        <div class="card-hover p-8 rounded-2xl bg-white border border-gray-100 shadow-sm">
+          <div class="w-12 h-12 rounded-2xl feature-icon flex items-center justify-center mb-5">
+            <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/></svg>
+          </div>
+          <h3 class="text-lg font-bold text-gray-900 mb-2">Oturum Sonrasi Zeka</h3>
+          <p class="text-sm text-gray-500 leading-relaxed">Ozet, aksiyon maddeleri, takip e-postasi ve revizyon onerisi otomatik olusturulur.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider max-w-5xl mx-auto"></div>
+
+  <!-- How It Works -->
+  <section id="how-it-works" class="py-20 lg:py-28 bg-gradient-to-b from-white to-gray-50/50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="max-w-3xl mx-auto text-center mb-16">
+        <span class="inline-block text-sm font-semibold text-brand-600 uppercase tracking-wider mb-4">Nasil Calisir</span>
+        <h2 class="text-3xl lg:text-5xl font-bold tracking-tight mb-6">
+          Uc adimda<br>
+          <span class="gradient-text">guclu sunumlar</span>
+        </h2>
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
+        <div class="relative text-center">
+          <div class="w-16 h-16 rounded-2xl bg-brand-50 border-2 border-brand-100 flex items-center justify-center mx-auto mb-6">
+            <span class="text-2xl font-black text-brand-600">1</span>
+          </div>
+          <h3 class="text-xl font-bold text-gray-900 mb-3">Iceriginizi Yukleyin</h3>
+          <p class="text-gray-500 leading-relaxed">PDF, DOCX, ders plani, URL veya onceki sunumlarinizi yukleyin. Pretive iceriginizi analiz eder ve anlati omurgasi olusturur.</p>
+          <div class="hidden lg:block absolute top-8 left-[60%] w-[80%] h-[2px] bg-gradient-to-r from-brand-200 to-transparent"></div>
+        </div>
+        <div class="relative text-center">
+          <div class="w-16 h-16 rounded-2xl bg-brand-50 border-2 border-brand-100 flex items-center justify-center mx-auto mb-6">
+            <span class="text-2xl font-black text-brand-600">2</span>
+          </div>
+          <h3 class="text-xl font-bold text-gray-900 mb-3">Sunumunuza Baslayin</h3>
+          <p class="text-gray-500 leading-relaxed">Canli oturum sirasinda Pretive konusmanizi takip eder, canli ipuclari verir, sorulari yonetir ve ekrani optimize eder.</p>
+          <div class="hidden lg:block absolute top-8 left-[60%] w-[80%] h-[2px] bg-gradient-to-r from-brand-200 to-transparent"></div>
+        </div>
+        <div class="text-center">
+          <div class="w-16 h-16 rounded-2xl bg-brand-50 border-2 border-brand-100 flex items-center justify-center mx-auto mb-6">
+            <span class="text-2xl font-black text-brand-600">3</span>
+          </div>
+          <h3 class="text-xl font-bold text-gray-900 mb-3">Sonuclari Alin</h3>
+          <p class="text-gray-500 leading-relaxed">Oturum sonrasi ozet, aksiyon maddeleri, takip e-postasi ve performans analizi otomatik olusturulur.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats Section -->
+  <section class="py-20 bg-gradient-to-br from-brand-950 via-gray-900 to-brand-950">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
+        <div>
+          <div class="text-3xl lg:text-5xl font-black text-white mb-2">&lt;1.2s</div>
+          <p class="text-brand-300 text-sm font-medium">Canli ipucu gecikmesi</p>
+        </div>
+        <div>
+          <div class="text-3xl lg:text-5xl font-black text-white mb-2">&lt;60s</div>
+          <p class="text-brand-300 text-sm font-medium">Anlati taslagi olusturma</p>
+        </div>
+        <div>
+          <div class="text-3xl lg:text-5xl font-black text-white mb-2">&lt;3s</div>
+          <p class="text-brand-300 text-sm font-medium">Q&A yanit suresi</p>
+        </div>
+        <div>
+          <div class="text-3xl lg:text-5xl font-black text-white mb-2">5-60dk</div>
+          <p class="text-brand-300 text-sm font-medium">Otomatik sure modlari</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Comparison Section -->
+  <section class="py-20 lg:py-28">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="max-w-3xl mx-auto text-center mb-16">
+        <span class="inline-block text-sm font-semibold text-brand-600 uppercase tracking-wider mb-4">Fark</span>
+        <h2 class="text-3xl lg:text-5xl font-bold tracking-tight mb-6">
+          Sadece slayt degil,<br>
+          <span class="gradient-text">anlatim asistani</span>
+        </h2>
+      </div>
+      <div class="max-w-4xl mx-auto overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b-2 border-gray-100">
+              <th class="text-left py-4 px-4 font-semibold text-gray-500">Ozellik</th>
+              <th class="text-center py-4 px-4 font-semibold text-gray-400">PowerPoint Copilot</th>
+              <th class="text-center py-4 px-4 font-semibold text-gray-400">Gamma</th>
+              <th class="text-center py-4 px-4 font-semibold text-gray-400">Otter</th>
+              <th class="text-center py-4 px-4">
+                <span class="font-bold text-brand-600 bg-brand-50 px-3 py-1 rounded-full">Pretive</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-50">
+            <tr>
+              <td class="py-3 px-4 text-gray-700">Slayt olusturma</td>
+              <td class="py-3 px-4 text-center text-green-500">&#10003;</td>
+              <td class="py-3 px-4 text-center text-green-500">&#10003;</td>
+              <td class="py-3 px-4 text-center text-gray-300">&#10007;</td>
+              <td class="py-3 px-4 text-center text-gray-300">&#10007;</td>
+            </tr>
+            <tr class="bg-gray-50/50">
+              <td class="py-3 px-4 text-gray-700">Canli sunum koclugu</td>
+              <td class="py-3 px-4 text-center text-yellow-500">~</td>
+              <td class="py-3 px-4 text-center text-gray-300">&#10007;</td>
+              <td class="py-3 px-4 text-center text-gray-300">&#10007;</td>
+              <td class="py-3 px-4 text-center text-green-500 font-bold">&#10003;</td>
+            </tr>
+            <tr>
+              <td class="py-3 px-4 text-gray-700">Semantik akis takibi</td>
+              <td class="py-3 px-4 text-center text-gray-300">&#10007;</td>
+              <td class="py-3 px-4 text-center text-gray-300">&#10007;</td>
+              <td class="py-3 px-4 text-center text-gray-300">&#10007;</td>
+              <td class="py-3 px-4 text-center text-green-500 font-bold">&#10003;</td>
+            </tr>
+            <tr class="bg-gray-50/50">
+              <td class="py-3 px-4 text-gray-700">Canli Q&A yonetimi</td>
+              <td class="py-3 px-4 text-center text-gray-300">&#10007;</td>
+              <td class="py-3 px-4 text-center text-gray-300">&#10007;</td>
+              <td class="py-3 px-4 text-center text-yellow-500">~</td>
+              <td class="py-3 px-4 text-center text-green-500 font-bold">&#10003;</td>
+            </tr>
+            <tr>
+              <td class="py-3 px-4 text-gray-700">Recovery mode</td>
+              <td class="py-3 px-4 text-center text-gray-300">&#10007;</td>
+              <td class="py-3 px-4 text-center text-gray-300">&#10007;</td>
+              <td class="py-3 px-4 text-center text-gray-300">&#10007;</td>
+              <td class="py-3 px-4 text-center text-green-500 font-bold">&#10003;</td>
+            </tr>
+            <tr class="bg-gray-50/50">
+              <td class="py-3 px-4 text-gray-700">Dikkat katmani</td>
+              <td class="py-3 px-4 text-center text-gray-300">&#10007;</td>
+              <td class="py-3 px-4 text-center text-gray-300">&#10007;</td>
+              <td class="py-3 px-4 text-center text-gray-300">&#10007;</td>
+              <td class="py-3 px-4 text-center text-green-500 font-bold">&#10003;</td>
+            </tr>
+            <tr>
+              <td class="py-3 px-4 text-gray-700">Ekran intelligence</td>
+              <td class="py-3 px-4 text-center text-gray-300">&#10007;</td>
+              <td class="py-3 px-4 text-center text-gray-300">&#10007;</td>
+              <td class="py-3 px-4 text-center text-gray-300">&#10007;</td>
+              <td class="py-3 px-4 text-center text-green-500 font-bold">&#10003;</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider max-w-5xl mx-auto"></div>
+
+  <!-- Pricing Section -->
+  <section id="pricing" class="py-20 lg:py-28">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="max-w-3xl mx-auto text-center mb-16">
+        <span class="inline-block text-sm font-semibold text-brand-600 uppercase tracking-wider mb-4">Fiyatlandirma</span>
+        <h2 class="text-3xl lg:text-5xl font-bold tracking-tight mb-6">
+          Her olcege uygun<br>
+          <span class="gradient-text">planlar</span>
+        </h2>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+        <!-- Free -->
+        <div class="card-hover rounded-2xl border border-gray-200 p-8 bg-white">
+          <h3 class="text-lg font-bold text-gray-900 mb-1">Free</h3>
+          <p class="text-sm text-gray-500 mb-6">Kesfet ve dene</p>
+          <div class="mb-6">
+            <span class="text-4xl font-black text-gray-900">€0</span>
+          </div>
+          <ul class="space-y-3 mb-8">
+            <li class="flex items-start gap-2 text-sm text-gray-600">
+              <svg class="w-5 h-5 text-green-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+              Sinirli icerik alma
+            </li>
+            <li class="flex items-start gap-2 text-sm text-gray-600">
+              <svg class="w-5 h-5 text-green-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+              Deneme amacli live hints
+            </li>
+            <li class="flex items-start gap-2 text-sm text-gray-600">
+              <svg class="w-5 h-5 text-green-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+              Sinirli rehearsal
+            </li>
+          </ul>
+          <a href="#waitlist" class="block w-full py-3 text-center text-sm font-semibold text-gray-700 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">Basla</a>
+        </div>
+        <!-- Pro Trainer -->
+        <div class="card-hover rounded-2xl border-2 border-brand-500 p-8 bg-white relative shadow-lg shadow-brand-500/10">
+          <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-brand-600 text-white text-xs font-bold rounded-full">Populer</div>
+          <h3 class="text-lg font-bold text-gray-900 mb-1">Pro Trainer</h3>
+          <p class="text-sm text-gray-500 mb-6">Bireysel egitmenler</p>
+          <div class="mb-6">
+            <span class="text-4xl font-black text-gray-900">€19</span>
+            <span class="text-sm text-gray-500">/ay</span>
+          </div>
+          <ul class="space-y-3 mb-8">
+            <li class="flex items-start gap-2 text-sm text-gray-600">
+              <svg class="w-5 h-5 text-brand-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+              Narrative engine
+            </li>
+            <li class="flex items-start gap-2 text-sm text-gray-600">
+              <svg class="w-5 h-5 text-brand-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+              AI prompter + live hints
+            </li>
+            <li class="flex items-start gap-2 text-sm text-gray-600">
+              <svg class="w-5 h-5 text-brand-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+              Recovery mode
+            </li>
+            <li class="flex items-start gap-2 text-sm text-gray-600">
+              <svg class="w-5 h-5 text-brand-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+              Q&A + oturum ozeti
+            </li>
+          </ul>
+          <a href="#waitlist" class="block w-full py-3 text-center text-sm font-semibold text-white bg-brand-600 rounded-xl hover:bg-brand-700 transition-colors shadow-lg shadow-brand-500/25">Erken Erisim</a>
+        </div>
+        <!-- Team -->
+        <div class="card-hover rounded-2xl border border-gray-200 p-8 bg-white">
+          <h3 class="text-lg font-bold text-gray-900 mb-1">Team</h3>
+          <p class="text-sm text-gray-500 mb-6">Ekipler ve akademiler</p>
+          <div class="mb-6">
+            <span class="text-4xl font-black text-gray-900">€24</span>
+            <span class="text-sm text-gray-500">/koltuk/ay</span>
+          </div>
+          <ul class="space-y-3 mb-8">
+            <li class="flex items-start gap-2 text-sm text-gray-600">
+              <svg class="w-5 h-5 text-green-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+              Pro dahil tum ozellikler
+            </li>
+            <li class="flex items-start gap-2 text-sm text-gray-600">
+              <svg class="w-5 h-5 text-green-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+              Shared workspace
+            </li>
+            <li class="flex items-start gap-2 text-sm text-gray-600">
+              <svg class="w-5 h-5 text-green-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+              Analytics + team memory
+            </li>
+          </ul>
+          <a href="#waitlist" class="block w-full py-3 text-center text-sm font-semibold text-gray-700 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">Erken Erisim</a>
+        </div>
+        <!-- Enterprise -->
+        <div class="card-hover rounded-2xl border border-gray-200 p-8 bg-white">
+          <h3 class="text-lg font-bold text-gray-900 mb-1">Enterprise</h3>
+          <p class="text-sm text-gray-500 mb-6">Buyuk kurumlar</p>
+          <div class="mb-6">
+            <span class="text-2xl font-black text-gray-900">Ozel fiyat</span>
+          </div>
+          <ul class="space-y-3 mb-8">
+            <li class="flex items-start gap-2 text-sm text-gray-600">
+              <svg class="w-5 h-5 text-green-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+              SSO + audit log
+            </li>
+            <li class="flex items-start gap-2 text-sm text-gray-600">
+              <svg class="w-5 h-5 text-green-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+              LMS/CRM entegrasyonlari
+            </li>
+            <li class="flex items-start gap-2 text-sm text-gray-600">
+              <svg class="w-5 h-5 text-green-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+              Guardrails + guvenlik
+            </li>
+          </ul>
+          <a href="#waitlist" class="block w-full py-3 text-center text-sm font-semibold text-gray-700 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">Bize Ulasin</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA / Waitlist Section -->
+  <section id="waitlist" class="py-20 lg:py-28 bg-gradient-to-br from-brand-950 via-gray-900 to-brand-950 relative overflow-hidden">
+    <div class="absolute inset-0 pointer-events-none">
+      <div class="absolute top-0 left-1/4 w-96 h-96 bg-brand-500/10 rounded-full blur-3xl"></div>
+      <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"></div>
+    </div>
+    <div class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/10 mb-8">
+        <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+        <span class="text-sm font-medium text-brand-200">MVP Q2 2026'da geliyor</span>
+      </div>
+      <h2 class="text-3xl lg:text-5xl font-black text-white tracking-tight mb-6">
+        Sunumlarinizi<br>
+        <span class="gradient-text">donusturmeye hazir misiniz?</span>
+      </h2>
+      <p class="text-lg text-brand-200/80 max-w-2xl mx-auto mb-10">
+        Erken erisim listesine katilin. Ilk kullanicilar arasinda olun ve Pretive'in gelisimine dogrudan katkida bulunun.
+      </p>
+      <form id="waitlist-form" class="max-w-md mx-auto flex flex-col sm:flex-row gap-3" onsubmit="handleWaitlist(event)">
+        <input type="email" placeholder="E-posta adresiniz" required class="flex-1 px-5 py-4 rounded-2xl bg-white/10 border border-white/10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent text-sm">
+        <button type="submit" class="px-8 py-4 bg-white text-brand-950 font-semibold rounded-2xl hover:bg-brand-50 transition-all shadow-xl text-sm whitespace-nowrap">Katil</button>
+      </form>
+      <p id="waitlist-success" class="hidden mt-4 text-green-400 text-sm font-medium">Tesekkurler! Erken erisim listesine eklendiniz.</p>
+      <p class="mt-4 text-xs text-gray-500">Spam gondermeyiz. Sadece onemli guncellemeler.</p>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="py-12 bg-white border-t border-gray-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-500 to-purple-600 flex items-center justify-center">
+            <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23.693L5 14.5m14.8.8l1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0112 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5"/>
+            </svg>
+          </div>
+          <span class="text-lg font-bold tracking-tight">PRETIVE</span>
+        </div>
+        <div class="flex items-center gap-6 text-sm text-gray-500">
+          <a href="#features" class="hover:text-brand-600 transition-colors">Ozellikler</a>
+          <a href="#pricing" class="hover:text-brand-600 transition-colors">Fiyatlandirma</a>
+          <a href="mailto:hello@pretive.com" class="hover:text-brand-600 transition-colors">Iletisim</a>
+        </div>
+        <p class="text-sm text-gray-400">&copy; 2026 Pretive. Tum haklari saklidir.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const menuBtn = document.getElementById('mobile-menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    menuBtn.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+    mobileMenu.querySelectorAll('a').forEach(link => link.addEventListener('click', () => mobileMenu.classList.add('hidden')));
+
+    function handleWaitlist(e) {
+      e.preventDefault();
+      document.getElementById('waitlist-form').classList.add('hidden');
+      document.getElementById('waitlist-success').classList.remove('hidden');
+    }
+
+    window.addEventListener('scroll', () => {
+      const navbar = document.getElementById('navbar');
+      if (window.pageYOffset > 100) navbar.classList.add('shadow-sm');
+      else navbar.classList.remove('shadow-sm');
+    });
+  </script>
+</body>
+</html>
