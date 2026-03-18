@@ -1,829 +1,775 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PRETIVE — AI Copilot for Live Presentations</title>
-  <meta name="description" content="Pretive is a real-time AI presentation assistant that guides your delivery, manages Q&A, and makes every talk more impactful.">
+  <meta name="description" content="Pretive is the real-time AI layer that sits beside you during live presentations.">
   <link rel="icon" type="image/jpeg" href="logo.jpg">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            heading: ['Space Grotesk', 'sans-serif'],
-            body: ['DM Sans', 'sans-serif'],
-            mono: ['Space Mono', 'monospace'],
-          },
-          colors: {
-            cream: '#FAF8F4',
-            ink: '#1a1a1a',
-            warm: { 500: '#E8553D', 600: '#D44A33', 700: '#B83E2B' },
-            sage: { 100: '#E8EDE6', 200: '#D1DBC9', 300: '#A8B89E', 500: '#6B8060' },
-            clay: { 100: '#F0EAE2', 200: '#E2D6C8', 300: '#C4AB8F' },
-          }
-        }
-      }
-    }
-  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700;800;900&family=Caveat:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
-    * { -webkit-font-smoothing: antialiased; }
-    ::selection { background: #E8553D; color: white; }
-
-    .ticker {
-      display: flex;
-      animation: ticker 40s linear infinite;
+    :root {
+      --bg: #F5F0EB;
+      --ink: #111;
+      --red: #D94228;
+      --yellow: #F5C842;
+      --blue: #2D5BFF;
+      --green: #2A7D4F;
+      --paper: #FFFDF9;
+      --shadow: rgba(0,0,0,0.06);
     }
-    @keyframes ticker {
-      0% { transform: translateX(0); }
-      100% { transform: translateX(-50%); }
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+    ::selection { background: var(--red); color: white; }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--ink); font-family: 'Inter', sans-serif; overflow-x: hidden; cursor: default; }
+
+    /* Custom cursor dot */
+    .cursor-dot {
+      width: 8px; height: 8px;
+      background: var(--red);
+      border-radius: 50%;
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      transition: transform 0.15s ease, opacity 0.15s ease;
+      mix-blend-mode: exclusion;
     }
+    .cursor-dot.hovering { transform: scale(4); opacity: 0.5; }
 
-    .stagger-in { opacity: 0; transform: translateY(30px); }
-    .stagger-in.visible { opacity: 1; transform: translateY(0); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+    .serif { font-family: 'Instrument Serif', serif; }
+    .handwrite { font-family: 'Caveat', cursive; }
+    .mono { font-family: 'IBM Plex Mono', monospace; }
 
-    .magnetic { transition: transform 0.3s cubic-bezier(0.33, 1, 0.68, 1); }
-    .magnetic:hover { transform: scale(1.03); }
-
-    .bento-card {
-      transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .bento-card:hover {
-      transform: translateY(-4px) scale(1.01);
-      box-shadow: 0 20px 60px -15px rgba(0,0,0,0.15);
-    }
-
-    .live-pulse { animation: livePulse 2s ease-in-out infinite; }
-    @keyframes livePulse {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(232, 85, 61, 0.4); }
-      50% { box-shadow: 0 0 0 12px rgba(232, 85, 61, 0); }
-    }
-
-    .handwritten {
-      font-style: italic;
-      font-weight: 300;
-    }
-
-    .reveal-line {
+    /* Sticky note */
+    .sticky {
+      background: var(--yellow);
+      padding: 16px 20px;
+      font-family: 'Caveat', cursive;
+      font-size: 18px;
+      color: #333;
+      box-shadow: 2px 3px 12px rgba(0,0,0,0.1);
       position: relative;
-      overflow: hidden;
+      line-height: 1.4;
     }
-    .reveal-line::after {
+    .sticky::before {
       content: '';
       position: absolute;
-      bottom: 0;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: rgba(0,0,0,0.05);
+    }
+
+    /* Annotation arrow */
+    .annotation {
+      position: absolute;
+      font-family: 'Caveat', cursive;
+      color: var(--red);
+      font-size: 20px;
+      pointer-events: none;
+      line-height: 1.2;
+    }
+
+    /* Highlight marker */
+    .highlight {
+      background: linear-gradient(180deg, transparent 55%, rgba(245, 200, 66, 0.35) 55%, rgba(245, 200, 66, 0.35) 90%, transparent 90%);
+    }
+    .highlight-red {
+      background: linear-gradient(180deg, transparent 55%, rgba(217, 66, 40, 0.15) 55%, rgba(217, 66, 40, 0.15) 90%, transparent 90%);
+    }
+
+    /* Underline scribble */
+    .scribble {
+      text-decoration: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 8'%3E%3Cpath d='M0 6 Q50 0 100 5 Q150 10 200 4' fill='none' stroke='%23D94228' stroke-width='2'/%3E%3C/svg%3E");
+      background-position: bottom;
+      background-repeat: repeat-x;
+      background-size: 100px 8px;
+      padding-bottom: 6px;
+    }
+
+    /* Stamp */
+    .stamp {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 3px solid var(--red);
+      color: var(--red);
+      padding: 6px 14px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-weight: 600;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      transform: rotate(-3deg);
+      opacity: 0.8;
+    }
+
+    /* Paper card */
+    .paper {
+      background: var(--paper);
+      border: 1px solid rgba(0,0,0,0.06);
+      box-shadow: 0 1px 3px var(--shadow), 0 8px 24px -8px var(--shadow);
+    }
+
+    /* Tape effect */
+    .tape {
+      position: relative;
+    }
+    .tape::before {
+      content: '';
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%) rotate(-2deg);
+      width: 80px;
+      height: 24px;
+      background: rgba(200, 190, 170, 0.4);
+      border-radius: 2px;
+      z-index: 1;
+    }
+
+    /* Pretive hint that appears on scroll */
+    .pretive-hint {
+      position: relative;
+      opacity: 0;
+      transform: translateX(20px);
+      transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .pretive-hint.visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    /* Nav */
+    nav {
+      position: fixed;
+      top: 0;
       left: 0;
-      width: 100%;
-      height: 2px;
-      background: #E8553D;
-      transform: scaleX(0);
-      transform-origin: left;
-      transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+      right: 0;
+      z-index: 100;
+      padding: 0 24px;
+      transition: background 0.3s, box-shadow 0.3s;
     }
-    .reveal-line:hover::after { transform: scaleX(1); }
-
-    .number-big {
-      font-size: clamp(3rem, 8vw, 6rem);
-      line-height: 1;
-      font-weight: 700;
-      color: rgba(0,0,0,0.04);
-      font-family: 'Space Grotesk', sans-serif;
+    nav.scrolled {
+      background: rgba(245, 240, 235, 0.92);
+      backdrop-filter: blur(16px);
+      box-shadow: 0 1px 0 rgba(0,0,0,0.06);
     }
 
-    .dot-pattern {
-      background-image: radial-gradient(circle, rgba(0,0,0,0.06) 1px, transparent 1px);
-      background-size: 24px 24px;
+    /* Side progress */
+    .progress-track {
+      position: fixed;
+      right: 24px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 50;
+    }
+    .progress-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      border: 2px solid rgba(0,0,0,0.15);
+      background: transparent;
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+    .progress-dot.active {
+      background: var(--red);
+      border-color: var(--red);
+      transform: scale(1.3);
     }
 
-    .stripe-bg {
-      background: repeating-linear-gradient(
-        -45deg,
-        transparent,
-        transparent 8px,
-        rgba(0,0,0,0.015) 8px,
-        rgba(0,0,0,0.015) 16px
-      );
+    /* Sections */
+    .slide {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      position: relative;
     }
 
-    @keyframes slideWords {
-      0%, 18% { transform: translateY(0); }
-      20%, 38% { transform: translateY(-100%); }
-      40%, 58% { transform: translateY(-200%); }
-      60%, 78% { transform: translateY(-300%); }
-      80%, 100% { transform: translateY(-400%); }
-    }
-    .word-rotator { animation: slideWords 10s ease-in-out infinite; }
+    /* Link hover */
+    a { text-decoration: none; color: inherit; }
 
-    .comparison-row:hover { background: rgba(232, 85, 61, 0.03); }
+    /* Responsive */
+    @media (max-width: 768px) {
+      .progress-track { display: none; }
+      .annotation { display: none; }
+      .hide-mobile { display: none !important; }
+    }
 
-    .nav-scroll {
-      transition: all 0.3s ease;
+    /* Reveal animation */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: all 0.9s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    .nav-scroll.scrolled {
-      background: rgba(250, 248, 244, 0.95);
-      backdrop-filter: blur(12px);
-      box-shadow: 0 1px 0 rgba(0,0,0,0.05);
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
     }
+
+    /* Comparison pill */
+    .pill-yes { display: inline-block; width: 28px; height: 28px; line-height: 28px; text-align: center; border-radius: 50%; background: var(--green); color: white; font-size: 13px; font-weight: 700; }
+    .pill-no { display: inline-block; width: 28px; height: 28px; line-height: 28px; text-align: center; border-radius: 50%; background: rgba(0,0,0,0.04); color: rgba(0,0,0,0.15); font-size: 13px; }
+    .pill-partial { display: inline-block; width: 28px; height: 28px; line-height: 28px; text-align: center; border-radius: 50%; background: rgba(245,200,66,0.2); color: #8B7000; font-size: 13px; }
+    .pill-pretive { display: inline-block; width: 28px; height: 28px; line-height: 28px; text-align: center; border-radius: 50%; background: var(--red); color: white; font-size: 13px; font-weight: 700; }
   </style>
 </head>
-<body class="bg-cream text-ink font-body antialiased">
+<body>
 
-  <!-- ===== NAV ===== -->
-  <nav id="nav" class="fixed top-0 left-0 right-0 z-50 nav-scroll">
-    <div class="max-w-[1200px] mx-auto px-6 lg:px-8">
-      <div class="flex items-center justify-between h-[72px]">
-        <a href="#" class="flex items-center gap-3 group">
-          <img src="logo.jpg" alt="Pretive" class="w-9 h-9 rounded-xl object-cover shadow-sm group-hover:shadow-md transition-shadow">
-          <span class="text-base font-heading font-bold tracking-tight">pretive</span>
+  <!-- Cursor -->
+  <div class="cursor-dot" id="cursor"></div>
+
+  <!-- Side Progress -->
+  <div class="progress-track" id="progress">
+    <div class="progress-dot active" data-section="0" title="Home"></div>
+    <div class="progress-dot" data-section="1" title="Problem"></div>
+    <div class="progress-dot" data-section="2" title="Features"></div>
+    <div class="progress-dot" data-section="3" title="How"></div>
+    <div class="progress-dot" data-section="4" title="Compare"></div>
+    <div class="progress-dot" data-section="5" title="Pricing"></div>
+    <div class="progress-dot" data-section="6" title="Join"></div>
+  </div>
+
+  <!-- Nav -->
+  <nav id="nav">
+    <div style="max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 64px;">
+      <a href="#" style="display: flex; align-items: center; gap: 10px;" class="hoverable">
+        <img src="logo.jpg" alt="Pretive" style="width: 32px; height: 32px; border-radius: 10px; object-fit: cover;">
+        <span style="font-size: 15px; font-weight: 700; letter-spacing: -0.5px;">pretive</span>
+      </a>
+      <div style="display: flex; align-items: center; gap: 32px;" class="hide-mobile">
+        <a href="#features" class="hoverable" style="font-size: 13px; color: rgba(0,0,0,0.4); font-weight: 500;">Features</a>
+        <a href="#compare" class="hoverable" style="font-size: 13px; color: rgba(0,0,0,0.4); font-weight: 500;">Compare</a>
+        <a href="#pricing" class="hoverable" style="font-size: 13px; color: rgba(0,0,0,0.4); font-weight: 500;">Pricing</a>
+        <a href="#waitlist" class="hoverable" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 22px; background: var(--ink); color: white; font-size: 13px; font-weight: 600; border-radius: 50px;">
+          <span style="width: 6px; height: 6px; border-radius: 50%; background: var(--red);"></span>
+          Early access
         </a>
-        <div class="hidden md:flex items-center gap-10">
-          <a href="#features" class="text-[13px] font-medium text-ink/50 hover:text-ink transition-colors reveal-line pb-0.5">Features</a>
-          <a href="#how-it-works" class="text-[13px] font-medium text-ink/50 hover:text-ink transition-colors reveal-line pb-0.5">How it works</a>
-          <a href="#comparison" class="text-[13px] font-medium text-ink/50 hover:text-ink transition-colors reveal-line pb-0.5">Compare</a>
-          <a href="#pricing" class="text-[13px] font-medium text-ink/50 hover:text-ink transition-colors reveal-line pb-0.5">Pricing</a>
-          <a href="#waitlist" class="inline-flex items-center gap-2 px-5 py-2.5 text-[13px] font-semibold text-white bg-ink hover:bg-ink/80 rounded-full transition-all magnetic">
-            <span class="w-1.5 h-1.5 rounded-full bg-warm-500"></span>
-            Get early access
-          </a>
-        </div>
-        <button id="mobile-menu-btn" class="md:hidden p-2">
-          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/></svg>
-        </button>
-      </div>
-    </div>
-    <div id="mobile-menu" class="hidden md:hidden bg-cream border-t border-ink/5">
-      <div class="px-6 py-4 space-y-1">
-        <a href="#features" class="block py-2.5 text-sm">Features</a>
-        <a href="#how-it-works" class="block py-2.5 text-sm">How it works</a>
-        <a href="#comparison" class="block py-2.5 text-sm">Compare</a>
-        <a href="#pricing" class="block py-2.5 text-sm">Pricing</a>
-        <a href="#waitlist" class="block py-3 mt-2 text-sm font-semibold text-white bg-ink rounded-full text-center">Get early access</a>
       </div>
     </div>
   </nav>
 
-  <!-- ===== HERO ===== -->
-  <section class="min-h-screen flex items-center pt-[72px] relative overflow-hidden">
-    <!-- Subtle geometric accent -->
-    <div class="absolute top-32 right-12 w-24 h-24 border-2 border-warm-500/10 rounded-full hidden lg:block"></div>
-    <div class="absolute bottom-40 left-8 w-16 h-16 bg-sage-100 rounded-2xl rotate-12 hidden lg:block"></div>
-    <div class="absolute top-1/2 right-1/4 w-3 h-3 bg-warm-500/20 rounded-full hidden lg:block"></div>
+  <!-- ============================== -->
+  <!-- SLIDE 0: HERO                  -->
+  <!-- ============================== -->
+  <section class="slide" data-index="0" style="padding-top: 64px;">
+    <div style="max-width: 1200px; margin: 0 auto; padding: 60px 24px; width: 100%;">
+      <div style="display: grid; grid-template-columns: 1fr; gap: 40px; position: relative;">
 
-    <div class="max-w-[1200px] mx-auto px-6 lg:px-8 py-20 lg:py-32">
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-8 items-center">
-        <!-- Left: Copy -->
-        <div>
-          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-warm-500/5 border border-warm-500/10 mb-8">
-            <span class="w-2 h-2 rounded-full bg-warm-500 live-pulse"></span>
-            <span class="text-[11px] font-mono font-bold text-warm-500 uppercase tracking-wider">Now in development</span>
+        <!-- Main headline area -->
+        <div style="max-width: 900px;">
+          <!-- "Now in dev" stamp -->
+          <div class="stamp" style="margin-bottom: 32px;">
+            <span style="width: 6px; height: 6px; border-radius: 50%; background: var(--red); display: inline-block;"></span>
+            Now building
           </div>
 
-          <h1 class="font-heading text-[2.75rem] sm:text-[3.5rem] lg:text-[4.25rem] font-bold tracking-tight leading-[1.05] mb-6">
+          <h1 class="serif" style="font-size: clamp(3rem, 8vw, 6.5rem); line-height: 0.95; letter-spacing: -2px; margin-bottom: 24px; position: relative;">
             You speak.<br>
-            <span class="relative inline-block">
-              AI
-              <svg class="absolute -bottom-1 left-0 w-full" viewBox="0 0 200 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 8C30 3 70 2 100 5C130 8 170 4 198 7" stroke="#E8553D" stroke-width="3" stroke-linecap="round"/></svg>
+            <span style="position: relative; display: inline-block;">
+              <span class="scribble">Pretive</span>
             </span>
-            <span class="inline-flex h-[1.1em] overflow-hidden align-bottom ml-1">
-              <span class="word-rotator flex flex-col">
-                <span class="text-warm-500">guides.</span>
-                <span class="text-sage-500">coaches.</span>
-                <span class="text-warm-500">recovers.</span>
-                <span class="text-sage-500">enriches.</span>
-                <span class="text-warm-500">guides.</span>
-              </span>
-            </span>
+            <br>orchestrates.
           </h1>
 
-          <p class="text-lg text-ink/50 max-w-md leading-relaxed mb-10 font-light">
-            Pretive is the real-time orchestration layer that sits beside you during live presentations &mdash; guiding narrative, managing Q&A, and enriching your delivery as you speak.
+          <!-- Handwritten annotation -->
+          <div class="annotation hide-mobile" style="top: 20px; right: -180px; transform: rotate(-8deg);">
+            <svg width="60" height="40" viewBox="0 0 60 40" fill="none"><path d="M55 5 Q30 0 10 30" stroke="#D94228" stroke-width="1.5" fill="none" stroke-dasharray="3 3"/><path d="M10 30 L6 24 M10 30 L16 27" stroke="#D94228" stroke-width="1.5"/></svg>
+            <span style="display: block; margin-top: -4px;">this is the<br>key difference</span>
+          </div>
+
+          <p style="font-size: 18px; color: rgba(0,0,0,0.4); max-width: 520px; line-height: 1.7; margin-bottom: 40px; font-weight: 300;">
+            The real-time AI layer that sits beside you during live presentations. It guides narrative, manages Q&A, recovers when you stumble, and enriches your delivery <span class="highlight">as you speak.</span>
           </p>
 
-          <div class="flex flex-col sm:flex-row items-start gap-3">
-            <a href="#waitlist" class="group inline-flex items-center gap-3 px-7 py-4 bg-ink text-white text-sm font-semibold rounded-full hover:bg-warm-600 transition-all magnetic">
-              Join the waitlist
-              <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75"/></svg>
+          <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+            <a href="#waitlist" class="hoverable" style="display: inline-flex; align-items: center; gap: 10px; padding: 16px 32px; background: var(--ink); color: white; font-size: 14px; font-weight: 600; border-radius: 50px; transition: all 0.3s;">
+              Join waitlist
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </a>
-            <a href="#how-it-works" class="inline-flex items-center gap-2 px-5 py-4 text-sm font-medium text-ink/50 hover:text-ink transition-colors">
-              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15.91 11.672a.375.375 0 010 .656l-5.603 3.113a.375.375 0 01-.557-.328V8.887c0-.286.307-.466.557-.327l5.603 3.112z"/></svg>
-              See how it works
-            </a>
+            <a href="#features" class="hoverable" style="padding: 16px 24px; font-size: 14px; color: rgba(0,0,0,0.35); font-weight: 500;">How it works &darr;</a>
           </div>
         </div>
 
-        <!-- Right: Product preview - NOT a terminal mockup -->
-        <div class="relative lg:pl-8">
-          <div class="bg-white rounded-3xl shadow-[0_8px_60px_-12px_rgba(0,0,0,0.08)] border border-ink/[0.04] overflow-hidden">
-            <!-- Top bar -->
-            <div class="flex items-center justify-between px-6 py-4 border-b border-ink/[0.04]">
-              <div class="flex items-center gap-3">
-                <div class="w-2 h-2 rounded-full bg-warm-500 live-pulse"></div>
-                <span class="text-[12px] font-mono text-ink/40">Product Strategy Workshop</span>
-              </div>
-              <div class="flex items-center gap-2">
-                <span class="text-[12px] font-mono text-ink/30">24:15 / 45:00</span>
-                <div class="w-16 h-1 bg-ink/5 rounded-full overflow-hidden">
-                  <div class="h-full bg-warm-500 rounded-full" style="width: 54%"></div>
-                </div>
-              </div>
-            </div>
+        <!-- Floating sticky note -->
+        <div class="sticky hide-mobile" style="position: absolute; right: 40px; top: 50%; transform: rotate(2deg); width: 220px; z-index: 2;">
+          <span style="font-size: 14px; opacity: 0.5; display: block; margin-bottom: 4px; font-family: 'IBM Plex Mono'; text-transform: uppercase; letter-spacing: 1px;">pretive hint</span>
+          Good moment to share a customer example here &mdash; engagement is high.
+        </div>
 
-            <!-- Content -->
-            <div class="p-6 space-y-4">
-              <!-- AI Hint Card -->
-              <div class="p-5 rounded-2xl bg-gradient-to-br from-warm-500/[0.04] to-warm-500/[0.01] border border-warm-500/10">
-                <div class="flex items-start gap-3">
-                  <div class="w-8 h-8 rounded-xl bg-warm-500/10 flex items-center justify-center shrink-0 mt-0.5">
-                    <svg class="w-4 h-4 text-warm-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18"/></svg>
-                  </div>
-                  <div>
-                    <p class="text-[11px] font-mono font-bold text-warm-500 uppercase tracking-wider mb-1.5">Live hint</p>
-                    <p class="text-[13px] text-ink/70 leading-relaxed">Good moment to share a customer example &mdash; engagement is high and this reinforces your ROI argument.</p>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Next point -->
-              <div class="p-5 rounded-2xl bg-ink/[0.02] border border-ink/[0.04]">
-                <p class="text-[11px] font-mono text-ink/30 uppercase tracking-wider mb-2">Next talking point</p>
-                <p class="text-[13px] text-ink/50 leading-relaxed italic">"Now let's look at how this translates to your team's daily workflow..."</p>
-              </div>
-
-              <!-- Quick actions -->
-              <div class="flex gap-2">
-                <button class="flex-1 py-2.5 px-3 text-[11px] font-semibold rounded-xl bg-ink/[0.03] text-ink/40 border border-ink/[0.04] hover:bg-ink/[0.06] hover:text-ink/60 transition-all">Simplify</button>
-                <button class="flex-1 py-2.5 px-3 text-[11px] font-semibold rounded-xl bg-ink/[0.03] text-ink/40 border border-ink/[0.04] hover:bg-ink/[0.06] hover:text-ink/60 transition-all">Give example</button>
-                <button class="flex-1 py-2.5 px-3 text-[11px] font-semibold rounded-xl bg-ink/[0.03] text-ink/40 border border-ink/[0.04] hover:bg-ink/[0.06] hover:text-ink/60 transition-all">Wrap up</button>
-              </div>
-
-              <!-- Q&A -->
-              <div class="p-5 rounded-2xl bg-ink/[0.02] border border-ink/[0.04]">
-                <div class="flex items-center justify-between mb-3">
-                  <p class="text-[11px] font-mono text-ink/30 uppercase tracking-wider">Q&A queue</p>
-                  <span class="text-[10px] font-mono text-warm-500 bg-warm-500/5 px-2 py-0.5 rounded-full">3 pending</span>
-                </div>
-                <div class="space-y-2">
-                  <div class="flex items-center justify-between p-3 rounded-xl bg-white border border-ink/[0.04]">
-                    <p class="text-[12px] text-ink/60 truncate mr-4">"What's the integration timeline?"</p>
-                    <span class="text-[10px] font-mono text-warm-600 bg-warm-500/5 px-2 py-0.5 rounded-full whitespace-nowrap">answer now</span>
-                  </div>
-                  <div class="flex items-center justify-between p-3 rounded-xl bg-white/50 border border-ink/[0.03]">
-                    <p class="text-[12px] text-ink/30 truncate mr-4">"How does this compare to Competitor X?"</p>
-                    <span class="text-[10px] font-mono text-ink/20 px-2 py-0.5 rounded-full whitespace-nowrap">defer</span>
-                  </div>
-                </div>
-              </div>
-            </div>
+        <!-- Floating paper card -->
+        <div class="paper hide-mobile" style="position: absolute; right: 0; bottom: -20px; padding: 20px 24px; border-radius: 16px; width: 260px; transform: rotate(-1deg);">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+            <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--green);"></span>
+            <span class="mono" style="font-size: 11px; color: rgba(0,0,0,0.3); text-transform: uppercase; letter-spacing: 1px;">Q&A Queue</span>
           </div>
-
-          <!-- Floating accent elements -->
-          <div class="absolute -top-4 -right-4 w-20 h-20 bg-warm-500/5 rounded-full blur-xl"></div>
-          <div class="absolute -bottom-6 -left-6 w-32 h-32 bg-sage-100 rounded-full blur-2xl"></div>
+          <p style="font-size: 13px; color: rgba(0,0,0,0.5); line-height: 1.5;">"What's the integration timeline?"</p>
+          <span class="mono" style="font-size: 10px; color: var(--red); margin-top: 4px; display: block;">suggested: answer now</span>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ===== TICKER ===== -->
-  <section class="py-8 border-y border-ink/[0.04] overflow-hidden bg-white/50">
-    <div class="ticker whitespace-nowrap">
-      <span class="inline-flex items-center gap-12 px-6">
-        <span class="text-sm font-heading font-medium text-ink/15 uppercase tracking-widest">Educators</span>
-        <span class="text-warm-500/20">&bull;</span>
-        <span class="text-sm font-heading font-medium text-ink/15 uppercase tracking-widest">Academies & Bootcamps</span>
-        <span class="text-warm-500/20">&bull;</span>
-        <span class="text-sm font-heading font-medium text-ink/15 uppercase tracking-widest">Corporate Trainers</span>
-        <span class="text-warm-500/20">&bull;</span>
-        <span class="text-sm font-heading font-medium text-ink/15 uppercase tracking-widest">Webinar Hosts</span>
-        <span class="text-warm-500/20">&bull;</span>
-        <span class="text-sm font-heading font-medium text-ink/15 uppercase tracking-widest">Sales & Demo Teams</span>
-        <span class="text-warm-500/20">&bull;</span>
-        <span class="text-sm font-heading font-medium text-ink/15 uppercase tracking-widest">Founders & Speakers</span>
-        <span class="text-warm-500/20">&bull;</span>
-        <span class="text-sm font-heading font-medium text-ink/15 uppercase tracking-widest">Consultants</span>
-        <span class="text-warm-500/20">&bull;</span>
-      </span>
-      <span class="inline-flex items-center gap-12 px-6">
-        <span class="text-sm font-heading font-medium text-ink/15 uppercase tracking-widest">Educators</span>
-        <span class="text-warm-500/20">&bull;</span>
-        <span class="text-sm font-heading font-medium text-ink/15 uppercase tracking-widest">Academies & Bootcamps</span>
-        <span class="text-warm-500/20">&bull;</span>
-        <span class="text-sm font-heading font-medium text-ink/15 uppercase tracking-widest">Corporate Trainers</span>
-        <span class="text-warm-500/20">&bull;</span>
-        <span class="text-sm font-heading font-medium text-ink/15 uppercase tracking-widest">Webinar Hosts</span>
-        <span class="text-warm-500/20">&bull;</span>
-        <span class="text-sm font-heading font-medium text-ink/15 uppercase tracking-widest">Sales & Demo Teams</span>
-        <span class="text-warm-500/20">&bull;</span>
-        <span class="text-sm font-heading font-medium text-ink/15 uppercase tracking-widest">Founders & Speakers</span>
-        <span class="text-warm-500/20">&bull;</span>
-        <span class="text-sm font-heading font-medium text-ink/15 uppercase tracking-widest">Consultants</span>
-        <span class="text-warm-500/20">&bull;</span>
-      </span>
-    </div>
-  </section>
-
-  <!-- ===== PROBLEM ===== -->
-  <section class="py-24 lg:py-32">
-    <div class="max-w-[1200px] mx-auto px-6 lg:px-8">
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20">
-        <div class="lg:col-span-5">
-          <p class="text-[11px] font-mono font-bold text-warm-500 uppercase tracking-widest mb-4">The problem</p>
-          <h2 class="font-heading text-3xl lg:text-4xl font-bold tracking-tight leading-tight mb-6">
-            You know the content.<br>
-            But delivery is a<br>
-            <span class="handwritten text-warm-500 font-body text-[1.1em]">different skill.</span>
+  <!-- ============================== -->
+  <!-- SLIDE 1: PROBLEM               -->
+  <!-- ============================== -->
+  <section class="slide" data-index="1" style="background: var(--paper);">
+    <div style="max-width: 1200px; margin: 0 auto; padding: 80px 24px; width: 100%;">
+      <div class="reveal" style="display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;" id="problem-grid">
+        <!-- Left -->
+        <div>
+          <span class="mono" style="font-size: 11px; color: var(--red); text-transform: uppercase; letter-spacing: 2px; font-weight: 600;">The problem</span>
+          <h2 class="serif" style="font-size: clamp(2rem, 4vw, 3.2rem); line-height: 1.1; margin-top: 16px; letter-spacing: -1px;">
+            Great content<br>
+            <span class="serif" style="font-style: italic; color: var(--red);">doesn't guarantee</span><br>
+            a great talk.
           </h2>
-          <p class="text-ink/40 leading-relaxed">
-            Even the most experienced speakers face cognitive overload during live presentations. Slides, notes, timing, Q&A, audience energy &mdash; managing all of it at once degrades your performance.
+          <p style="font-size: 15px; color: rgba(0,0,0,0.4); line-height: 1.7; margin-top: 20px; max-width: 400px;">
+            Even experienced speakers face cognitive overload. Managing slides, notes, timing, Q&A, and audience energy simultaneously <span class="highlight-red">degrades your actual performance.</span>
           </p>
         </div>
-        <div class="lg:col-span-7 grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div class="bento-card p-6 rounded-2xl bg-white border border-ink/[0.04]">
-            <div class="w-10 h-10 rounded-xl bg-warm-500/5 flex items-center justify-center mb-5">
-              <svg class="w-5 h-5 text-warm-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+
+        <!-- Right: Annotated problems -->
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+          <div class="paper" style="padding: 24px 28px; border-radius: 16px; position: relative;">
+            <div class="annotation hide-mobile" style="top: -20px; left: -60px; transform: rotate(-12deg); font-size: 16px;">
+              <svg width="30" height="20" viewBox="0 0 30 20" fill="none"><path d="M2 18 Q15 5 28 8" stroke="#D94228" stroke-width="1.2" fill="none"/><path d="M28 8 L24 4 M28 8 L25 13" stroke="#D94228" stroke-width="1.2"/></svg>
+              <span>this happens<br>every time</span>
             </div>
-            <h3 class="text-sm font-heading font-semibold mb-2">Pacing breaks down</h3>
-            <p class="text-[13px] text-ink/35 leading-relaxed">Adapting content to 15, 30, or 60 minutes requires complete rework.</p>
+            <span class="mono" style="font-size: 10px; color: rgba(0,0,0,0.2); text-transform: uppercase; letter-spacing: 1px;">01</span>
+            <h3 style="font-size: 16px; font-weight: 700; margin: 4px 0 6px;">Pacing breaks down</h3>
+            <p style="font-size: 13px; color: rgba(0,0,0,0.35); line-height: 1.6;">Same content for 15 vs 60 minutes? Complete rework. Every. Single. Time.</p>
           </div>
-          <div class="bento-card p-6 rounded-2xl bg-white border border-ink/[0.04]">
-            <div class="w-10 h-10 rounded-xl bg-warm-500/5 flex items-center justify-center mb-5">
-              <svg class="w-5 h-5 text-warm-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"/></svg>
-            </div>
-            <h3 class="text-sm font-heading font-semibold mb-2">Q&A disrupts flow</h3>
-            <p class="text-[13px] text-ink/35 leading-relaxed">Audience questions break your rhythm and you lose your thread.</p>
+
+          <div class="paper" style="padding: 24px 28px; border-radius: 16px; transform: rotate(0.5deg);">
+            <span class="mono" style="font-size: 10px; color: rgba(0,0,0,0.2); text-transform: uppercase; letter-spacing: 1px;">02</span>
+            <h3 style="font-size: 16px; font-weight: 700; margin: 4px 0 6px;">Q&A kills the rhythm</h3>
+            <p style="font-size: 13px; color: rgba(0,0,0,0.35); line-height: 1.6;">Audience questions break your narrative thread. Getting back on track is painful.</p>
           </div>
-          <div class="bento-card p-6 rounded-2xl bg-white border border-ink/[0.04]">
-            <div class="w-10 h-10 rounded-xl bg-warm-500/5 flex items-center justify-center mb-5">
-              <svg class="w-5 h-5 text-warm-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-            </div>
-            <h3 class="text-sm font-heading font-semibold mb-2">Engagement drops</h3>
-            <p class="text-[13px] text-ink/35 leading-relaxed">By the time you notice the audience checked out, it's too late.</p>
+
+          <div class="paper" style="padding: 24px 28px; border-radius: 16px; transform: rotate(-0.3deg);">
+            <span class="mono" style="font-size: 10px; color: rgba(0,0,0,0.2); text-transform: uppercase; letter-spacing: 1px;">03</span>
+            <h3 style="font-size: 16px; font-weight: 700; margin: 4px 0 6px;">Engagement drops silently</h3>
+            <p style="font-size: 13px; color: rgba(0,0,0,0.35); line-height: 1.6;">By the time you notice the audience checked out, it's already too late to recover.</p>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ===== FEATURES — BENTO GRID ===== -->
-  <section id="features" class="py-24 lg:py-32 dot-pattern">
-    <div class="max-w-[1200px] mx-auto px-6 lg:px-8">
-      <div class="max-w-xl mb-16">
-        <p class="text-[11px] font-mono font-bold text-warm-500 uppercase tracking-widest mb-4">Capabilities</p>
-        <h2 class="font-heading text-3xl lg:text-4xl font-bold tracking-tight leading-tight mb-4">
-          Not a teleprompter.<br>
-          Not a slide maker.<br>
-          <span class="handwritten text-warm-500 font-body text-[1.1em]">A presentation orchestrator.</span>
+  <!-- ============================== -->
+  <!-- SLIDE 2: FEATURES              -->
+  <!-- ============================== -->
+  <section id="features" class="slide" data-index="2" style="min-height: auto; padding: 100px 0;">
+    <div style="max-width: 1200px; margin: 0 auto; padding: 0 24px; width: 100%;">
+      <div class="reveal">
+        <span class="mono" style="font-size: 11px; color: var(--red); text-transform: uppercase; letter-spacing: 2px; font-weight: 600;">Capabilities</span>
+        <h2 class="serif" style="font-size: clamp(2rem, 4vw, 3.2rem); line-height: 1.1; margin-top: 16px; margin-bottom: 60px; letter-spacing: -1px; max-width: 600px;">
+          Not a teleprompter.<br>Not a slide maker.<br>
+          <span class="serif" style="font-style: italic; color: var(--red);">An orchestration layer.</span>
         </h2>
       </div>
 
-      <!-- Bento Grid -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <!-- Card 1 - Large -->
-        <div class="bento-card lg:col-span-2 p-8 rounded-3xl bg-white border border-ink/[0.04]">
-          <div class="flex flex-col sm:flex-row sm:items-start gap-6">
-            <div class="w-14 h-14 rounded-2xl bg-warm-500/5 flex items-center justify-center shrink-0 border border-warm-500/10">
-              <svg class="w-6 h-6 text-warm-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>
+      <!-- Feature cards: mixed layout like scattered papers on a desk -->
+      <div style="display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px;" class="reveal">
+
+        <!-- Row 1 -->
+        <div class="paper bento-hover" style="grid-column: span 7; padding: 36px; border-radius: 20px; position: relative; transition: all 0.4s;">
+          <div style="display: flex; align-items: flex-start; gap: 20px;">
+            <div style="width: 48px; height: 48px; background: var(--yellow); border-radius: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>
             </div>
             <div>
-              <h3 class="text-lg font-heading font-semibold mb-2">Narrative Engine</h3>
-              <p class="text-sm text-ink/40 leading-relaxed max-w-md">Upload PDFs, docs, URLs, slides, or raw notes. Pretive extracts the core narrative and generates structured delivery plans in 5, 15, 30, or 60-minute formats &mdash; with transitions, key messages, and Q&A anchor points.</p>
+              <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 6px;">Narrative Engine</h3>
+              <p style="font-size: 14px; color: rgba(0,0,0,0.4); line-height: 1.7; max-width: 400px;">Upload PDFs, docs, URLs, or raw notes. Pretive builds a structured narrative with <span class="highlight">5 / 15 / 30 / 60 minute delivery modes</span> &mdash; with transitions, key messages, and Q&A anchor points.</p>
             </div>
           </div>
-        </div>
-
-        <!-- Card 2 -->
-        <div class="bento-card p-7 rounded-3xl bg-ink text-white border border-ink/[0.04]">
-          <div class="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center mb-5">
-            <svg class="w-5 h-5 text-warm-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
+          <div class="sticky hide-mobile" style="position: absolute; top: -16px; right: -16px; transform: rotate(3deg); font-size: 15px; padding: 10px 14px; width: 160px; z-index: 2;">
+            core module &mdash;<br>everything starts here
           </div>
-          <h3 class="text-lg font-heading font-semibold mb-2">Semantic Prompter</h3>
-          <p class="text-sm text-white/40 leading-relaxed">Not a scrolling script. Pretive tracks meaning, not words &mdash; pausing when you pause, tolerating improvisation, and guiding you back if you skip ahead.</p>
         </div>
 
-        <!-- Card 3 -->
-        <div class="bento-card p-7 rounded-3xl bg-white border border-ink/[0.04]">
-          <div class="w-12 h-12 rounded-2xl bg-sage-100 flex items-center justify-center mb-5">
-            <svg class="w-5 h-5 text-sage-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/></svg>
+        <div class="paper" style="grid-column: span 5; padding: 36px; border-radius: 20px; background: var(--ink); color: white; transition: all 0.4s;">
+          <div style="width: 48px; height: 48px; background: rgba(255,255,255,0.1); border-radius: 14px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
           </div>
-          <h3 class="text-[15px] font-heading font-semibold mb-2">Live Speaking Copilot</h3>
-          <p class="text-[13px] text-ink/40 leading-relaxed">Silent nudges only you see: "give an example here", "wrap up", "slow down", "move to CTA". Like a director in your earpiece.</p>
+          <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 6px;">Semantic Prompter</h3>
+          <p style="font-size: 14px; color: rgba(255,255,255,0.45); line-height: 1.7;">Not a scrolling script. Tracks <em>meaning</em>, not words. Pauses when you pause. Tolerates improvisation. Guides you back if you skip ahead.</p>
         </div>
 
-        <!-- Card 4 -->
-        <div class="bento-card p-7 rounded-3xl bg-white border border-ink/[0.04]">
-          <div class="w-12 h-12 rounded-2xl bg-clay-100 flex items-center justify-center mb-5">
-            <svg class="w-5 h-5 text-clay-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"/></svg>
+        <!-- Row 2 -->
+        <div class="paper" style="grid-column: span 4; padding: 32px; border-radius: 20px; transition: all 0.4s;">
+          <div style="width: 44px; height: 44px; background: rgba(45,91,255,0.08); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 14px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/></svg>
           </div>
-          <h3 class="text-[15px] font-heading font-semibold mb-2">Q&A Orchestrator</h3>
-          <p class="text-[13px] text-ink/40 leading-relaxed">Classifies incoming questions, suggests which to answer now vs. defer, and generates source-grounded response suggestions in real time.</p>
+          <h3 style="font-size: 15px; font-weight: 700; margin-bottom: 4px;">Live Copilot</h3>
+          <p style="font-size: 13px; color: rgba(0,0,0,0.35); line-height: 1.6;">Silent nudges only you see: "give an example", "wrap up", "slow down".</p>
         </div>
 
-        <!-- Card 5 -->
-        <div class="bento-card p-7 rounded-3xl bg-warm-500/[0.03] border border-warm-500/10">
-          <div class="w-12 h-12 rounded-2xl bg-warm-500/10 flex items-center justify-center mb-5">
-            <svg class="w-5 h-5 text-warm-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182"/></svg>
+        <div class="paper" style="grid-column: span 4; padding: 32px; border-radius: 20px; transition: all 0.4s;">
+          <div style="width: 44px; height: 44px; background: rgba(42,125,79,0.08); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 14px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"/></svg>
           </div>
-          <h3 class="text-[15px] font-heading font-semibold mb-2">Recovery Mode</h3>
-          <p class="text-[13px] text-ink/40 leading-relaxed">Lost your thought? Say "simplify this", "give me three sentences", or "switch to technical" &mdash; instant rephrase without missing a beat.</p>
+          <h3 style="font-size: 15px; font-weight: 700; margin-bottom: 4px;">Q&A Orchestrator</h3>
+          <p style="font-size: 13px; color: rgba(0,0,0,0.35); line-height: 1.6;">Classifies questions, suggests answer now vs. defer, generates grounded responses.</p>
         </div>
 
-        <!-- Card 6 -->
-        <div class="bento-card p-7 rounded-3xl bg-white border border-ink/[0.04]">
-          <div class="w-12 h-12 rounded-2xl bg-sage-100 flex items-center justify-center mb-5">
-            <svg class="w-5 h-5 text-sage-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25A2.25 2.25 0 015.25 3h13.5A2.25 2.25 0 0121 5.25z"/></svg>
+        <div class="paper" style="grid-column: span 4; padding: 32px; border-radius: 20px; background: rgba(217,66,40,0.03); border-color: rgba(217,66,40,0.08); transition: all 0.4s;">
+          <div style="width: 44px; height: 44px; background: rgba(217,66,40,0.08); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 14px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182"/></svg>
           </div>
-          <h3 class="text-[15px] font-heading font-semibold mb-2">Screen Intelligence</h3>
-          <p class="text-[13px] text-ink/40 leading-relaxed">Simplify cluttered slides on the fly, magnify key data, insert support cards, and dynamically adapt what's on screen to your narrative.</p>
+          <h3 style="font-size: 15px; font-weight: 700; margin-bottom: 4px;">Recovery Mode</h3>
+          <p style="font-size: 13px; color: rgba(0,0,0,0.35); line-height: 1.6;">Lost your thought? Instant rephrase &mdash; simpler, technical, or audience-specific.</p>
         </div>
 
-        <!-- Card 7 -->
-        <div class="bento-card p-7 rounded-3xl bg-white border border-ink/[0.04]">
-          <div class="w-12 h-12 rounded-2xl bg-clay-100 flex items-center justify-center mb-5">
-            <svg class="w-5 h-5 text-clay-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+        <!-- Row 3 -->
+        <div class="paper" style="grid-column: span 4; padding: 32px; border-radius: 20px; transition: all 0.4s;">
+          <div style="width: 44px; height: 44px; background: rgba(245,200,66,0.15); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 14px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8B7000" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25A2.25 2.25 0 015.25 3h13.5A2.25 2.25 0 0121 5.25z"/></svg>
           </div>
-          <h3 class="text-[15px] font-heading font-semibold mb-2">Dynamic Augmentation</h3>
-          <p class="text-[13px] text-ink/40 leading-relaxed">Say "show a timeline" or "give a counter-example" mid-talk. Pretive generates it live &mdash; comparisons, summaries, historical examples, anything.</p>
+          <h3 style="font-size: 15px; font-weight: 700; margin-bottom: 4px;">Screen Intelligence</h3>
+          <p style="font-size: 13px; color: rgba(0,0,0,0.35); line-height: 1.6;">Simplify slides on the fly, magnify key data, insert support cards live.</p>
         </div>
 
-        <!-- Card 8 - Large -->
-        <div class="bento-card lg:col-span-2 p-8 rounded-3xl bg-sage-100/50 border border-sage-200/50">
-          <div class="flex flex-col sm:flex-row sm:items-start gap-6">
-            <div class="w-14 h-14 rounded-2xl bg-white flex items-center justify-center shrink-0 border border-sage-200">
-              <svg class="w-6 h-6 text-sage-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75C20.25 16.153 16.556 18 12 18s-8.25-1.847-8.25-4.125v-3.75m16.5 0c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125"/></svg>
+        <div class="paper" style="grid-column: span 4; padding: 32px; border-radius: 20px; transition: all 0.4s;">
+          <div style="width: 44px; height: 44px; background: rgba(45,91,255,0.08); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 14px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+          </div>
+          <h3 style="font-size: 15px; font-weight: 700; margin-bottom: 4px;">Dynamic Augmentation</h3>
+          <p style="font-size: 13px; color: rgba(0,0,0,0.35); line-height: 1.6;">Say "show a timeline" mid-talk. Pretive generates it live.</p>
+        </div>
+
+        <div class="paper" style="grid-column: span 4; padding: 32px; border-radius: 20px; transition: all 0.4s;">
+          <div style="width: 44px; height: 44px; background: rgba(42,125,79,0.08); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 14px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3"/></svg>
+          </div>
+          <h3 style="font-size: 15px; font-weight: 700; margin-bottom: 4px;">Live Research & Media</h3>
+          <p style="font-size: 13px; color: rgba(0,0,0,0.35); line-height: 1.6;">Pull videos, articles, case studies into your live session.</p>
+        </div>
+
+        <!-- Row 4: Wide -->
+        <div class="paper" style="grid-column: span 6; padding: 32px; border-radius: 20px; background: rgba(42,125,79,0.03); border-color: rgba(42,125,79,0.08); transition: all 0.4s;">
+          <div style="display: flex; align-items: flex-start; gap: 16px;">
+            <div style="width: 44px; height: 44px; background: rgba(42,125,79,0.08); border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375"/></svg>
             </div>
             <div>
-              <h3 class="text-lg font-heading font-semibold mb-2">Session & Team Memory</h3>
-              <p class="text-sm text-ink/40 leading-relaxed max-w-md">Every session builds institutional knowledge &mdash; Q&A pools, approved narratives, session libraries. Multiple trainers deliver the same content at a consistent quality bar. Your organization gets smarter with every talk.</p>
+              <h3 style="font-size: 15px; font-weight: 700; margin-bottom: 4px;">Session & Team Memory</h3>
+              <p style="font-size: 13px; color: rgba(0,0,0,0.35); line-height: 1.6;">Every session builds institutional knowledge. Q&A pools, approved narratives, session libraries. Multiple trainers, consistent quality.</p>
             </div>
           </div>
         </div>
 
-        <!-- Card 9 -->
-        <div class="bento-card p-7 rounded-3xl bg-white border border-ink/[0.04]">
-          <div class="w-12 h-12 rounded-2xl bg-warm-500/5 flex items-center justify-center mb-5">
-            <svg class="w-5 h-5 text-warm-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418"/></svg>
-          </div>
-          <h3 class="text-[15px] font-heading font-semibold mb-2">Live Research & Media</h3>
-          <p class="text-[13px] text-ink/40 leading-relaxed">Pull supporting videos, articles, case studies, or knowledge base entries into your live session without breaking flow.</p>
-        </div>
-
-        <!-- Card 10 -->
-        <div class="bento-card p-7 rounded-3xl bg-white border border-ink/[0.04]">
-          <div class="w-12 h-12 rounded-2xl bg-sage-100 flex items-center justify-center mb-5">
-            <svg class="w-5 h-5 text-sage-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/></svg>
-          </div>
-          <h3 class="text-[15px] font-heading font-semibold mb-2">Post-Session Intel</h3>
-          <p class="text-[13px] text-ink/40 leading-relaxed">Auto-generated summaries, action items, follow-up emails, and performance insights after every talk.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===== HOW IT WORKS ===== -->
-  <section id="how-it-works" class="py-24 lg:py-32 bg-white">
-    <div class="max-w-[1200px] mx-auto px-6 lg:px-8">
-      <div class="max-w-xl mb-16">
-        <p class="text-[11px] font-mono font-bold text-warm-500 uppercase tracking-widest mb-4">How it works</p>
-        <h2 class="font-heading text-3xl lg:text-4xl font-bold tracking-tight leading-tight">Three moves.</h2>
-      </div>
-
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="relative p-8 rounded-3xl border border-ink/[0.04] bg-cream/50 group">
-          <span class="number-big absolute top-4 right-6 select-none">01</span>
-          <div class="relative pt-8">
-            <div class="w-12 h-12 rounded-2xl bg-warm-500/5 flex items-center justify-center mb-6 border border-warm-500/10">
-              <svg class="w-5 h-5 text-warm-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
+        <div class="paper" style="grid-column: span 6; padding: 32px; border-radius: 20px; transition: all 0.4s;">
+          <div style="display: flex; align-items: flex-start; gap: 16px;">
+            <div style="width: 44px; height: 44px; background: rgba(0,0,0,0.04); border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/></svg>
             </div>
-            <h3 class="text-xl font-heading font-semibold mb-3">Upload your content</h3>
-            <p class="text-sm text-ink/40 leading-relaxed">Drop in PDFs, docs, slides, URLs, or raw notes. Pretive builds a narrative backbone in under 60 seconds.</p>
-          </div>
-        </div>
-
-        <div class="relative p-8 rounded-3xl border border-ink/[0.04] bg-cream/50">
-          <span class="number-big absolute top-4 right-6 select-none">02</span>
-          <div class="relative pt-8">
-            <div class="w-12 h-12 rounded-2xl bg-sage-100 flex items-center justify-center mb-6 border border-sage-200">
-              <svg class="w-5 h-5 text-sage-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z"/></svg>
+            <div>
+              <h3 style="font-size: 15px; font-weight: 700; margin-bottom: 4px;">Post-Session Intelligence</h3>
+              <p style="font-size: 13px; color: rgba(0,0,0,0.35); line-height: 1.6;">Auto-generated summaries, action items, follow-up emails, and performance insights after every talk.</p>
             </div>
-            <h3 class="text-xl font-heading font-semibold mb-3">Present with a copilot</h3>
-            <p class="text-sm text-ink/40 leading-relaxed">Go live. Pretive tracks your speech, serves real-time hints, manages Q&A, enriches your screen, and recovers when you get stuck.</p>
-          </div>
-        </div>
-
-        <div class="relative p-8 rounded-3xl border border-ink/[0.04] bg-cream/50">
-          <span class="number-big absolute top-4 right-6 select-none">03</span>
-          <div class="relative pt-8">
-            <div class="w-12 h-12 rounded-2xl bg-clay-100 flex items-center justify-center mb-6 border border-clay-200">
-              <svg class="w-5 h-5 text-clay-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            </div>
-            <h3 class="text-xl font-heading font-semibold mb-3">Get the debrief</h3>
-            <p class="text-sm text-ink/40 leading-relaxed">After your session, receive a full summary, action items, follow-up drafts, and insights on what to improve next time.</p>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ===== METRICS — Horizontal ===== -->
-  <section class="py-16 border-y border-ink/[0.04] stripe-bg">
-    <div class="max-w-[1200px] mx-auto px-6 lg:px-8">
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-8">
-        <div class="text-center">
-          <p class="font-heading text-4xl lg:text-5xl font-bold text-ink tracking-tight">&lt;1.2<span class="text-warm-500">s</span></p>
-          <p class="text-[11px] font-mono text-ink/30 uppercase tracking-widest mt-2">Hint latency</p>
+  <!-- ============================== -->
+  <!-- SLIDE 3: HOW IT WORKS          -->
+  <!-- ============================== -->
+  <section id="how-it-works" class="slide" data-index="3" style="min-height: auto; padding: 100px 0; background: var(--paper);">
+    <div style="max-width: 1200px; margin: 0 auto; padding: 0 24px; width: 100%;">
+      <div class="reveal">
+        <span class="mono" style="font-size: 11px; color: var(--red); text-transform: uppercase; letter-spacing: 2px; font-weight: 600;">How it works</span>
+        <h2 class="serif" style="font-size: clamp(2rem, 4vw, 3rem); line-height: 1.1; margin-top: 16px; margin-bottom: 60px; letter-spacing: -1px;">Three moves.</h2>
+      </div>
+
+      <div class="reveal" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;">
+        <div style="position: relative;">
+          <span class="serif" style="font-size: 120px; line-height: 1; color: rgba(0,0,0,0.03); position: absolute; top: -20px; left: -8px; pointer-events: none;">1</span>
+          <div style="position: relative; padding-top: 40px;">
+            <div style="width: 48px; height: 48px; background: var(--yellow); border-radius: 14px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
+            </div>
+            <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 8px;">Upload</h3>
+            <p style="font-size: 14px; color: rgba(0,0,0,0.35); line-height: 1.7;">Drop in your PDFs, docs, slides, URLs, or raw notes. Pretive builds a narrative backbone in <span class="highlight">under 60 seconds.</span></p>
+          </div>
         </div>
-        <div class="text-center">
-          <p class="font-heading text-4xl lg:text-5xl font-bold text-ink tracking-tight">&lt;60<span class="text-warm-500">s</span></p>
-          <p class="text-[11px] font-mono text-ink/30 uppercase tracking-widest mt-2">Narrative gen</p>
+
+        <div style="position: relative;">
+          <span class="serif" style="font-size: 120px; line-height: 1; color: rgba(0,0,0,0.03); position: absolute; top: -20px; left: -8px; pointer-events: none;">2</span>
+          <div style="position: relative; padding-top: 40px;">
+            <div style="width: 48px; height: 48px; background: rgba(217,66,40,0.08); border-radius: 14px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z"/></svg>
+            </div>
+            <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 8px;">Present</h3>
+            <p style="font-size: 14px; color: rgba(0,0,0,0.35); line-height: 1.7;">Go live. Pretive tracks your speech, serves real-time hints, manages Q&A, enriches your screen, and recovers when you're stuck.</p>
+          </div>
         </div>
-        <div class="text-center">
-          <p class="font-heading text-4xl lg:text-5xl font-bold text-ink tracking-tight">&lt;3<span class="text-warm-500">s</span></p>
-          <p class="text-[11px] font-mono text-ink/30 uppercase tracking-widest mt-2">Q&A response</p>
+
+        <div style="position: relative;">
+          <span class="serif" style="font-size: 120px; line-height: 1; color: rgba(0,0,0,0.03); position: absolute; top: -20px; left: -8px; pointer-events: none;">3</span>
+          <div style="position: relative; padding-top: 40px;">
+            <div style="width: 48px; height: 48px; background: rgba(42,125,79,0.08); border-radius: 14px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 8px;">Debrief</h3>
+            <p style="font-size: 14px; color: rgba(0,0,0,0.35); line-height: 1.7;">Full summary, action items, follow-up drafts, and insights on what worked and what to improve.</p>
+          </div>
         </div>
-        <div class="text-center">
-          <p class="font-heading text-4xl lg:text-5xl font-bold text-ink tracking-tight">5–60<span class="text-warm-500">m</span></p>
-          <p class="text-[11px] font-mono text-ink/30 uppercase tracking-widest mt-2">Duration modes</p>
+      </div>
+
+      <!-- Metrics strip -->
+      <div class="reveal" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 60px; padding: 32px 0; border-top: 1px solid rgba(0,0,0,0.06); border-bottom: 1px solid rgba(0,0,0,0.06);">
+        <div style="text-align: center;">
+          <span class="serif" style="font-size: 40px; font-weight: 400; letter-spacing: -1px;">&lt;1.2<span style="color: var(--red);">s</span></span>
+          <p class="mono" style="font-size: 10px; color: rgba(0,0,0,0.25); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px;">Hint latency</p>
+        </div>
+        <div style="text-align: center;">
+          <span class="serif" style="font-size: 40px; font-weight: 400; letter-spacing: -1px;">&lt;60<span style="color: var(--red);">s</span></span>
+          <p class="mono" style="font-size: 10px; color: rgba(0,0,0,0.25); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px;">Narrative gen</p>
+        </div>
+        <div style="text-align: center;">
+          <span class="serif" style="font-size: 40px; font-weight: 400; letter-spacing: -1px;">&lt;3<span style="color: var(--red);">s</span></span>
+          <p class="mono" style="font-size: 10px; color: rgba(0,0,0,0.25); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px;">Q&A response</p>
+        </div>
+        <div style="text-align: center;">
+          <span class="serif" style="font-size: 40px; font-weight: 400; letter-spacing: -1px;">5–60<span style="color: var(--red);">m</span></span>
+          <p class="mono" style="font-size: 10px; color: rgba(0,0,0,0.25); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px;">Duration modes</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ===== COMPARISON ===== -->
-  <section id="comparison" class="py-24 lg:py-32">
-    <div class="max-w-[1200px] mx-auto px-6 lg:px-8">
-      <div class="max-w-xl mb-16">
-        <p class="text-[11px] font-mono font-bold text-warm-500 uppercase tracking-widest mb-4">Comparison</p>
-        <h2 class="font-heading text-3xl lg:text-4xl font-bold tracking-tight leading-tight">
-          Different tools.<br>
-          <span class="handwritten text-warm-500 font-body text-[1.1em]">Different category.</span>
+  <!-- ============================== -->
+  <!-- SLIDE 4: COMPARISON            -->
+  <!-- ============================== -->
+  <section id="compare" data-index="4" style="padding: 100px 0;">
+    <div style="max-width: 1200px; margin: 0 auto; padding: 0 24px;">
+      <div class="reveal">
+        <span class="mono" style="font-size: 11px; color: var(--red); text-transform: uppercase; letter-spacing: 2px; font-weight: 600;">Comparison</span>
+        <h2 class="serif" style="font-size: clamp(2rem, 4vw, 3rem); line-height: 1.1; margin-top: 16px; margin-bottom: 48px; letter-spacing: -1px;">
+          Different tools. <span class="serif" style="font-style: italic; color: var(--red);">Different category.</span>
         </h2>
       </div>
 
-      <div class="overflow-x-auto rounded-2xl border border-ink/[0.04] bg-white">
-        <table class="w-full text-sm">
+      <div class="paper reveal" style="border-radius: 20px; overflow: hidden; overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 13px; min-width: 700px;">
           <thead>
-            <tr class="border-b border-ink/[0.06]">
-              <th class="text-left py-4 px-5 text-[11px] font-mono font-bold text-ink/30 uppercase tracking-widest">Capability</th>
-              <th class="text-center py-4 px-3 text-[11px] font-mono text-ink/25">PPT<br>Copilot</th>
-              <th class="text-center py-4 px-3 text-[11px] font-mono text-ink/25">Canva</th>
-              <th class="text-center py-4 px-3 text-[11px] font-mono text-ink/25">Prompt<br>Smart</th>
-              <th class="text-center py-4 px-3 text-[11px] font-mono text-ink/25">Gamma</th>
-              <th class="text-center py-4 px-3 text-[11px] font-mono text-ink/25">Otter</th>
-              <th class="text-center py-4 px-3">
-                <span class="text-[11px] font-mono font-bold text-warm-500 bg-warm-500/5 px-3 py-1 rounded-full border border-warm-500/10">Pretive</span>
-              </th>
+            <tr style="border-bottom: 1px solid rgba(0,0,0,0.06);">
+              <th style="text-align: left; padding: 16px 20px; font-size: 10px; font-family: 'IBM Plex Mono'; text-transform: uppercase; letter-spacing: 1px; color: rgba(0,0,0,0.25); font-weight: 600;">Capability</th>
+              <th style="text-align: center; padding: 16px 12px; font-size: 10px; font-family: 'IBM Plex Mono'; color: rgba(0,0,0,0.2);">PPT Copilot</th>
+              <th style="text-align: center; padding: 16px 12px; font-size: 10px; font-family: 'IBM Plex Mono'; color: rgba(0,0,0,0.2);">Canva</th>
+              <th style="text-align: center; padding: 16px 12px; font-size: 10px; font-family: 'IBM Plex Mono'; color: rgba(0,0,0,0.2);">PromptSmart</th>
+              <th style="text-align: center; padding: 16px 12px; font-size: 10px; font-family: 'IBM Plex Mono'; color: rgba(0,0,0,0.2);">Gamma</th>
+              <th style="text-align: center; padding: 16px 12px; font-size: 10px; font-family: 'IBM Plex Mono'; color: rgba(0,0,0,0.2);">Otter</th>
+              <th style="text-align: center; padding: 16px 12px;"><span style="font-size: 10px; font-family: 'IBM Plex Mono'; font-weight: 700; color: var(--red); background: rgba(217,66,40,0.05); padding: 4px 10px; border-radius: 20px; border: 1px solid rgba(217,66,40,0.1);">Pretive</span></th>
             </tr>
           </thead>
           <tbody>
-            <tr class="comparison-row border-b border-ink/[0.03]">
-              <td class="py-3.5 px-5 text-ink/50">Slide generation</td>
-              <td class="py-3.5 px-3 text-center text-sage-500">&#10003;</td>
-              <td class="py-3.5 px-3 text-center text-sage-500">&#10003;</td>
-              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
-              <td class="py-3.5 px-3 text-center text-sage-500">&#10003;</td>
-              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
-              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
-            </tr>
-            <tr class="comparison-row border-b border-ink/[0.03]">
-              <td class="py-3.5 px-5 text-ink/50">Voice-tracked prompter</td>
-              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
-              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
-              <td class="py-3.5 px-3 text-center text-sage-500">&#10003;</td>
-              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
-              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
-              <td class="py-3.5 px-3 text-center text-warm-500 font-bold">&#10003;</td>
-            </tr>
-            <tr class="comparison-row border-b border-ink/[0.03]">
-              <td class="py-3.5 px-5 text-ink/50">Live delivery coaching</td>
-              <td class="py-3.5 px-3 text-center text-ink/25">~</td>
-              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
-              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
-              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
-              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
-              <td class="py-3.5 px-3 text-center text-warm-500 font-bold">&#10003;</td>
-            </tr>
-            <tr class="comparison-row border-b border-ink/[0.03]">
-              <td class="py-3.5 px-5 text-ink/50">Semantic flow tracking</td>
-              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
-              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
-              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
-              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
-              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
-              <td class="py-3.5 px-3 text-center text-warm-500 font-bold">&#10003;</td>
-            </tr>
-            <tr class="comparison-row border-b border-ink/[0.03]">
-              <td class="py-3.5 px-5 text-ink/50">Real-time Q&A management</td>
-              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
-              <td class="py-3.5 px-3 text-center text-ink/25">~</td>
-              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
-              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
-              <td class="py-3.5 px-3 text-center text-ink/25">~</td>
-              <td class="py-3.5 px-3 text-center text-warm-500 font-bold">&#10003;</td>
-            </tr>
-            <tr class="comparison-row border-b border-ink/[0.03]">
-              <td class="py-3.5 px-5 text-ink/50">Screen intelligence</td>
-              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
-              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
-              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
-              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
-              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
-              <td class="py-3.5 px-3 text-center text-warm-500 font-bold">&#10003;</td>
-            </tr>
-            <tr class="comparison-row border-b border-ink/[0.03]">
-              <td class="py-3.5 px-5 text-ink/50">Dynamic content augmentation</td>
-              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
-              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
-              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
-              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
-              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
-              <td class="py-3.5 px-3 text-center text-warm-500 font-bold">&#10003;</td>
-            </tr>
-            <tr class="comparison-row border-b border-ink/[0.03]">
-              <td class="py-3.5 px-5 text-ink/50">Live research & media</td>
-              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
-              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
-              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
-              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
-              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
-              <td class="py-3.5 px-3 text-center text-warm-500 font-bold">&#10003;</td>
-            </tr>
-            <tr class="comparison-row border-b border-ink/[0.03]">
-              <td class="py-3.5 px-5 text-ink/50">Recovery mode</td>
-              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
-              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
-              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
-              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
-              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
-              <td class="py-3.5 px-3 text-center text-warm-500 font-bold">&#10003;</td>
-            </tr>
-            <tr class="comparison-row border-b border-ink/[0.03]">
-              <td class="py-3.5 px-5 text-ink/50">Team memory & session library</td>
-              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
-              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
-              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
-              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
-              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
-              <td class="py-3.5 px-3 text-center text-warm-500 font-bold">&#10003;</td>
-            </tr>
-            <tr class="comparison-row">
-              <td class="py-3.5 px-5 text-ink/50">Presenter view / notes</td>
-              <td class="py-3.5 px-3 text-center text-sage-500">&#10003;</td>
-              <td class="py-3.5 px-3 text-center text-sage-500">&#10003;</td>
-              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
-              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
-              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
-              <td class="py-3.5 px-3 text-center text-warm-500 font-bold">&#10003;</td>
-            </tr>
+            <tr class="comparison-row" style="border-bottom: 1px solid rgba(0,0,0,0.03);"><td style="padding: 12px 20px; color: rgba(0,0,0,0.45);">Slide generation</td><td style="text-align:center"><span class="pill-yes">&#10003;</span></td><td style="text-align:center"><span class="pill-yes">&#10003;</span></td><td style="text-align:center"><span class="pill-no">&#10007;</span></td><td style="text-align:center"><span class="pill-yes">&#10003;</span></td><td style="text-align:center"><span class="pill-no">&#10007;</span></td><td style="text-align:center"><span class="pill-no">&#10007;</span></td></tr>
+            <tr class="comparison-row" style="border-bottom: 1px solid rgba(0,0,0,0.03);"><td style="padding: 12px 20px; color: rgba(0,0,0,0.45);">Voice-tracked prompter</td><td style="text-align:center"><span class="pill-no">&#10007;</span></td><td style="text-align:center"><span class="pill-no">&#10007;</span></td><td style="text-align:center"><span class="pill-yes">&#10003;</span></td><td style="text-align:center"><span class="pill-no">&#10007;</span></td><td style="text-align:center"><span class="pill-no">&#10007;</span></td><td style="text-align:center"><span class="pill-pretive">&#10003;</span></td></tr>
+            <tr class="comparison-row" style="border-bottom: 1px solid rgba(0,0,0,0.03);"><td style="padding: 12px 20px; color: rgba(0,0,0,0.45);">Live delivery coaching</td><td style="text-align:center"><span class="pill-partial">~</span></td><td style="text-align:center"><span class="pill-no">&#10007;</span></td><td style="text-align:center"><span class="pill-no">&#10007;</span></td><td style="text-align:center"><span class="pill-no">&#10007;</span></td><td style="text-align:center"><span class="pill-no">&#10007;</span></td><td style="text-align:center"><span class="pill-pretive">&#10003;</span></td></tr>
+            <tr class="comparison-row" style="border-bottom: 1px solid rgba(0,0,0,0.03);"><td style="padding: 12px 20px; color: rgba(0,0,0,0.45);">Semantic flow tracking</td><td style="text-align:center"><span class="pill-no">&#10007;</span></td><td style="text-align:center"><span class="pill-no">&#10007;</span></td><td style="text-align:center"><span class="pill-no">&#10007;</span></td><td style="text-align:center"><span class="pill-no">&#10007;</span></td><td style="text-align:center"><span class="pill-no">&#10007;</span></td><td style="text-align:center"><span class="pill-pretive">&#10003;</span></td></tr>
+            <tr class="comparison-row" style="border-bottom: 1px solid rgba(0,0,0,0.03);"><td style="padding: 12px 20px; color: rgba(0,0,0,0.45);">Real-time Q&A management</td><td style="text-align:center"><span class="pill-no">&#10007;</span></td><td style="text-align:center"><span class="pill-partial">~</span></td><td style="text-align:center"><span class="pill-no">&#10007;</span></td><td style="text-align:center"><span class="pill-no">&#10007;</span></td><td style="text-align:center"><span class="pill-partial">~</span></td><td style="text-align:center"><span class="pill-pretive">&#10003;</span></td></tr>
+            <tr class="comparison-row" style="border-bottom: 1px solid rgba(0,0,0,0.03);"><td style="padding: 12px 20px; color: rgba(0,0,0,0.45);">Screen intelligence</td><td style="text-align:center"><span class="pill-no">&#10007;</span></td><td style="text-align:center"><span class="pill-no">&#10007;</span></td><td style="text-align:center"><span class="pill-no">&#10007;</span></td><td style="text-align:center"><span class="pill-no">&#10007;</span></td><td style="text-align:center"><span class="pill-no">&#10007;</span></td><td style="text-align:center"><span class="pill-pretive">&#10003;</span></td></tr>
+            <tr class="comparison-row" style="border-bottom: 1px solid rgba(0,0,0,0.03);"><td style="padding: 12px 20px; color: rgba(0,0,0,0.45);">Dynamic augmentation</td><td style="text-align:center"><span class="pill-no">&#10007;</span></td><td style="text-align:center"><span class="pill-no">&#10007;</span></td><td style="text-align:center"><span class="pill-no">&#10007;</span></td><td style="text-align:center"><span class="pill-no">&#10007;</span></td><td style="text-align:center"><span class="pill-no">&#10007;</span></td><td style="text-align:center"><span class="pill-pretive">&#10003;</span></td></tr>
+            <tr class="comparison-row" style="border-bottom: 1px solid rgba(0,0,0,0.03);"><td style="padding: 12px 20px; color: rgba(0,0,0,0.45);">Live research & media</td><td style="text-align:center"><span class="pill-no">&#10007;</span></td><td style="text-align:center"><span class="pill-no">&#10007;</span></td><td style="text-align:center"><span class="pill-no">&#10007;</span></td><td style="text-align:center"><span class="pill-no">&#10007;</span></td><td style="text-align:center"><span class="pill-no">&#10007;</span></td><td style="text-align:center"><span class="pill-pretive">&#10003;</span></td></tr>
+            <tr class="comparison-row" style="border-bottom: 1px solid rgba(0,0,0,0.03);"><td style="padding: 12px 20px; color: rgba(0,0,0,0.45);">Recovery mode</td><td style="text-align:center"><span class="pill-no">&#10007;</span></td><td style="text-align:center"><span class="pill-no">&#10007;</span></td><td style="text-align:center"><span class="pill-no">&#10007;</span></td><td style="text-align:center"><span class="pill-no">&#10007;</span></td><td style="text-align:center"><span class="pill-no">&#10007;</span></td><td style="text-align:center"><span class="pill-pretive">&#10003;</span></td></tr>
+            <tr class="comparison-row" style="border-bottom: 1px solid rgba(0,0,0,0.03);"><td style="padding: 12px 20px; color: rgba(0,0,0,0.45);">Team memory</td><td style="text-align:center"><span class="pill-no">&#10007;</span></td><td style="text-align:center"><span class="pill-no">&#10007;</span></td><td style="text-align:center"><span class="pill-no">&#10007;</span></td><td style="text-align:center"><span class="pill-no">&#10007;</span></td><td style="text-align:center"><span class="pill-no">&#10007;</span></td><td style="text-align:center"><span class="pill-pretive">&#10003;</span></td></tr>
+            <tr class="comparison-row"><td style="padding: 12px 20px; color: rgba(0,0,0,0.45);">Presenter view</td><td style="text-align:center"><span class="pill-yes">&#10003;</span></td><td style="text-align:center"><span class="pill-yes">&#10003;</span></td><td style="text-align:center"><span class="pill-no">&#10007;</span></td><td style="text-align:center"><span class="pill-no">&#10007;</span></td><td style="text-align:center"><span class="pill-no">&#10007;</span></td><td style="text-align:center"><span class="pill-pretive">&#10003;</span></td></tr>
           </tbody>
         </table>
       </div>
     </div>
   </section>
 
-  <!-- ===== PRICING ===== -->
-  <section id="pricing" class="py-24 lg:py-32 bg-white">
-    <div class="max-w-[1200px] mx-auto px-6 lg:px-8">
-      <div class="max-w-xl mb-16">
-        <p class="text-[11px] font-mono font-bold text-warm-500 uppercase tracking-widest mb-4">Pricing</p>
-        <h2 class="font-heading text-3xl lg:text-4xl font-bold tracking-tight leading-tight">Simple. Transparent.</h2>
+  <!-- ============================== -->
+  <!-- SLIDE 5: PRICING               -->
+  <!-- ============================== -->
+  <section id="pricing" data-index="5" style="padding: 100px 0; background: var(--paper);">
+    <div style="max-width: 1200px; margin: 0 auto; padding: 0 24px;">
+      <div class="reveal">
+        <span class="mono" style="font-size: 11px; color: var(--red); text-transform: uppercase; letter-spacing: 2px; font-weight: 600;">Pricing</span>
+        <h2 class="serif" style="font-size: clamp(2rem, 4vw, 3rem); line-height: 1.1; margin-top: 16px; margin-bottom: 48px; letter-spacing: -1px;">Simple. Transparent.</h2>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="reveal" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
         <!-- Free -->
-        <div class="bento-card rounded-3xl border border-ink/[0.04] bg-cream/50 p-7">
-          <p class="text-[11px] font-mono text-ink/30 uppercase tracking-widest mb-1">Free</p>
-          <p class="font-heading text-3xl font-bold mb-1">$0</p>
-          <p class="text-xs text-ink/30 mb-6">Explore & try</p>
-          <ul class="space-y-3 mb-8">
-            <li class="flex items-center gap-2.5 text-[13px] text-ink/40"><span class="w-1 h-1 rounded-full bg-ink/15"></span>Limited content import</li>
-            <li class="flex items-center gap-2.5 text-[13px] text-ink/40"><span class="w-1 h-1 rounded-full bg-ink/15"></span>Basic live hints</li>
-            <li class="flex items-center gap-2.5 text-[13px] text-ink/40"><span class="w-1 h-1 rounded-full bg-ink/15"></span>Trial rehearsal</li>
+        <div class="paper" style="padding: 32px; border-radius: 20px;">
+          <span class="mono" style="font-size: 10px; color: rgba(0,0,0,0.25); text-transform: uppercase; letter-spacing: 1px;">Free</span>
+          <p class="serif" style="font-size: 36px; margin: 4px 0 4px; letter-spacing: -1px;">$0</p>
+          <p style="font-size: 12px; color: rgba(0,0,0,0.25); margin-bottom: 20px;">Explore & try</p>
+          <ul style="list-style: none; margin-bottom: 24px;">
+            <li style="font-size: 13px; color: rgba(0,0,0,0.4); padding: 6px 0; display: flex; align-items: center; gap: 8px;"><span style="width: 4px; height: 4px; border-radius: 50%; background: rgba(0,0,0,0.12);"></span>Limited import</li>
+            <li style="font-size: 13px; color: rgba(0,0,0,0.4); padding: 6px 0; display: flex; align-items: center; gap: 8px;"><span style="width: 4px; height: 4px; border-radius: 50%; background: rgba(0,0,0,0.12);"></span>Basic hints</li>
+            <li style="font-size: 13px; color: rgba(0,0,0,0.4); padding: 6px 0; display: flex; align-items: center; gap: 8px;"><span style="width: 4px; height: 4px; border-radius: 50%; background: rgba(0,0,0,0.12);"></span>Trial rehearsal</li>
           </ul>
-          <a href="#waitlist" class="block w-full py-3 text-center text-[13px] font-semibold text-ink/50 border border-ink/10 rounded-full hover:bg-ink/5 transition-all">Get started</a>
+          <a href="#waitlist" class="hoverable" style="display: block; text-align: center; padding: 12px; font-size: 13px; font-weight: 600; border: 1px solid rgba(0,0,0,0.1); border-radius: 50px; color: rgba(0,0,0,0.4); transition: all 0.3s;">Get started</a>
         </div>
 
         <!-- Pro -->
-        <div class="relative rounded-3xl border-2 border-ink bg-white p-7 shadow-lg">
-          <div class="absolute -top-3 left-6 px-3 py-0.5 bg-ink text-white text-[10px] font-mono font-bold rounded-full uppercase tracking-wider">Popular</div>
-          <p class="text-[11px] font-mono text-ink/30 uppercase tracking-widest mb-1">Pro</p>
-          <p class="font-heading text-3xl font-bold mb-1">$19<span class="text-base font-normal text-ink/30">/mo</span></p>
-          <p class="text-xs text-ink/30 mb-6">Individual presenters</p>
-          <ul class="space-y-3 mb-8">
-            <li class="flex items-center gap-2.5 text-[13px] text-ink/60"><span class="w-1 h-1 rounded-full bg-warm-500"></span>Full narrative engine</li>
-            <li class="flex items-center gap-2.5 text-[13px] text-ink/60"><span class="w-1 h-1 rounded-full bg-warm-500"></span>AI prompter + live hints</li>
-            <li class="flex items-center gap-2.5 text-[13px] text-ink/60"><span class="w-1 h-1 rounded-full bg-warm-500"></span>Recovery mode + Q&A</li>
-            <li class="flex items-center gap-2.5 text-[13px] text-ink/60"><span class="w-1 h-1 rounded-full bg-warm-500"></span>Session summaries</li>
-            <li class="flex items-center gap-2.5 text-[13px] text-ink/60"><span class="w-1 h-1 rounded-full bg-warm-500"></span>Screen intelligence</li>
+        <div style="padding: 32px; border-radius: 20px; background: var(--ink); color: white; position: relative; box-shadow: 0 12px 40px -8px rgba(0,0,0,0.2);">
+          <div class="stamp" style="position: absolute; top: -12px; right: 16px; transform: rotate(3deg); border-color: var(--red); color: var(--red); font-size: 9px; padding: 4px 10px;">Popular</div>
+          <span class="mono" style="font-size: 10px; color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 1px;">Pro</span>
+          <p class="serif" style="font-size: 36px; margin: 4px 0 4px; letter-spacing: -1px;">$19<span style="font-size: 16px; color: rgba(255,255,255,0.3); font-family: Inter;">/mo</span></p>
+          <p style="font-size: 12px; color: rgba(255,255,255,0.3); margin-bottom: 20px;">Individual presenters</p>
+          <ul style="list-style: none; margin-bottom: 24px;">
+            <li style="font-size: 13px; color: rgba(255,255,255,0.5); padding: 6px 0; display: flex; align-items: center; gap: 8px;"><span style="width: 4px; height: 4px; border-radius: 50%; background: var(--red);"></span>Full narrative engine</li>
+            <li style="font-size: 13px; color: rgba(255,255,255,0.5); padding: 6px 0; display: flex; align-items: center; gap: 8px;"><span style="width: 4px; height: 4px; border-radius: 50%; background: var(--red);"></span>AI prompter + live hints</li>
+            <li style="font-size: 13px; color: rgba(255,255,255,0.5); padding: 6px 0; display: flex; align-items: center; gap: 8px;"><span style="width: 4px; height: 4px; border-radius: 50%; background: var(--red);"></span>Recovery + Q&A + screen</li>
+            <li style="font-size: 13px; color: rgba(255,255,255,0.5); padding: 6px 0; display: flex; align-items: center; gap: 8px;"><span style="width: 4px; height: 4px; border-radius: 50%; background: var(--red);"></span>Session summaries</li>
           </ul>
-          <a href="#waitlist" class="block w-full py-3 text-center text-[13px] font-semibold text-white bg-ink rounded-full hover:bg-warm-600 transition-all magnetic">Get early access</a>
+          <a href="#waitlist" class="hoverable" style="display: block; text-align: center; padding: 12px; font-size: 13px; font-weight: 600; background: var(--red); border-radius: 50px; color: white; transition: all 0.3s;">Get early access</a>
         </div>
 
         <!-- Team -->
-        <div class="bento-card rounded-3xl border border-ink/[0.04] bg-cream/50 p-7">
-          <p class="text-[11px] font-mono text-ink/30 uppercase tracking-widest mb-1">Team</p>
-          <p class="font-heading text-3xl font-bold mb-1">$24<span class="text-base font-normal text-ink/30">/seat</span></p>
-          <p class="text-xs text-ink/30 mb-6">Academies & teams</p>
-          <ul class="space-y-3 mb-8">
-            <li class="flex items-center gap-2.5 text-[13px] text-ink/40"><span class="w-1 h-1 rounded-full bg-ink/15"></span>Everything in Pro</li>
-            <li class="flex items-center gap-2.5 text-[13px] text-ink/40"><span class="w-1 h-1 rounded-full bg-ink/15"></span>Shared workspace</li>
-            <li class="flex items-center gap-2.5 text-[13px] text-ink/40"><span class="w-1 h-1 rounded-full bg-ink/15"></span>Team memory</li>
-            <li class="flex items-center gap-2.5 text-[13px] text-ink/40"><span class="w-1 h-1 rounded-full bg-ink/15"></span>Analytics</li>
+        <div class="paper" style="padding: 32px; border-radius: 20px;">
+          <span class="mono" style="font-size: 10px; color: rgba(0,0,0,0.25); text-transform: uppercase; letter-spacing: 1px;">Team</span>
+          <p class="serif" style="font-size: 36px; margin: 4px 0 4px; letter-spacing: -1px;">$24<span style="font-size: 16px; color: rgba(0,0,0,0.25); font-family: Inter;">/seat</span></p>
+          <p style="font-size: 12px; color: rgba(0,0,0,0.25); margin-bottom: 20px;">Academies & teams</p>
+          <ul style="list-style: none; margin-bottom: 24px;">
+            <li style="font-size: 13px; color: rgba(0,0,0,0.4); padding: 6px 0; display: flex; align-items: center; gap: 8px;"><span style="width: 4px; height: 4px; border-radius: 50%; background: rgba(0,0,0,0.12);"></span>Everything in Pro</li>
+            <li style="font-size: 13px; color: rgba(0,0,0,0.4); padding: 6px 0; display: flex; align-items: center; gap: 8px;"><span style="width: 4px; height: 4px; border-radius: 50%; background: rgba(0,0,0,0.12);"></span>Shared workspace</li>
+            <li style="font-size: 13px; color: rgba(0,0,0,0.4); padding: 6px 0; display: flex; align-items: center; gap: 8px;"><span style="width: 4px; height: 4px; border-radius: 50%; background: rgba(0,0,0,0.12);"></span>Team memory</li>
+            <li style="font-size: 13px; color: rgba(0,0,0,0.4); padding: 6px 0; display: flex; align-items: center; gap: 8px;"><span style="width: 4px; height: 4px; border-radius: 50%; background: rgba(0,0,0,0.12);"></span>Analytics</li>
           </ul>
-          <a href="#waitlist" class="block w-full py-3 text-center text-[13px] font-semibold text-ink/50 border border-ink/10 rounded-full hover:bg-ink/5 transition-all">Get early access</a>
+          <a href="#waitlist" class="hoverable" style="display: block; text-align: center; padding: 12px; font-size: 13px; font-weight: 600; border: 1px solid rgba(0,0,0,0.1); border-radius: 50px; color: rgba(0,0,0,0.4); transition: all 0.3s;">Get early access</a>
         </div>
 
         <!-- Enterprise -->
-        <div class="bento-card rounded-3xl border border-ink/[0.04] bg-cream/50 p-7">
-          <p class="text-[11px] font-mono text-ink/30 uppercase tracking-widest mb-1">Enterprise</p>
-          <p class="font-heading text-2xl font-bold mb-1">Custom</p>
-          <p class="text-xs text-ink/30 mb-6">Large organizations</p>
-          <ul class="space-y-3 mb-8">
-            <li class="flex items-center gap-2.5 text-[13px] text-ink/40"><span class="w-1 h-1 rounded-full bg-ink/15"></span>SSO + audit log</li>
-            <li class="flex items-center gap-2.5 text-[13px] text-ink/40"><span class="w-1 h-1 rounded-full bg-ink/15"></span>LMS/CRM integrations</li>
-            <li class="flex items-center gap-2.5 text-[13px] text-ink/40"><span class="w-1 h-1 rounded-full bg-ink/15"></span>Guardrails + security</li>
-            <li class="flex items-center gap-2.5 text-[13px] text-ink/40"><span class="w-1 h-1 rounded-full bg-ink/15"></span>Custom deployment</li>
+        <div class="paper" style="padding: 32px; border-radius: 20px;">
+          <span class="mono" style="font-size: 10px; color: rgba(0,0,0,0.25); text-transform: uppercase; letter-spacing: 1px;">Enterprise</span>
+          <p class="serif" style="font-size: 28px; margin: 8px 0 8px; letter-spacing: -1px;">Custom</p>
+          <p style="font-size: 12px; color: rgba(0,0,0,0.25); margin-bottom: 20px;">Large organizations</p>
+          <ul style="list-style: none; margin-bottom: 24px;">
+            <li style="font-size: 13px; color: rgba(0,0,0,0.4); padding: 6px 0; display: flex; align-items: center; gap: 8px;"><span style="width: 4px; height: 4px; border-radius: 50%; background: rgba(0,0,0,0.12);"></span>SSO + audit log</li>
+            <li style="font-size: 13px; color: rgba(0,0,0,0.4); padding: 6px 0; display: flex; align-items: center; gap: 8px;"><span style="width: 4px; height: 4px; border-radius: 50%; background: rgba(0,0,0,0.12);"></span>LMS/CRM integrations</li>
+            <li style="font-size: 13px; color: rgba(0,0,0,0.4); padding: 6px 0; display: flex; align-items: center; gap: 8px;"><span style="width: 4px; height: 4px; border-radius: 50%; background: rgba(0,0,0,0.12);"></span>Guardrails + security</li>
           </ul>
-          <a href="#waitlist" class="block w-full py-3 text-center text-[13px] font-semibold text-ink/50 border border-ink/10 rounded-full hover:bg-ink/5 transition-all">Contact us</a>
+          <a href="#waitlist" class="hoverable" style="display: block; text-align: center; padding: 12px; font-size: 13px; font-weight: 600; border: 1px solid rgba(0,0,0,0.1); border-radius: 50px; color: rgba(0,0,0,0.4); transition: all 0.3s;">Contact us</a>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ===== CTA / WAITLIST ===== -->
-  <section id="waitlist" class="py-24 lg:py-32 relative overflow-hidden">
-    <div class="absolute inset-0 dot-pattern opacity-50"></div>
-    <div class="absolute top-20 left-10 w-40 h-40 bg-warm-500/5 rounded-full blur-3xl"></div>
-    <div class="absolute bottom-20 right-10 w-60 h-60 bg-sage-100 rounded-full blur-3xl"></div>
-
-    <div class="relative max-w-2xl mx-auto px-6 lg:px-8 text-center">
-      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-warm-500/5 border border-warm-500/10 mb-8">
-        <span class="w-2 h-2 rounded-full bg-warm-500 live-pulse"></span>
-        <span class="text-[11px] font-mono font-bold text-warm-500 uppercase tracking-wider">MVP launching Q2 2026</span>
+  <!-- ============================== -->
+  <!-- SLIDE 6: WAITLIST               -->
+  <!-- ============================== -->
+  <section id="waitlist" class="slide" data-index="6" style="position: relative;">
+    <div style="max-width: 700px; margin: 0 auto; padding: 0 24px; text-align: center; position: relative;">
+      <!-- Decorative elements -->
+      <div class="sticky hide-mobile" style="position: absolute; top: -40px; left: -120px; transform: rotate(-6deg); font-size: 16px; width: 180px; z-index: 2;">
+        We're building something genuinely new. Come shape it with us.
       </div>
 
-      <h2 class="font-heading text-4xl lg:text-6xl font-bold tracking-tight mb-5 leading-tight">
-        Ready to present<br>
-        <span class="handwritten text-warm-500 font-body text-[1.05em]">with a copilot?</span>
+      <div class="stamp" style="margin-bottom: 32px; display: inline-flex;">
+        <span style="width: 6px; height: 6px; border-radius: 50%; background: var(--red); display: inline-block;"></span>
+        MVP launching Q2 2026
+      </div>
+
+      <h2 class="serif" style="font-size: clamp(2.5rem, 6vw, 4.5rem); line-height: 1; letter-spacing: -2px; margin-bottom: 20px;">
+        Ready to<br>present with<br>
+        <span class="scribble serif" style="font-style: italic; color: var(--red);">a copilot?</span>
       </h2>
 
-      <p class="text-base text-ink/40 max-w-md mx-auto mb-10 font-light leading-relaxed">
-        Join the early access list. Be among the first to use Pretive and shape the future of live presentations.
+      <p style="font-size: 16px; color: rgba(0,0,0,0.35); max-width: 400px; margin: 0 auto 32px; line-height: 1.7; font-weight: 300;">
+        Join the early access list. Help shape the future of live presentations.
       </p>
 
-      <form id="waitlist-form" class="max-w-sm mx-auto flex flex-col sm:flex-row gap-2.5" onsubmit="handleWaitlist(event)">
-        <input type="email" placeholder="you@company.com" required class="flex-1 px-5 py-3.5 rounded-full bg-white border border-ink/10 text-ink placeholder-ink/25 focus:outline-none focus:ring-2 focus:ring-warm-500/30 focus:border-warm-500/30 text-sm">
-        <button type="submit" class="px-7 py-3.5 bg-ink text-white text-sm font-semibold rounded-full hover:bg-warm-600 transition-all magnetic whitespace-nowrap">Join waitlist</button>
+      <form id="waitlist-form" onsubmit="handleWaitlist(event)" style="display: flex; gap: 8px; max-width: 400px; margin: 0 auto;">
+        <input type="email" placeholder="you@company.com" required style="flex: 1; padding: 14px 20px; border: 1px solid rgba(0,0,0,0.1); border-radius: 50px; background: var(--paper); font-size: 14px; outline: none; font-family: Inter; transition: border 0.3s;" onfocus="this.style.borderColor='var(--red)'" onblur="this.style.borderColor='rgba(0,0,0,0.1)'">
+        <button type="submit" class="hoverable" style="padding: 14px 28px; background: var(--ink); color: white; border: none; border-radius: 50px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: Inter; transition: background 0.3s; white-space: nowrap;">Join</button>
       </form>
-      <p id="waitlist-success" class="hidden mt-4 text-sage-500 text-sm font-medium">You're on the list. We'll be in touch soon.</p>
-      <p class="mt-4 text-[11px] text-ink/20 font-mono">No spam. Only meaningful updates.</p>
+      <p id="waitlist-success" style="display: none; margin-top: 16px; color: var(--green); font-size: 14px; font-weight: 500;">You're on the list. We'll be in touch.</p>
+      <p class="mono" style="font-size: 10px; color: rgba(0,0,0,0.15); margin-top: 12px; text-transform: uppercase; letter-spacing: 1px;">No spam. Only meaningful updates.</p>
     </div>
   </section>
 
-  <!-- ===== FOOTER ===== -->
-  <footer class="py-10 border-t border-ink/[0.04]">
-    <div class="max-w-[1200px] mx-auto px-6 lg:px-8">
-      <div class="flex flex-col md:flex-row items-center justify-between gap-6">
-        <div class="flex items-center gap-3">
-          <img src="logo.jpg" alt="Pretive" class="w-7 h-7 rounded-xl object-cover">
-          <span class="text-sm font-heading font-bold tracking-tight">pretive</span>
-        </div>
-        <div class="flex items-center gap-8 text-[13px] text-ink/30">
-          <a href="#features" class="hover:text-ink transition-colors">Features</a>
-          <a href="#pricing" class="hover:text-ink transition-colors">Pricing</a>
-          <a href="mailto:hello@pretive.com" class="hover:text-ink transition-colors">Contact</a>
-        </div>
-        <p class="text-[11px] text-ink/20 font-mono">&copy; 2026 Pretive</p>
+  <!-- ============================== -->
+  <!-- FOOTER                          -->
+  <!-- ============================== -->
+  <footer style="padding: 32px 0; border-top: 1px solid rgba(0,0,0,0.06);">
+    <div style="max-width: 1200px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <img src="logo.jpg" alt="Pretive" style="width: 24px; height: 24px; border-radius: 8px; object-fit: cover;">
+        <span style="font-size: 13px; font-weight: 700;">pretive</span>
       </div>
+      <div style="display: flex; gap: 24px;">
+        <a href="#features" style="font-size: 12px; color: rgba(0,0,0,0.3);">Features</a>
+        <a href="#pricing" style="font-size: 12px; color: rgba(0,0,0,0.3);">Pricing</a>
+        <a href="mailto:hello@pretive.com" style="font-size: 12px; color: rgba(0,0,0,0.3);">Contact</a>
+      </div>
+      <span class="mono" style="font-size: 10px; color: rgba(0,0,0,0.15);">&copy; 2026 Pretive</span>
     </div>
   </footer>
 
   <script>
-    // Mobile menu
-    document.getElementById('mobile-menu-btn').addEventListener('click', () => document.getElementById('mobile-menu').classList.toggle('hidden'));
-    document.querySelectorAll('#mobile-menu a').forEach(l => l.addEventListener('click', () => document.getElementById('mobile-menu').classList.add('hidden')));
-
-    // Waitlist
-    function handleWaitlist(e) { e.preventDefault(); document.getElementById('waitlist-form').classList.add('hidden'); document.getElementById('waitlist-success').classList.remove('hidden'); }
-
-    // Nav scroll effect
-    const nav = document.getElementById('nav');
-    window.addEventListener('scroll', () => {
-      nav.classList.toggle('scrolled', window.scrollY > 20);
+    // Custom cursor
+    const cursor = document.getElementById('cursor');
+    document.addEventListener('mousemove', e => {
+      cursor.style.left = e.clientX - 4 + 'px';
+      cursor.style.top = e.clientY - 4 + 'px';
+    });
+    document.querySelectorAll('.hoverable, a, button').forEach(el => {
+      el.addEventListener('mouseenter', () => cursor.classList.add('hovering'));
+      el.addEventListener('mouseleave', () => cursor.classList.remove('hovering'));
     });
 
-    // Stagger in animation
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry, i) => {
-        if (entry.isIntersecting) {
-          setTimeout(() => entry.target.classList.add('visible'), i * 100);
+    // Mobile menu
+    const mBtn = document.getElementById('mobile-menu-btn');
+    if (mBtn) mBtn.addEventListener('click', () => {
+      const m = document.getElementById('mobile-menu');
+      if (m) m.classList.toggle('hidden');
+    });
+
+    // Waitlist
+    function handleWaitlist(e) {
+      e.preventDefault();
+      document.getElementById('waitlist-form').style.display = 'none';
+      document.getElementById('waitlist-success').style.display = 'block';
+    }
+
+    // Nav scroll
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 30));
+
+    // Reveal on scroll
+    const revealObs = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.15 });
+    document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+
+    // Progress dots
+    const sections = document.querySelectorAll('[data-index]');
+    const dots = document.querySelectorAll('.progress-dot');
+    const progressObs = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          const idx = e.target.dataset.index;
+          dots.forEach(d => d.classList.toggle('active', d.dataset.section === idx));
         }
       });
-    }, { threshold: 0.1 });
-    document.querySelectorAll('.stagger-in').forEach(el => observer.observe(el));
+    }, { threshold: 0.4 });
+    sections.forEach(s => progressObs.observe(s));
+    dots.forEach(d => d.addEventListener('click', () => {
+      const s = document.querySelector(`[data-index="${d.dataset.section}"]`);
+      if (s) s.scrollIntoView({ behavior: 'smooth' });
+    }));
+
+    // Responsive grid fix
+    function fixGrids() {
+      const w = window.innerWidth;
+      const pg = document.getElementById('problem-grid');
+      if (pg) pg.style.gridTemplateColumns = w < 768 ? '1fr' : '1fr 1fr';
+    }
+    fixGrids();
+    window.addEventListener('resize', fixGrids);
   </script>
 </body>
 </html>
