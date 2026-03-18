@@ -3,34 +3,28 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PRETIVE — Your AI Copilot for Live Presentations</title>
+  <title>PRETIVE — AI Copilot for Live Presentations</title>
   <meta name="description" content="Pretive is a real-time AI presentation assistant that guides your delivery, manages Q&A, and makes every talk more impactful.">
   <link rel="icon" type="image/jpeg" href="logo.jpg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       theme: {
         extend: {
           fontFamily: {
-            sans: ['Inter', 'system-ui', 'sans-serif'],
-            mono: ['JetBrains Mono', 'monospace'],
+            heading: ['Space Grotesk', 'sans-serif'],
+            body: ['DM Sans', 'sans-serif'],
+            mono: ['Space Mono', 'monospace'],
           },
           colors: {
-            accent: {
-              50: '#f0f4ff',
-              100: '#dbe4ff',
-              200: '#bac8ff',
-              300: '#91a7ff',
-              400: '#748ffc',
-              500: '#5c7cfa',
-              600: '#4c6ef5',
-              700: '#4263eb',
-              800: '#3b5bdb',
-              900: '#364fc7',
-            }
+            cream: '#FAF8F4',
+            ink: '#1a1a1a',
+            warm: { 500: '#E8553D', 600: '#D44A33', 700: '#B83E2B' },
+            sage: { 100: '#E8EDE6', 200: '#D1DBC9', 300: '#A8B89E', 500: '#6B8060' },
+            clay: { 100: '#F0EAE2', 200: '#E2D6C8', 300: '#C4AB8F' },
           }
         }
       }
@@ -38,657 +32,651 @@
   </script>
   <style>
     * { -webkit-font-smoothing: antialiased; }
+    ::selection { background: #E8553D; color: white; }
 
-    .text-gradient {
-      background: linear-gradient(135deg, #748ffc 0%, #da77f2 50%, #ffa94d 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+    .ticker {
+      display: flex;
+      animation: ticker 40s linear infinite;
+    }
+    @keyframes ticker {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
     }
 
-    .text-gradient-subtle {
-      background: linear-gradient(135deg, #91a7ff 0%, #b197fc 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+    .stagger-in { opacity: 0; transform: translateY(30px); }
+    .stagger-in.visible { opacity: 1; transform: translateY(0); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+
+    .magnetic { transition: transform 0.3s cubic-bezier(0.33, 1, 0.68, 1); }
+    .magnetic:hover { transform: scale(1.03); }
+
+    .bento-card {
+      transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .bento-card:hover {
+      transform: translateY(-4px) scale(1.01);
+      box-shadow: 0 20px 60px -15px rgba(0,0,0,0.15);
     }
 
-    .bg-grid {
-      background-image:
-        linear-gradient(rgba(255,255,255,.02) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,.02) 1px, transparent 1px);
-      background-size: 64px 64px;
+    .live-pulse { animation: livePulse 2s ease-in-out infinite; }
+    @keyframes livePulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(232, 85, 61, 0.4); }
+      50% { box-shadow: 0 0 0 12px rgba(232, 85, 61, 0); }
     }
 
-    .bg-noise {
+    .handwritten {
+      font-style: italic;
+      font-weight: 300;
+    }
+
+    .reveal-line {
       position: relative;
+      overflow: hidden;
     }
-    .bg-noise::before {
+    .reveal-line::after {
       content: '';
       position: absolute;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
-      pointer-events: none;
-      z-index: 0;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: #E8553D;
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .reveal-line:hover::after { transform: scaleX(1); }
+
+    .number-big {
+      font-size: clamp(3rem, 8vw, 6rem);
+      line-height: 1;
+      font-weight: 700;
+      color: rgba(0,0,0,0.04);
+      font-family: 'Space Grotesk', sans-serif;
     }
 
-    .glow-card {
-      position: relative;
-      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .glow-card::before {
-      content: '';
-      position: absolute;
-      inset: -1px;
-      border-radius: inherit;
-      background: linear-gradient(135deg, rgba(116,143,252,0.15), rgba(218,119,242,0.1), transparent, transparent);
-      z-index: -1;
-      opacity: 0;
-      transition: opacity 0.4s;
-    }
-    .glow-card:hover::before { opacity: 1; }
-    .glow-card:hover {
-      transform: translateY(-2px);
-      border-color: rgba(116,143,252,0.3);
+    .dot-pattern {
+      background-image: radial-gradient(circle, rgba(0,0,0,0.06) 1px, transparent 1px);
+      background-size: 24px 24px;
     }
 
-    .terminal-glow {
-      box-shadow: 0 0 80px rgba(116,143,252,0.08), 0 0 160px rgba(116,143,252,0.04);
+    .stripe-bg {
+      background: repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 8px,
+        rgba(0,0,0,0.015) 8px,
+        rgba(0,0,0,0.015) 16px
+      );
     }
 
-    .orb {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(80px);
-      pointer-events: none;
+    @keyframes slideWords {
+      0%, 18% { transform: translateY(0); }
+      20%, 38% { transform: translateY(-100%); }
+      40%, 58% { transform: translateY(-200%); }
+      60%, 78% { transform: translateY(-300%); }
+      80%, 100% { transform: translateY(-400%); }
     }
+    .word-rotator { animation: slideWords 10s ease-in-out infinite; }
 
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-8px); }
+    .comparison-row:hover { background: rgba(232, 85, 61, 0.03); }
+
+    .nav-scroll {
+      transition: all 0.3s ease;
     }
-    .float { animation: float 6s ease-in-out infinite; }
-
-    @keyframes pulse-slow {
-      0%, 100% { opacity: 0.4; }
-      50% { opacity: 0.8; }
-    }
-    .pulse-slow { animation: pulse-slow 4s ease-in-out infinite; }
-
-    @keyframes typing {
-      from { width: 0; }
-      to { width: 100%; }
-    }
-
-    .nav-glass {
-      background: rgba(10, 10, 15, 0.8);
-      backdrop-filter: blur(24px) saturate(180%);
-      -webkit-backdrop-filter: blur(24px) saturate(180%);
-    }
-
-    .badge-glow {
-      background: rgba(116,143,252,0.08);
-      border: 1px solid rgba(116,143,252,0.2);
-    }
-
-    .feature-border {
-      background: linear-gradient(135deg, rgba(116,143,252,0.1), rgba(218,119,242,0.05), rgba(255,255,255,0.02));
-    }
-
-    .cta-glow {
-      box-shadow: 0 0 40px rgba(116,143,252,0.3), 0 0 80px rgba(116,143,252,0.1);
-    }
-
-    .line-glow {
-      background: linear-gradient(90deg, transparent, rgba(116,143,252,0.3), transparent);
-      height: 1px;
+    .nav-scroll.scrolled {
+      background: rgba(250, 248, 244, 0.95);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 1px 0 rgba(0,0,0,0.05);
     }
   </style>
 </head>
-<body class="bg-[#0a0a0f] text-gray-200 font-sans">
+<body class="bg-cream text-ink font-body antialiased">
 
-  <!-- Navigation -->
-  <nav class="fixed top-0 left-0 right-0 z-50 nav-glass border-b border-white/5">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between h-16">
-        <a href="#" class="flex items-center gap-2.5">
-          <img src="logo.jpg" alt="Pretive" class="w-8 h-8 rounded-lg object-cover">
-          <span class="text-[15px] font-bold tracking-tight text-white">PRETIVE</span>
+  <!-- ===== NAV ===== -->
+  <nav id="nav" class="fixed top-0 left-0 right-0 z-50 nav-scroll">
+    <div class="max-w-[1200px] mx-auto px-6 lg:px-8">
+      <div class="flex items-center justify-between h-[72px]">
+        <a href="#" class="flex items-center gap-3 group">
+          <img src="logo.jpg" alt="Pretive" class="w-9 h-9 rounded-xl object-cover shadow-sm group-hover:shadow-md transition-shadow">
+          <span class="text-base font-heading font-bold tracking-tight">pretive</span>
         </a>
-        <div class="hidden md:flex items-center gap-8">
-          <a href="#features" class="text-[13px] font-medium text-gray-400 hover:text-white transition-colors">Features</a>
-          <a href="#how-it-works" class="text-[13px] font-medium text-gray-400 hover:text-white transition-colors">How it works</a>
-          <a href="#pricing" class="text-[13px] font-medium text-gray-400 hover:text-white transition-colors">Pricing</a>
-          <a href="#waitlist" class="inline-flex items-center gap-1.5 px-4 py-2 text-[13px] font-semibold text-white bg-accent-600/80 hover:bg-accent-600 rounded-lg transition-all border border-accent-500/30">
+        <div class="hidden md:flex items-center gap-10">
+          <a href="#features" class="text-[13px] font-medium text-ink/50 hover:text-ink transition-colors reveal-line pb-0.5">Features</a>
+          <a href="#how-it-works" class="text-[13px] font-medium text-ink/50 hover:text-ink transition-colors reveal-line pb-0.5">How it works</a>
+          <a href="#comparison" class="text-[13px] font-medium text-ink/50 hover:text-ink transition-colors reveal-line pb-0.5">Compare</a>
+          <a href="#pricing" class="text-[13px] font-medium text-ink/50 hover:text-ink transition-colors reveal-line pb-0.5">Pricing</a>
+          <a href="#waitlist" class="inline-flex items-center gap-2 px-5 py-2.5 text-[13px] font-semibold text-white bg-ink hover:bg-ink/80 rounded-full transition-all magnetic">
+            <span class="w-1.5 h-1.5 rounded-full bg-warm-500"></span>
             Get early access
           </a>
         </div>
-        <button id="mobile-menu-btn" class="md:hidden p-2 text-gray-400 hover:text-white">
+        <button id="mobile-menu-btn" class="md:hidden p-2">
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/></svg>
         </button>
       </div>
     </div>
-    <div id="mobile-menu" class="hidden md:hidden border-t border-white/5 bg-[#0a0a0f]/95 backdrop-blur-xl">
-      <div class="px-4 py-4 space-y-2">
-        <a href="#features" class="block px-3 py-2.5 text-sm text-gray-400 hover:text-white rounded-lg hover:bg-white/5">Features</a>
-        <a href="#how-it-works" class="block px-3 py-2.5 text-sm text-gray-400 hover:text-white rounded-lg hover:bg-white/5">How it works</a>
-        <a href="#pricing" class="block px-3 py-2.5 text-sm text-gray-400 hover:text-white rounded-lg hover:bg-white/5">Pricing</a>
-        <a href="#waitlist" class="block px-3 py-2.5 text-sm font-semibold text-white bg-accent-600/80 rounded-lg text-center mt-2">Get early access</a>
+    <div id="mobile-menu" class="hidden md:hidden bg-cream border-t border-ink/5">
+      <div class="px-6 py-4 space-y-1">
+        <a href="#features" class="block py-2.5 text-sm">Features</a>
+        <a href="#how-it-works" class="block py-2.5 text-sm">How it works</a>
+        <a href="#comparison" class="block py-2.5 text-sm">Compare</a>
+        <a href="#pricing" class="block py-2.5 text-sm">Pricing</a>
+        <a href="#waitlist" class="block py-3 mt-2 text-sm font-semibold text-white bg-ink rounded-full text-center">Get early access</a>
       </div>
     </div>
   </nav>
 
   <!-- ===== HERO ===== -->
-  <section class="relative min-h-screen flex items-center bg-grid overflow-hidden pt-16">
-    <!-- Orbs -->
-    <div class="orb w-[500px] h-[500px] bg-accent-700/15 top-[-10%] left-[20%]"></div>
-    <div class="orb w-[400px] h-[400px] bg-purple-700/10 bottom-[10%] right-[10%]"></div>
-    <div class="orb w-[300px] h-[300px] bg-orange-600/5 top-[40%] left-[-5%]"></div>
+  <section class="min-h-screen flex items-center pt-[72px] relative overflow-hidden">
+    <!-- Subtle geometric accent -->
+    <div class="absolute top-32 right-12 w-24 h-24 border-2 border-warm-500/10 rounded-full hidden lg:block"></div>
+    <div class="absolute bottom-40 left-8 w-16 h-16 bg-sage-100 rounded-2xl rotate-12 hidden lg:block"></div>
+    <div class="absolute top-1/2 right-1/4 w-3 h-3 bg-warm-500/20 rounded-full hidden lg:block"></div>
 
-    <div class="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-36">
-      <div class="text-center max-w-3xl mx-auto">
-        <!-- Badge -->
-        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full badge-glow mb-8">
-          <span class="w-1.5 h-1.5 rounded-full bg-accent-400 pulse-slow"></span>
-          <span class="text-xs font-medium text-accent-300 tracking-wide">AI live presentation orchestration layer</span>
+    <div class="max-w-[1200px] mx-auto px-6 lg:px-8 py-20 lg:py-32">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-8 items-center">
+        <!-- Left: Copy -->
+        <div>
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-warm-500/5 border border-warm-500/10 mb-8">
+            <span class="w-2 h-2 rounded-full bg-warm-500 live-pulse"></span>
+            <span class="text-[11px] font-mono font-bold text-warm-500 uppercase tracking-wider">Now in development</span>
+          </div>
+
+          <h1 class="font-heading text-[2.75rem] sm:text-[3.5rem] lg:text-[4.25rem] font-bold tracking-tight leading-[1.05] mb-6">
+            You speak.<br>
+            <span class="relative inline-block">
+              AI
+              <svg class="absolute -bottom-1 left-0 w-full" viewBox="0 0 200 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 8C30 3 70 2 100 5C130 8 170 4 198 7" stroke="#E8553D" stroke-width="3" stroke-linecap="round"/></svg>
+            </span>
+            <span class="inline-flex h-[1.1em] overflow-hidden align-bottom ml-1">
+              <span class="word-rotator flex flex-col">
+                <span class="text-warm-500">guides.</span>
+                <span class="text-sage-500">coaches.</span>
+                <span class="text-warm-500">recovers.</span>
+                <span class="text-sage-500">enriches.</span>
+                <span class="text-warm-500">guides.</span>
+              </span>
+            </span>
+          </h1>
+
+          <p class="text-lg text-ink/50 max-w-md leading-relaxed mb-10 font-light">
+            Pretive is the real-time orchestration layer that sits beside you during live presentations &mdash; guiding narrative, managing Q&A, and enriching your delivery as you speak.
+          </p>
+
+          <div class="flex flex-col sm:flex-row items-start gap-3">
+            <a href="#waitlist" class="group inline-flex items-center gap-3 px-7 py-4 bg-ink text-white text-sm font-semibold rounded-full hover:bg-warm-600 transition-all magnetic">
+              Join the waitlist
+              <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75"/></svg>
+            </a>
+            <a href="#how-it-works" class="inline-flex items-center gap-2 px-5 py-4 text-sm font-medium text-ink/50 hover:text-ink transition-colors">
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15.91 11.672a.375.375 0 010 .656l-5.603 3.113a.375.375 0 01-.557-.328V8.887c0-.286.307-.466.557-.327l5.603 3.112z"/></svg>
+              See how it works
+            </a>
+          </div>
         </div>
 
-        <h1 class="text-[2.75rem] sm:text-6xl lg:text-[4.5rem] font-black tracking-tight leading-[1.05] mb-6">
-          <span class="text-white">Your AI copilot</span><br>
-          <span class="text-gradient">for live presentations</span>
-        </h1>
-
-        <p class="text-base sm:text-lg text-gray-400 max-w-xl mx-auto mb-10 leading-relaxed font-light">
-          Pretive sits beside you while you speak. It guides your narrative, manages Q&A in real time, recovers when you get stuck, and makes every presentation sharper.
-        </p>
-
-        <!-- CTA -->
-        <div class="flex flex-col sm:flex-row items-center justify-center gap-3 mb-20">
-          <a href="#waitlist" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-accent-600 hover:bg-accent-500 text-white text-sm font-semibold rounded-xl transition-all cta-glow hover:scale-[1.02]">
-            Join the waitlist
-            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
-          </a>
-          <a href="#how-it-works" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 text-sm font-medium text-gray-300 rounded-xl border border-white/10 hover:border-white/20 hover:bg-white/5 transition-all">
-            See how it works
-          </a>
-        </div>
-
-        <!-- Terminal-style Hero Visual -->
-        <div class="relative max-w-3xl mx-auto float">
-          <div class="terminal-glow rounded-2xl overflow-hidden border border-white/[0.06] bg-[#12121a]">
-            <!-- Terminal header -->
-            <div class="flex items-center justify-between px-5 py-3 border-b border-white/[0.06] bg-white/[0.02]">
-              <div class="flex items-center gap-2">
-                <div class="w-3 h-3 rounded-full bg-[#ff5f57]"></div>
-                <div class="w-3 h-3 rounded-full bg-[#febc2e]"></div>
-                <div class="w-3 h-3 rounded-full bg-[#28c840]"></div>
+        <!-- Right: Product preview - NOT a terminal mockup -->
+        <div class="relative lg:pl-8">
+          <div class="bg-white rounded-3xl shadow-[0_8px_60px_-12px_rgba(0,0,0,0.08)] border border-ink/[0.04] overflow-hidden">
+            <!-- Top bar -->
+            <div class="flex items-center justify-between px-6 py-4 border-b border-ink/[0.04]">
+              <div class="flex items-center gap-3">
+                <div class="w-2 h-2 rounded-full bg-warm-500 live-pulse"></div>
+                <span class="text-[12px] font-mono text-ink/40">Product Strategy Workshop</span>
               </div>
-              <span class="text-[11px] font-mono text-gray-500">pretive — live session</span>
-              <div class="flex items-center gap-1.5">
-                <div class="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></div>
-                <span class="text-[11px] font-mono text-green-400">LIVE</span>
+              <div class="flex items-center gap-2">
+                <span class="text-[12px] font-mono text-ink/30">24:15 / 45:00</span>
+                <div class="w-16 h-1 bg-ink/5 rounded-full overflow-hidden">
+                  <div class="h-full bg-warm-500 rounded-full" style="width: 54%"></div>
+                </div>
               </div>
             </div>
 
-            <!-- Terminal content -->
-            <div class="p-6 lg:p-8 space-y-6">
-              <!-- Session info -->
-              <div class="flex items-center justify-between text-xs font-mono">
-                <div class="flex items-center gap-3">
-                  <span class="text-gray-500">SESSION</span>
-                  <span class="text-gray-300">Product Strategy Workshop</span>
-                </div>
-                <div class="flex items-center gap-4">
-                  <span class="text-gray-500">24:15 <span class="text-gray-600">/</span> 45:00</span>
-                  <span class="px-2 py-0.5 rounded bg-green-500/10 text-green-400 text-[10px] font-semibold">ON TRACK</span>
+            <!-- Content -->
+            <div class="p-6 space-y-4">
+              <!-- AI Hint Card -->
+              <div class="p-5 rounded-2xl bg-gradient-to-br from-warm-500/[0.04] to-warm-500/[0.01] border border-warm-500/10">
+                <div class="flex items-start gap-3">
+                  <div class="w-8 h-8 rounded-xl bg-warm-500/10 flex items-center justify-center shrink-0 mt-0.5">
+                    <svg class="w-4 h-4 text-warm-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18"/></svg>
+                  </div>
+                  <div>
+                    <p class="text-[11px] font-mono font-bold text-warm-500 uppercase tracking-wider mb-1.5">Live hint</p>
+                    <p class="text-[13px] text-ink/70 leading-relaxed">Good moment to share a customer example &mdash; engagement is high and this reinforces your ROI argument.</p>
+                  </div>
                 </div>
               </div>
 
-              <!-- Progress -->
-              <div class="w-full h-1 bg-white/5 rounded-full overflow-hidden">
-                <div class="h-full rounded-full bg-gradient-to-r from-accent-500 to-purple-500" style="width: 54%"></div>
+              <!-- Next point -->
+              <div class="p-5 rounded-2xl bg-ink/[0.02] border border-ink/[0.04]">
+                <p class="text-[11px] font-mono text-ink/30 uppercase tracking-wider mb-2">Next talking point</p>
+                <p class="text-[13px] text-ink/50 leading-relaxed italic">"Now let's look at how this translates to your team's daily workflow..."</p>
               </div>
 
-              <!-- Main content area -->
-              <div class="grid grid-cols-1 lg:grid-cols-5 gap-5">
-                <!-- Left: Live hints -->
-                <div class="lg:col-span-3 space-y-4">
-                  <!-- AI suggestion -->
-                  <div class="p-4 rounded-xl bg-accent-500/[0.06] border border-accent-500/[0.12]">
-                    <div class="flex items-center gap-2 mb-2.5">
-                      <div class="w-5 h-5 rounded-md bg-accent-500/20 flex items-center justify-center">
-                        <svg class="w-3 h-3 text-accent-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
-                      </div>
-                      <span class="text-[11px] font-semibold text-accent-300 uppercase tracking-wider">Live hint</span>
-                    </div>
-                    <p class="text-sm text-gray-300 leading-relaxed">Good moment to share a brief customer example here — engagement is high and this reinforces the ROI argument you just made.</p>
-                  </div>
+              <!-- Quick actions -->
+              <div class="flex gap-2">
+                <button class="flex-1 py-2.5 px-3 text-[11px] font-semibold rounded-xl bg-ink/[0.03] text-ink/40 border border-ink/[0.04] hover:bg-ink/[0.06] hover:text-ink/60 transition-all">Simplify</button>
+                <button class="flex-1 py-2.5 px-3 text-[11px] font-semibold rounded-xl bg-ink/[0.03] text-ink/40 border border-ink/[0.04] hover:bg-ink/[0.06] hover:text-ink/60 transition-all">Give example</button>
+                <button class="flex-1 py-2.5 px-3 text-[11px] font-semibold rounded-xl bg-ink/[0.03] text-ink/40 border border-ink/[0.04] hover:bg-ink/[0.06] hover:text-ink/60 transition-all">Wrap up</button>
+              </div>
 
-                  <!-- Prompter -->
-                  <div class="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06]">
-                    <div class="flex items-center gap-2 mb-2.5">
-                      <span class="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Next talking point</span>
-                    </div>
-                    <p class="text-sm text-gray-400 leading-relaxed">"Now let's look at how this translates to your team's daily workflow. The key insight is that adoption happens organically when..."</p>
-                  </div>
-
-                  <!-- Recovery mode -->
-                  <div class="flex items-center gap-3 p-3 rounded-lg bg-white/[0.02] border border-white/[0.04]">
-                    <div class="flex gap-2">
-                      <button class="px-3 py-1.5 text-[11px] font-medium rounded-md bg-white/5 text-gray-400 border border-white/5 hover:bg-white/10 transition-colors">Simplify</button>
-                      <button class="px-3 py-1.5 text-[11px] font-medium rounded-md bg-white/5 text-gray-400 border border-white/5 hover:bg-white/10 transition-colors">Give example</button>
-                      <button class="px-3 py-1.5 text-[11px] font-medium rounded-md bg-white/5 text-gray-400 border border-white/5 hover:bg-white/10 transition-colors">Wrap up</button>
-                    </div>
-                  </div>
+              <!-- Q&A -->
+              <div class="p-5 rounded-2xl bg-ink/[0.02] border border-ink/[0.04]">
+                <div class="flex items-center justify-between mb-3">
+                  <p class="text-[11px] font-mono text-ink/30 uppercase tracking-wider">Q&A queue</p>
+                  <span class="text-[10px] font-mono text-warm-500 bg-warm-500/5 px-2 py-0.5 rounded-full">3 pending</span>
                 </div>
-
-                <!-- Right: Q&A + Attention -->
-                <div class="lg:col-span-2 space-y-4">
-                  <div class="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06]">
-                    <div class="flex items-center justify-between mb-3">
-                      <span class="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Live Q&A</span>
-                      <span class="text-[11px] text-gray-600 font-mono">3 pending</span>
-                    </div>
-                    <div class="space-y-2">
-                      <div class="p-2.5 rounded-lg bg-amber-500/[0.06] border border-amber-500/[0.12]">
-                        <p class="text-xs text-amber-200/80">"What's the integration timeline?"</p>
-                        <span class="text-[10px] text-amber-500/60 mt-1 block">Suggested: answer now</span>
-                      </div>
-                      <div class="p-2.5 rounded-lg bg-white/[0.02] border border-white/[0.04]">
-                        <p class="text-xs text-gray-500">"How does this compare to Competitor X?"</p>
-                        <span class="text-[10px] text-gray-600 mt-1 block">Suggested: defer to slide 14</span>
-                      </div>
-                    </div>
+                <div class="space-y-2">
+                  <div class="flex items-center justify-between p-3 rounded-xl bg-white border border-ink/[0.04]">
+                    <p class="text-[12px] text-ink/60 truncate mr-4">"What's the integration timeline?"</p>
+                    <span class="text-[10px] font-mono text-warm-600 bg-warm-500/5 px-2 py-0.5 rounded-full whitespace-nowrap">answer now</span>
                   </div>
-
-                  <div class="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06]">
-                    <div class="flex items-center justify-between mb-3">
-                      <span class="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Attention</span>
-                      <div class="flex items-center gap-1.5">
-                        <div class="w-1.5 h-1.5 rounded-full bg-green-400"></div>
-                        <span class="text-[11px] text-green-400 font-mono">High</span>
-                      </div>
-                    </div>
-                    <div class="flex gap-1">
-                      <div class="flex-1 h-8 rounded bg-green-500/20 flex items-end"><div class="w-full rounded bg-green-500/40" style="height:70%"></div></div>
-                      <div class="flex-1 h-8 rounded bg-green-500/20 flex items-end"><div class="w-full rounded bg-green-500/40" style="height:85%"></div></div>
-                      <div class="flex-1 h-8 rounded bg-green-500/20 flex items-end"><div class="w-full rounded bg-green-500/40" style="height:60%"></div></div>
-                      <div class="flex-1 h-8 rounded bg-green-500/20 flex items-end"><div class="w-full rounded bg-green-500/50" style="height:90%"></div></div>
-                      <div class="flex-1 h-8 rounded bg-green-500/20 flex items-end"><div class="w-full rounded bg-green-500/40" style="height:75%"></div></div>
-                      <div class="flex-1 h-8 rounded bg-green-500/20 flex items-end"><div class="w-full rounded bg-green-500/40" style="height:82%"></div></div>
-                    </div>
+                  <div class="flex items-center justify-between p-3 rounded-xl bg-white/50 border border-ink/[0.03]">
+                    <p class="text-[12px] text-ink/30 truncate mr-4">"How does this compare to Competitor X?"</p>
+                    <span class="text-[10px] font-mono text-ink/20 px-2 py-0.5 rounded-full whitespace-nowrap">defer</span>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-          <!-- Glow underneath -->
-          <div class="absolute -inset-8 bg-gradient-to-b from-accent-600/5 via-purple-600/5 to-transparent rounded-3xl blur-2xl -z-10"></div>
+
+          <!-- Floating accent elements -->
+          <div class="absolute -top-4 -right-4 w-20 h-20 bg-warm-500/5 rounded-full blur-xl"></div>
+          <div class="absolute -bottom-6 -left-6 w-32 h-32 bg-sage-100 rounded-full blur-2xl"></div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ===== SOCIAL PROOF BAR ===== -->
-  <section class="py-14 border-y border-white/[0.04]">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-      <p class="text-center text-[11px] font-medium text-gray-600 uppercase tracking-[0.2em] mb-8">Built for people who present for a living</p>
-      <div class="flex flex-wrap items-center justify-center gap-x-12 gap-y-4 text-gray-500">
-        <span class="text-sm font-medium">Educators</span>
-        <span class="text-white/10">|</span>
-        <span class="text-sm font-medium">Academies & Bootcamps</span>
-        <span class="text-white/10">|</span>
-        <span class="text-sm font-medium">Corporate Trainers</span>
-        <span class="text-white/10">|</span>
-        <span class="text-sm font-medium">Webinar Hosts</span>
-        <span class="text-white/10">|</span>
-        <span class="text-sm font-medium">Sales & Demo Teams</span>
-        <span class="text-white/10">|</span>
-        <span class="text-sm font-medium">Founders & Speakers</span>
-      </div>
+  <!-- ===== TICKER ===== -->
+  <section class="py-8 border-y border-ink/[0.04] overflow-hidden bg-white/50">
+    <div class="ticker whitespace-nowrap">
+      <span class="inline-flex items-center gap-12 px-6">
+        <span class="text-sm font-heading font-medium text-ink/15 uppercase tracking-widest">Educators</span>
+        <span class="text-warm-500/20">&bull;</span>
+        <span class="text-sm font-heading font-medium text-ink/15 uppercase tracking-widest">Academies & Bootcamps</span>
+        <span class="text-warm-500/20">&bull;</span>
+        <span class="text-sm font-heading font-medium text-ink/15 uppercase tracking-widest">Corporate Trainers</span>
+        <span class="text-warm-500/20">&bull;</span>
+        <span class="text-sm font-heading font-medium text-ink/15 uppercase tracking-widest">Webinar Hosts</span>
+        <span class="text-warm-500/20">&bull;</span>
+        <span class="text-sm font-heading font-medium text-ink/15 uppercase tracking-widest">Sales & Demo Teams</span>
+        <span class="text-warm-500/20">&bull;</span>
+        <span class="text-sm font-heading font-medium text-ink/15 uppercase tracking-widest">Founders & Speakers</span>
+        <span class="text-warm-500/20">&bull;</span>
+        <span class="text-sm font-heading font-medium text-ink/15 uppercase tracking-widest">Consultants</span>
+        <span class="text-warm-500/20">&bull;</span>
+      </span>
+      <span class="inline-flex items-center gap-12 px-6">
+        <span class="text-sm font-heading font-medium text-ink/15 uppercase tracking-widest">Educators</span>
+        <span class="text-warm-500/20">&bull;</span>
+        <span class="text-sm font-heading font-medium text-ink/15 uppercase tracking-widest">Academies & Bootcamps</span>
+        <span class="text-warm-500/20">&bull;</span>
+        <span class="text-sm font-heading font-medium text-ink/15 uppercase tracking-widest">Corporate Trainers</span>
+        <span class="text-warm-500/20">&bull;</span>
+        <span class="text-sm font-heading font-medium text-ink/15 uppercase tracking-widest">Webinar Hosts</span>
+        <span class="text-warm-500/20">&bull;</span>
+        <span class="text-sm font-heading font-medium text-ink/15 uppercase tracking-widest">Sales & Demo Teams</span>
+        <span class="text-warm-500/20">&bull;</span>
+        <span class="text-sm font-heading font-medium text-ink/15 uppercase tracking-widest">Founders & Speakers</span>
+        <span class="text-warm-500/20">&bull;</span>
+        <span class="text-sm font-heading font-medium text-ink/15 uppercase tracking-widest">Consultants</span>
+        <span class="text-warm-500/20">&bull;</span>
+      </span>
     </div>
   </section>
 
   <!-- ===== PROBLEM ===== -->
-  <section class="py-24 lg:py-32 relative">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="max-w-2xl mx-auto text-center mb-16">
-        <p class="text-[13px] font-semibold text-accent-400 uppercase tracking-wider mb-4">The problem</p>
-        <h2 class="text-3xl lg:text-[2.75rem] font-bold tracking-tight text-white leading-tight mb-5">
-          Great content doesn't guarantee<br>a great presentation
-        </h2>
-        <p class="text-gray-400 leading-relaxed">
-          Even experienced speakers struggle with real-time delivery. The cognitive load of managing slides, notes, timing, audience attention, and live Q&A simultaneously degrades performance.
-        </p>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="glow-card p-6 rounded-2xl border border-white/[0.06] bg-white/[0.02]">
-          <div class="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center mb-4 border border-red-500/10">
-            <svg class="w-5 h-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-          </div>
-          <h3 class="text-sm font-semibold text-white mb-2">Pacing breaks down</h3>
-          <p class="text-sm text-gray-500 leading-relaxed">Adapting the same content to 15, 30, or 60 minutes requires complete rework every time.</p>
+  <section class="py-24 lg:py-32">
+    <div class="max-w-[1200px] mx-auto px-6 lg:px-8">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20">
+        <div class="lg:col-span-5">
+          <p class="text-[11px] font-mono font-bold text-warm-500 uppercase tracking-widest mb-4">The problem</p>
+          <h2 class="font-heading text-3xl lg:text-4xl font-bold tracking-tight leading-tight mb-6">
+            You know the content.<br>
+            But delivery is a<br>
+            <span class="handwritten text-warm-500 font-body text-[1.1em]">different skill.</span>
+          </h2>
+          <p class="text-ink/40 leading-relaxed">
+            Even the most experienced speakers face cognitive overload during live presentations. Slides, notes, timing, Q&A, audience energy &mdash; managing all of it at once degrades your performance.
+          </p>
         </div>
-        <div class="glow-card p-6 rounded-2xl border border-white/[0.06] bg-white/[0.02]">
-          <div class="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center mb-4 border border-amber-500/10">
-            <svg class="w-5 h-5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"/></svg>
+        <div class="lg:col-span-7 grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="bento-card p-6 rounded-2xl bg-white border border-ink/[0.04]">
+            <div class="w-10 h-10 rounded-xl bg-warm-500/5 flex items-center justify-center mb-5">
+              <svg class="w-5 h-5 text-warm-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <h3 class="text-sm font-heading font-semibold mb-2">Pacing breaks down</h3>
+            <p class="text-[13px] text-ink/35 leading-relaxed">Adapting content to 15, 30, or 60 minutes requires complete rework.</p>
           </div>
-          <h3 class="text-sm font-semibold text-white mb-2">Q&A disrupts flow</h3>
-          <p class="text-sm text-gray-500 leading-relaxed">Audience questions break your narrative rhythm. You lose your place and struggle to get back on track.</p>
-        </div>
-        <div class="glow-card p-6 rounded-2xl border border-white/[0.06] bg-white/[0.02]">
-          <div class="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center mb-4 border border-purple-500/10">
-            <svg class="w-5 h-5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/></svg>
+          <div class="bento-card p-6 rounded-2xl bg-white border border-ink/[0.04]">
+            <div class="w-10 h-10 rounded-xl bg-warm-500/5 flex items-center justify-center mb-5">
+              <svg class="w-5 h-5 text-warm-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"/></svg>
+            </div>
+            <h3 class="text-sm font-heading font-semibold mb-2">Q&A disrupts flow</h3>
+            <p class="text-[13px] text-ink/35 leading-relaxed">Audience questions break your rhythm and you lose your thread.</p>
           </div>
-          <h3 class="text-sm font-semibold text-white mb-2">Engagement drops unnoticed</h3>
-          <p class="text-sm text-gray-500 leading-relaxed">By the time you realize your audience has checked out, the damage is already done.</p>
+          <div class="bento-card p-6 rounded-2xl bg-white border border-ink/[0.04]">
+            <div class="w-10 h-10 rounded-xl bg-warm-500/5 flex items-center justify-center mb-5">
+              <svg class="w-5 h-5 text-warm-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            </div>
+            <h3 class="text-sm font-heading font-semibold mb-2">Engagement drops</h3>
+            <p class="text-[13px] text-ink/35 leading-relaxed">By the time you notice the audience checked out, it's too late.</p>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
-  <div class="line-glow max-w-4xl mx-auto"></div>
-
-  <!-- ===== FEATURES ===== -->
-  <section id="features" class="py-24 lg:py-32 relative">
-    <div class="orb w-[400px] h-[400px] bg-accent-700/8 top-[20%] right-[-10%]"></div>
-
-    <div class="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="max-w-2xl mx-auto text-center mb-16">
-        <p class="text-[13px] font-semibold text-accent-400 uppercase tracking-wider mb-4">Features</p>
-        <h2 class="text-3xl lg:text-[2.75rem] font-bold tracking-tight text-white leading-tight mb-5">
+  <!-- ===== FEATURES — BENTO GRID ===== -->
+  <section id="features" class="py-24 lg:py-32 dot-pattern">
+    <div class="max-w-[1200px] mx-auto px-6 lg:px-8">
+      <div class="max-w-xl mb-16">
+        <p class="text-[11px] font-mono font-bold text-warm-500 uppercase tracking-widest mb-4">Capabilities</p>
+        <h2 class="font-heading text-3xl lg:text-4xl font-bold tracking-tight leading-tight mb-4">
           Not a teleprompter.<br>
-          <span class="text-gradient-subtle">A speaking copilot.</span>
+          Not a slide maker.<br>
+          <span class="handwritten text-warm-500 font-body text-[1.1em]">A presentation orchestrator.</span>
         </h2>
-        <p class="text-gray-400 leading-relaxed">
-          Pretive doesn't just show you a script. It understands your content, follows your delivery, and actively helps you perform better.
-        </p>
       </div>
 
+      <!-- Bento Grid -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div class="glow-card p-7 rounded-2xl border border-white/[0.06] bg-white/[0.015]">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-500/20 to-purple-500/10 flex items-center justify-center mb-5 border border-accent-500/10">
-            <svg class="w-5 h-5 text-accent-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>
+        <!-- Card 1 - Large -->
+        <div class="bento-card lg:col-span-2 p-8 rounded-3xl bg-white border border-ink/[0.04]">
+          <div class="flex flex-col sm:flex-row sm:items-start gap-6">
+            <div class="w-14 h-14 rounded-2xl bg-warm-500/5 flex items-center justify-center shrink-0 border border-warm-500/10">
+              <svg class="w-6 h-6 text-warm-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>
+            </div>
+            <div>
+              <h3 class="text-lg font-heading font-semibold mb-2">Narrative Engine</h3>
+              <p class="text-sm text-ink/40 leading-relaxed max-w-md">Upload PDFs, docs, URLs, slides, or raw notes. Pretive extracts the core narrative and generates structured delivery plans in 5, 15, 30, or 60-minute formats &mdash; with transitions, key messages, and Q&A anchor points.</p>
+            </div>
           </div>
-          <h3 class="text-[15px] font-semibold text-white mb-2">Document to Narrative</h3>
-          <p class="text-sm text-gray-500 leading-relaxed">Upload PDFs, docs, URLs, or notes. Pretive builds a structured narrative with automatic 5/15/30/60 minute delivery modes.</p>
         </div>
 
-        <div class="glow-card p-7 rounded-2xl border border-white/[0.06] bg-white/[0.015]">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-500/20 to-purple-500/10 flex items-center justify-center mb-5 border border-accent-500/10">
-            <svg class="w-5 h-5 text-accent-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
+        <!-- Card 2 -->
+        <div class="bento-card p-7 rounded-3xl bg-ink text-white border border-ink/[0.04]">
+          <div class="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center mb-5">
+            <svg class="w-5 h-5 text-warm-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
           </div>
-          <h3 class="text-[15px] font-semibold text-white mb-2">AI Prompter</h3>
-          <p class="text-sm text-gray-500 leading-relaxed">Context-aware prompts that adapt to your speaking pace. See your next key point, not a wall of text.</p>
+          <h3 class="text-lg font-heading font-semibold mb-2">Semantic Prompter</h3>
+          <p class="text-sm text-white/40 leading-relaxed">Not a scrolling script. Pretive tracks meaning, not words &mdash; pausing when you pause, tolerating improvisation, and guiding you back if you skip ahead.</p>
         </div>
 
-        <div class="glow-card p-7 rounded-2xl border border-white/[0.06] bg-white/[0.015]">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-500/20 to-purple-500/10 flex items-center justify-center mb-5 border border-accent-500/10">
-            <svg class="w-5 h-5 text-accent-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/></svg>
+        <!-- Card 3 -->
+        <div class="bento-card p-7 rounded-3xl bg-white border border-ink/[0.04]">
+          <div class="w-12 h-12 rounded-2xl bg-sage-100 flex items-center justify-center mb-5">
+            <svg class="w-5 h-5 text-sage-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/></svg>
           </div>
-          <h3 class="text-[15px] font-semibold text-white mb-2">Live Speaking Copilot</h3>
-          <p class="text-sm text-gray-500 leading-relaxed">Silent nudges like "wrap up this section", "give an example", or "slow down" — only you can see them.</p>
+          <h3 class="text-[15px] font-heading font-semibold mb-2">Live Speaking Copilot</h3>
+          <p class="text-[13px] text-ink/40 leading-relaxed">Silent nudges only you see: "give an example here", "wrap up", "slow down", "move to CTA". Like a director in your earpiece.</p>
         </div>
 
-        <div class="glow-card p-7 rounded-2xl border border-white/[0.06] bg-white/[0.015]">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-500/20 to-purple-500/10 flex items-center justify-center mb-5 border border-accent-500/10">
-            <svg class="w-5 h-5 text-accent-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"/></svg>
+        <!-- Card 4 -->
+        <div class="bento-card p-7 rounded-3xl bg-white border border-ink/[0.04]">
+          <div class="w-12 h-12 rounded-2xl bg-clay-100 flex items-center justify-center mb-5">
+            <svg class="w-5 h-5 text-clay-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"/></svg>
           </div>
-          <h3 class="text-[15px] font-semibold text-white mb-2">Q&A Orchestrator</h3>
-          <p class="text-sm text-gray-500 leading-relaxed">Classifies incoming questions, suggests which to answer now vs. later, and generates grounded responses.</p>
+          <h3 class="text-[15px] font-heading font-semibold mb-2">Q&A Orchestrator</h3>
+          <p class="text-[13px] text-ink/40 leading-relaxed">Classifies incoming questions, suggests which to answer now vs. defer, and generates source-grounded response suggestions in real time.</p>
         </div>
 
-        <div class="glow-card p-7 rounded-2xl border border-white/[0.06] bg-white/[0.015]">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-500/20 to-purple-500/10 flex items-center justify-center mb-5 border border-accent-500/10">
-            <svg class="w-5 h-5 text-accent-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182"/></svg>
+        <!-- Card 5 -->
+        <div class="bento-card p-7 rounded-3xl bg-warm-500/[0.03] border border-warm-500/10">
+          <div class="w-12 h-12 rounded-2xl bg-warm-500/10 flex items-center justify-center mb-5">
+            <svg class="w-5 h-5 text-warm-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182"/></svg>
           </div>
-          <h3 class="text-[15px] font-semibold text-white mb-2">Recovery Mode</h3>
-          <p class="text-sm text-gray-500 leading-relaxed">Lost your train of thought? Get an instant rephrase — simpler, more technical, or audience-specific — without missing a beat.</p>
+          <h3 class="text-[15px] font-heading font-semibold mb-2">Recovery Mode</h3>
+          <p class="text-[13px] text-ink/40 leading-relaxed">Lost your thought? Say "simplify this", "give me three sentences", or "switch to technical" &mdash; instant rephrase without missing a beat.</p>
         </div>
 
-        <div class="glow-card p-7 rounded-2xl border border-white/[0.06] bg-white/[0.015]">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-500/20 to-purple-500/10 flex items-center justify-center mb-5 border border-accent-500/10">
-            <svg class="w-5 h-5 text-accent-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25A2.25 2.25 0 015.25 3h13.5A2.25 2.25 0 0121 5.25z"/></svg>
+        <!-- Card 6 -->
+        <div class="bento-card p-7 rounded-3xl bg-white border border-ink/[0.04]">
+          <div class="w-12 h-12 rounded-2xl bg-sage-100 flex items-center justify-center mb-5">
+            <svg class="w-5 h-5 text-sage-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25A2.25 2.25 0 015.25 3h13.5A2.25 2.25 0 0121 5.25z"/></svg>
           </div>
-          <h3 class="text-[15px] font-semibold text-white mb-2">Screen Intelligence</h3>
-          <p class="text-sm text-gray-500 leading-relaxed">Simplify cluttered slides on the fly, magnify key data, insert support cards, and dynamically adapt what's on screen to your narrative.</p>
+          <h3 class="text-[15px] font-heading font-semibold mb-2">Screen Intelligence</h3>
+          <p class="text-[13px] text-ink/40 leading-relaxed">Simplify cluttered slides on the fly, magnify key data, insert support cards, and dynamically adapt what's on screen to your narrative.</p>
         </div>
 
-        <div class="glow-card p-7 rounded-2xl border border-white/[0.06] bg-white/[0.015]">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-500/20 to-purple-500/10 flex items-center justify-center mb-5 border border-accent-500/10">
-            <svg class="w-5 h-5 text-accent-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+        <!-- Card 7 -->
+        <div class="bento-card p-7 rounded-3xl bg-white border border-ink/[0.04]">
+          <div class="w-12 h-12 rounded-2xl bg-clay-100 flex items-center justify-center mb-5">
+            <svg class="w-5 h-5 text-clay-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
           </div>
-          <h3 class="text-[15px] font-semibold text-white mb-2">Dynamic Content Augmentation</h3>
-          <p class="text-sm text-gray-500 leading-relaxed">Say "give a historical example" or "show a comparison table" mid-presentation and Pretive generates it live — timelines, summaries, counter-examples, anything.</p>
+          <h3 class="text-[15px] font-heading font-semibold mb-2">Dynamic Augmentation</h3>
+          <p class="text-[13px] text-ink/40 leading-relaxed">Say "show a timeline" or "give a counter-example" mid-talk. Pretive generates it live &mdash; comparisons, summaries, historical examples, anything.</p>
         </div>
 
-        <div class="glow-card p-7 rounded-2xl border border-white/[0.06] bg-white/[0.015]">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-500/20 to-purple-500/10 flex items-center justify-center mb-5 border border-accent-500/10">
-            <svg class="w-5 h-5 text-accent-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418"/></svg>
+        <!-- Card 8 - Large -->
+        <div class="bento-card lg:col-span-2 p-8 rounded-3xl bg-sage-100/50 border border-sage-200/50">
+          <div class="flex flex-col sm:flex-row sm:items-start gap-6">
+            <div class="w-14 h-14 rounded-2xl bg-white flex items-center justify-center shrink-0 border border-sage-200">
+              <svg class="w-6 h-6 text-sage-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75C20.25 16.153 16.556 18 12 18s-8.25-1.847-8.25-4.125v-3.75m16.5 0c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125"/></svg>
+            </div>
+            <div>
+              <h3 class="text-lg font-heading font-semibold mb-2">Session & Team Memory</h3>
+              <p class="text-sm text-ink/40 leading-relaxed max-w-md">Every session builds institutional knowledge &mdash; Q&A pools, approved narratives, session libraries. Multiple trainers deliver the same content at a consistent quality bar. Your organization gets smarter with every talk.</p>
+            </div>
           </div>
-          <h3 class="text-[15px] font-semibold text-white mb-2">Live Research & Media</h3>
-          <p class="text-sm text-gray-500 leading-relaxed">Pull supporting videos, articles, case studies, or internal knowledge base entries into your live session without breaking flow.</p>
         </div>
 
-        <div class="glow-card p-7 rounded-2xl border border-white/[0.06] bg-white/[0.015]">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-500/20 to-purple-500/10 flex items-center justify-center mb-5 border border-accent-500/10">
-            <svg class="w-5 h-5 text-accent-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75C20.25 16.153 16.556 18 12 18s-8.25-1.847-8.25-4.125v-3.75m16.5 0c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125"/></svg>
+        <!-- Card 9 -->
+        <div class="bento-card p-7 rounded-3xl bg-white border border-ink/[0.04]">
+          <div class="w-12 h-12 rounded-2xl bg-warm-500/5 flex items-center justify-center mb-5">
+            <svg class="w-5 h-5 text-warm-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418"/></svg>
           </div>
-          <h3 class="text-[15px] font-semibold text-white mb-2">Session & Team Memory</h3>
-          <p class="text-sm text-gray-500 leading-relaxed">Every session builds institutional knowledge — Q&A pools, approved narratives, session libraries. Multiple trainers deliver the same content at a consistent quality.</p>
+          <h3 class="text-[15px] font-heading font-semibold mb-2">Live Research & Media</h3>
+          <p class="text-[13px] text-ink/40 leading-relaxed">Pull supporting videos, articles, case studies, or knowledge base entries into your live session without breaking flow.</p>
         </div>
 
-        <div class="glow-card p-7 rounded-2xl border border-white/[0.06] bg-white/[0.015]">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-500/20 to-purple-500/10 flex items-center justify-center mb-5 border border-accent-500/10">
-            <svg class="w-5 h-5 text-accent-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/></svg>
+        <!-- Card 10 -->
+        <div class="bento-card p-7 rounded-3xl bg-white border border-ink/[0.04]">
+          <div class="w-12 h-12 rounded-2xl bg-sage-100 flex items-center justify-center mb-5">
+            <svg class="w-5 h-5 text-sage-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/></svg>
           </div>
-          <h3 class="text-[15px] font-semibold text-white mb-2">Post-Session Intelligence</h3>
-          <p class="text-sm text-gray-500 leading-relaxed">Auto-generated session summaries, action items, follow-up emails, and performance insights after every talk.</p>
+          <h3 class="text-[15px] font-heading font-semibold mb-2">Post-Session Intel</h3>
+          <p class="text-[13px] text-ink/40 leading-relaxed">Auto-generated summaries, action items, follow-up emails, and performance insights after every talk.</p>
         </div>
       </div>
     </div>
   </section>
-
-  <div class="line-glow max-w-4xl mx-auto"></div>
 
   <!-- ===== HOW IT WORKS ===== -->
-  <section id="how-it-works" class="py-24 lg:py-32">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="max-w-2xl mx-auto text-center mb-16">
-        <p class="text-[13px] font-semibold text-accent-400 uppercase tracking-wider mb-4">How it works</p>
-        <h2 class="text-3xl lg:text-[2.75rem] font-bold tracking-tight text-white leading-tight">
-          Three steps to a<br>
-          <span class="text-gradient-subtle">better presentation</span>
-        </h2>
+  <section id="how-it-works" class="py-24 lg:py-32 bg-white">
+    <div class="max-w-[1200px] mx-auto px-6 lg:px-8">
+      <div class="max-w-xl mb-16">
+        <p class="text-[11px] font-mono font-bold text-warm-500 uppercase tracking-widest mb-4">How it works</p>
+        <h2 class="font-heading text-3xl lg:text-4xl font-bold tracking-tight leading-tight">Three moves.</h2>
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="relative p-8 rounded-2xl border border-white/[0.06] bg-white/[0.015]">
-          <div class="text-6xl font-black text-white/[0.04] absolute top-6 right-8">01</div>
-          <div class="relative">
-            <div class="w-10 h-10 rounded-xl bg-accent-500/10 flex items-center justify-center mb-5 border border-accent-500/10">
-              <svg class="w-5 h-5 text-accent-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
+        <div class="relative p-8 rounded-3xl border border-ink/[0.04] bg-cream/50 group">
+          <span class="number-big absolute top-4 right-6 select-none">01</span>
+          <div class="relative pt-8">
+            <div class="w-12 h-12 rounded-2xl bg-warm-500/5 flex items-center justify-center mb-6 border border-warm-500/10">
+              <svg class="w-5 h-5 text-warm-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
             </div>
-            <h3 class="text-lg font-semibold text-white mb-2">Upload your content</h3>
-            <p class="text-sm text-gray-500 leading-relaxed">Drop in your PDFs, docs, slides, URLs, or raw notes. Pretive analyzes everything and builds a narrative backbone in under 60 seconds.</p>
+            <h3 class="text-xl font-heading font-semibold mb-3">Upload your content</h3>
+            <p class="text-sm text-ink/40 leading-relaxed">Drop in PDFs, docs, slides, URLs, or raw notes. Pretive builds a narrative backbone in under 60 seconds.</p>
           </div>
         </div>
 
-        <div class="relative p-8 rounded-2xl border border-white/[0.06] bg-white/[0.015]">
-          <div class="text-6xl font-black text-white/[0.04] absolute top-6 right-8">02</div>
-          <div class="relative">
-            <div class="w-10 h-10 rounded-xl bg-accent-500/10 flex items-center justify-center mb-5 border border-accent-500/10">
-              <svg class="w-5 h-5 text-accent-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z"/></svg>
+        <div class="relative p-8 rounded-3xl border border-ink/[0.04] bg-cream/50">
+          <span class="number-big absolute top-4 right-6 select-none">02</span>
+          <div class="relative pt-8">
+            <div class="w-12 h-12 rounded-2xl bg-sage-100 flex items-center justify-center mb-6 border border-sage-200">
+              <svg class="w-5 h-5 text-sage-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z"/></svg>
             </div>
-            <h3 class="text-lg font-semibold text-white mb-2">Present with confidence</h3>
-            <p class="text-sm text-gray-500 leading-relaxed">Go live. Pretive tracks your speech, serves real-time hints, manages audience questions, and nudges you when engagement drops.</p>
+            <h3 class="text-xl font-heading font-semibold mb-3">Present with a copilot</h3>
+            <p class="text-sm text-ink/40 leading-relaxed">Go live. Pretive tracks your speech, serves real-time hints, manages Q&A, enriches your screen, and recovers when you get stuck.</p>
           </div>
         </div>
 
-        <div class="relative p-8 rounded-2xl border border-white/[0.06] bg-white/[0.015]">
-          <div class="text-6xl font-black text-white/[0.04] absolute top-6 right-8">03</div>
-          <div class="relative">
-            <div class="w-10 h-10 rounded-xl bg-accent-500/10 flex items-center justify-center mb-5 border border-accent-500/10">
-              <svg class="w-5 h-5 text-accent-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <div class="relative p-8 rounded-3xl border border-ink/[0.04] bg-cream/50">
+          <span class="number-big absolute top-4 right-6 select-none">03</span>
+          <div class="relative pt-8">
+            <div class="w-12 h-12 rounded-2xl bg-clay-100 flex items-center justify-center mb-6 border border-clay-200">
+              <svg class="w-5 h-5 text-clay-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             </div>
-            <h3 class="text-lg font-semibold text-white mb-2">Get the debrief</h3>
-            <p class="text-sm text-gray-500 leading-relaxed">After your session, receive a full summary, action items, follow-up drafts, and insights on what worked and what to improve.</p>
+            <h3 class="text-xl font-heading font-semibold mb-3">Get the debrief</h3>
+            <p class="text-sm text-ink/40 leading-relaxed">After your session, receive a full summary, action items, follow-up drafts, and insights on what to improve next time.</p>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ===== PERFORMANCE METRICS ===== -->
-  <section class="py-20 border-y border-white/[0.04] bg-white/[0.01]">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
-        <div>
-          <div class="text-3xl lg:text-4xl font-black text-white mb-1 font-mono">&lt;1.2<span class="text-accent-400">s</span></div>
-          <p class="text-xs text-gray-500 uppercase tracking-wider">Live hint latency</p>
+  <!-- ===== METRICS — Horizontal ===== -->
+  <section class="py-16 border-y border-ink/[0.04] stripe-bg">
+    <div class="max-w-[1200px] mx-auto px-6 lg:px-8">
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-8">
+        <div class="text-center">
+          <p class="font-heading text-4xl lg:text-5xl font-bold text-ink tracking-tight">&lt;1.2<span class="text-warm-500">s</span></p>
+          <p class="text-[11px] font-mono text-ink/30 uppercase tracking-widest mt-2">Hint latency</p>
         </div>
-        <div>
-          <div class="text-3xl lg:text-4xl font-black text-white mb-1 font-mono">&lt;60<span class="text-accent-400">s</span></div>
-          <p class="text-xs text-gray-500 uppercase tracking-wider">Narrative generation</p>
+        <div class="text-center">
+          <p class="font-heading text-4xl lg:text-5xl font-bold text-ink tracking-tight">&lt;60<span class="text-warm-500">s</span></p>
+          <p class="text-[11px] font-mono text-ink/30 uppercase tracking-widest mt-2">Narrative gen</p>
         </div>
-        <div>
-          <div class="text-3xl lg:text-4xl font-black text-white mb-1 font-mono">&lt;3<span class="text-accent-400">s</span></div>
-          <p class="text-xs text-gray-500 uppercase tracking-wider">Q&A response time</p>
+        <div class="text-center">
+          <p class="font-heading text-4xl lg:text-5xl font-bold text-ink tracking-tight">&lt;3<span class="text-warm-500">s</span></p>
+          <p class="text-[11px] font-mono text-ink/30 uppercase tracking-widest mt-2">Q&A response</p>
         </div>
-        <div>
-          <div class="text-3xl lg:text-4xl font-black text-white mb-1 font-mono">5-60<span class="text-accent-400">m</span></div>
-          <p class="text-xs text-gray-500 uppercase tracking-wider">Auto duration modes</p>
+        <div class="text-center">
+          <p class="font-heading text-4xl lg:text-5xl font-bold text-ink tracking-tight">5–60<span class="text-warm-500">m</span></p>
+          <p class="text-[11px] font-mono text-ink/30 uppercase tracking-widest mt-2">Duration modes</p>
         </div>
       </div>
     </div>
   </section>
 
   <!-- ===== COMPARISON ===== -->
-  <section class="py-24 lg:py-32">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="max-w-2xl mx-auto text-center mb-16">
-        <p class="text-[13px] font-semibold text-accent-400 uppercase tracking-wider mb-4">Comparison</p>
-        <h2 class="text-3xl lg:text-[2.75rem] font-bold tracking-tight text-white leading-tight">
-          Pretive occupies a<br>
-          <span class="text-gradient-subtle">different category</span>
+  <section id="comparison" class="py-24 lg:py-32">
+    <div class="max-w-[1200px] mx-auto px-6 lg:px-8">
+      <div class="max-w-xl mb-16">
+        <p class="text-[11px] font-mono font-bold text-warm-500 uppercase tracking-widest mb-4">Comparison</p>
+        <h2 class="font-heading text-3xl lg:text-4xl font-bold tracking-tight leading-tight">
+          Different tools.<br>
+          <span class="handwritten text-warm-500 font-body text-[1.1em]">Different category.</span>
         </h2>
       </div>
 
-      <div class="max-w-4xl mx-auto overflow-x-auto">
+      <div class="overflow-x-auto rounded-2xl border border-ink/[0.04] bg-white">
         <table class="w-full text-sm">
           <thead>
-            <tr class="border-b border-white/[0.06]">
-              <th class="text-left py-4 px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Capability</th>
-              <th class="text-center py-4 px-2 text-xs font-medium text-gray-600">PowerPoint<br>Copilot</th>
-              <th class="text-center py-4 px-2 text-xs font-medium text-gray-600">Canva</th>
-              <th class="text-center py-4 px-2 text-xs font-medium text-gray-600">Prompt<br>Smart</th>
-              <th class="text-center py-4 px-2 text-xs font-medium text-gray-600">Gamma</th>
-              <th class="text-center py-4 px-2 text-xs font-medium text-gray-600">Otter</th>
-              <th class="text-center py-4 px-2">
-                <span class="text-xs font-bold text-accent-400 bg-accent-500/10 px-3 py-1 rounded-full border border-accent-500/20">Pretive</span>
+            <tr class="border-b border-ink/[0.06]">
+              <th class="text-left py-4 px-5 text-[11px] font-mono font-bold text-ink/30 uppercase tracking-widest">Capability</th>
+              <th class="text-center py-4 px-3 text-[11px] font-mono text-ink/25">PPT<br>Copilot</th>
+              <th class="text-center py-4 px-3 text-[11px] font-mono text-ink/25">Canva</th>
+              <th class="text-center py-4 px-3 text-[11px] font-mono text-ink/25">Prompt<br>Smart</th>
+              <th class="text-center py-4 px-3 text-[11px] font-mono text-ink/25">Gamma</th>
+              <th class="text-center py-4 px-3 text-[11px] font-mono text-ink/25">Otter</th>
+              <th class="text-center py-4 px-3">
+                <span class="text-[11px] font-mono font-bold text-warm-500 bg-warm-500/5 px-3 py-1 rounded-full border border-warm-500/10">Pretive</span>
               </th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-white/[0.03]">
-            <tr>
-              <td class="py-3 px-3 text-gray-400">Slide generation</td>
-              <td class="py-3 px-2 text-center text-green-500">&#10003;</td>
-              <td class="py-3 px-2 text-center text-green-500">&#10003;</td>
-              <td class="py-3 px-2 text-center text-gray-700">&#10007;</td>
-              <td class="py-3 px-2 text-center text-green-500">&#10003;</td>
-              <td class="py-3 px-2 text-center text-gray-700">&#10007;</td>
-              <td class="py-3 px-2 text-center text-gray-700">&#10007;</td>
+          <tbody>
+            <tr class="comparison-row border-b border-ink/[0.03]">
+              <td class="py-3.5 px-5 text-ink/50">Slide generation</td>
+              <td class="py-3.5 px-3 text-center text-sage-500">&#10003;</td>
+              <td class="py-3.5 px-3 text-center text-sage-500">&#10003;</td>
+              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
+              <td class="py-3.5 px-3 text-center text-sage-500">&#10003;</td>
+              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
+              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
             </tr>
-            <tr class="bg-white/[0.01]">
-              <td class="py-3 px-3 text-gray-400">Voice-tracked prompter</td>
-              <td class="py-3 px-2 text-center text-gray-700">&#10007;</td>
-              <td class="py-3 px-2 text-center text-gray-700">&#10007;</td>
-              <td class="py-3 px-2 text-center text-green-500">&#10003;</td>
-              <td class="py-3 px-2 text-center text-gray-700">&#10007;</td>
-              <td class="py-3 px-2 text-center text-gray-700">&#10007;</td>
-              <td class="py-3 px-2 text-center text-green-400 font-bold">&#10003;</td>
+            <tr class="comparison-row border-b border-ink/[0.03]">
+              <td class="py-3.5 px-5 text-ink/50">Voice-tracked prompter</td>
+              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
+              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
+              <td class="py-3.5 px-3 text-center text-sage-500">&#10003;</td>
+              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
+              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
+              <td class="py-3.5 px-3 text-center text-warm-500 font-bold">&#10003;</td>
             </tr>
-            <tr>
-              <td class="py-3 px-3 text-gray-400">Live delivery coaching</td>
-              <td class="py-3 px-2 text-center text-yellow-600">~</td>
-              <td class="py-3 px-2 text-center text-gray-700">&#10007;</td>
-              <td class="py-3 px-2 text-center text-gray-700">&#10007;</td>
-              <td class="py-3 px-2 text-center text-gray-700">&#10007;</td>
-              <td class="py-3 px-2 text-center text-gray-700">&#10007;</td>
-              <td class="py-3 px-2 text-center text-green-400 font-bold">&#10003;</td>
+            <tr class="comparison-row border-b border-ink/[0.03]">
+              <td class="py-3.5 px-5 text-ink/50">Live delivery coaching</td>
+              <td class="py-3.5 px-3 text-center text-ink/25">~</td>
+              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
+              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
+              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
+              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
+              <td class="py-3.5 px-3 text-center text-warm-500 font-bold">&#10003;</td>
             </tr>
-            <tr class="bg-white/[0.01]">
-              <td class="py-3 px-3 text-gray-400">Semantic flow tracking</td>
-              <td class="py-3 px-2 text-center text-gray-700">&#10007;</td>
-              <td class="py-3 px-2 text-center text-gray-700">&#10007;</td>
-              <td class="py-3 px-2 text-center text-gray-700">&#10007;</td>
-              <td class="py-3 px-2 text-center text-gray-700">&#10007;</td>
-              <td class="py-3 px-2 text-center text-gray-700">&#10007;</td>
-              <td class="py-3 px-2 text-center text-green-400 font-bold">&#10003;</td>
+            <tr class="comparison-row border-b border-ink/[0.03]">
+              <td class="py-3.5 px-5 text-ink/50">Semantic flow tracking</td>
+              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
+              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
+              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
+              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
+              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
+              <td class="py-3.5 px-3 text-center text-warm-500 font-bold">&#10003;</td>
             </tr>
-            <tr>
-              <td class="py-3 px-3 text-gray-400">Real-time Q&A management</td>
-              <td class="py-3 px-2 text-center text-gray-700">&#10007;</td>
-              <td class="py-3 px-2 text-center text-yellow-600">~</td>
-              <td class="py-3 px-2 text-center text-gray-700">&#10007;</td>
-              <td class="py-3 px-2 text-center text-gray-700">&#10007;</td>
-              <td class="py-3 px-2 text-center text-yellow-600">~</td>
-              <td class="py-3 px-2 text-center text-green-400 font-bold">&#10003;</td>
+            <tr class="comparison-row border-b border-ink/[0.03]">
+              <td class="py-3.5 px-5 text-ink/50">Real-time Q&A management</td>
+              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
+              <td class="py-3.5 px-3 text-center text-ink/25">~</td>
+              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
+              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
+              <td class="py-3.5 px-3 text-center text-ink/25">~</td>
+              <td class="py-3.5 px-3 text-center text-warm-500 font-bold">&#10003;</td>
             </tr>
-            <tr class="bg-white/[0.01]">
-              <td class="py-3 px-3 text-gray-400">Screen intelligence</td>
-              <td class="py-3 px-2 text-center text-gray-700">&#10007;</td>
-              <td class="py-3 px-2 text-center text-gray-700">&#10007;</td>
-              <td class="py-3 px-2 text-center text-gray-700">&#10007;</td>
-              <td class="py-3 px-2 text-center text-gray-700">&#10007;</td>
-              <td class="py-3 px-2 text-center text-gray-700">&#10007;</td>
-              <td class="py-3 px-2 text-center text-green-400 font-bold">&#10003;</td>
+            <tr class="comparison-row border-b border-ink/[0.03]">
+              <td class="py-3.5 px-5 text-ink/50">Screen intelligence</td>
+              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
+              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
+              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
+              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
+              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
+              <td class="py-3.5 px-3 text-center text-warm-500 font-bold">&#10003;</td>
             </tr>
-            <tr>
-              <td class="py-3 px-3 text-gray-400">Dynamic content augmentation</td>
-              <td class="py-3 px-2 text-center text-gray-700">&#10007;</td>
-              <td class="py-3 px-2 text-center text-gray-700">&#10007;</td>
-              <td class="py-3 px-2 text-center text-gray-700">&#10007;</td>
-              <td class="py-3 px-2 text-center text-gray-700">&#10007;</td>
-              <td class="py-3 px-2 text-center text-gray-700">&#10007;</td>
-              <td class="py-3 px-2 text-center text-green-400 font-bold">&#10003;</td>
+            <tr class="comparison-row border-b border-ink/[0.03]">
+              <td class="py-3.5 px-5 text-ink/50">Dynamic content augmentation</td>
+              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
+              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
+              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
+              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
+              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
+              <td class="py-3.5 px-3 text-center text-warm-500 font-bold">&#10003;</td>
             </tr>
-            <tr class="bg-white/[0.01]">
-              <td class="py-3 px-3 text-gray-400">Live research & media</td>
-              <td class="py-3 px-2 text-center text-gray-700">&#10007;</td>
-              <td class="py-3 px-2 text-center text-gray-700">&#10007;</td>
-              <td class="py-3 px-2 text-center text-gray-700">&#10007;</td>
-              <td class="py-3 px-2 text-center text-gray-700">&#10007;</td>
-              <td class="py-3 px-2 text-center text-gray-700">&#10007;</td>
-              <td class="py-3 px-2 text-center text-green-400 font-bold">&#10003;</td>
+            <tr class="comparison-row border-b border-ink/[0.03]">
+              <td class="py-3.5 px-5 text-ink/50">Live research & media</td>
+              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
+              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
+              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
+              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
+              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
+              <td class="py-3.5 px-3 text-center text-warm-500 font-bold">&#10003;</td>
             </tr>
-            <tr>
-              <td class="py-3 px-3 text-gray-400">Recovery mode</td>
-              <td class="py-3 px-2 text-center text-gray-700">&#10007;</td>
-              <td class="py-3 px-2 text-center text-gray-700">&#10007;</td>
-              <td class="py-3 px-2 text-center text-gray-700">&#10007;</td>
-              <td class="py-3 px-2 text-center text-gray-700">&#10007;</td>
-              <td class="py-3 px-2 text-center text-gray-700">&#10007;</td>
-              <td class="py-3 px-2 text-center text-green-400 font-bold">&#10003;</td>
+            <tr class="comparison-row border-b border-ink/[0.03]">
+              <td class="py-3.5 px-5 text-ink/50">Recovery mode</td>
+              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
+              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
+              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
+              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
+              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
+              <td class="py-3.5 px-3 text-center text-warm-500 font-bold">&#10003;</td>
             </tr>
-            <tr class="bg-white/[0.01]">
-              <td class="py-3 px-3 text-gray-400">Team memory & session library</td>
-              <td class="py-3 px-2 text-center text-gray-700">&#10007;</td>
-              <td class="py-3 px-2 text-center text-gray-700">&#10007;</td>
-              <td class="py-3 px-2 text-center text-gray-700">&#10007;</td>
-              <td class="py-3 px-2 text-center text-gray-700">&#10007;</td>
-              <td class="py-3 px-2 text-center text-gray-700">&#10007;</td>
-              <td class="py-3 px-2 text-center text-green-400 font-bold">&#10003;</td>
+            <tr class="comparison-row border-b border-ink/[0.03]">
+              <td class="py-3.5 px-5 text-ink/50">Team memory & session library</td>
+              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
+              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
+              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
+              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
+              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
+              <td class="py-3.5 px-3 text-center text-warm-500 font-bold">&#10003;</td>
             </tr>
-            <tr>
-              <td class="py-3 px-3 text-gray-400">Presenter view / notes</td>
-              <td class="py-3 px-2 text-center text-green-500">&#10003;</td>
-              <td class="py-3 px-2 text-center text-green-500">&#10003;</td>
-              <td class="py-3 px-2 text-center text-gray-700">&#10007;</td>
-              <td class="py-3 px-2 text-center text-gray-700">&#10007;</td>
-              <td class="py-3 px-2 text-center text-gray-700">&#10007;</td>
-              <td class="py-3 px-2 text-center text-green-400 font-bold">&#10003;</td>
+            <tr class="comparison-row">
+              <td class="py-3.5 px-5 text-ink/50">Presenter view / notes</td>
+              <td class="py-3.5 px-3 text-center text-sage-500">&#10003;</td>
+              <td class="py-3.5 px-3 text-center text-sage-500">&#10003;</td>
+              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
+              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
+              <td class="py-3.5 px-3 text-center text-ink/10">&#10007;</td>
+              <td class="py-3.5 px-3 text-center text-warm-500 font-bold">&#10003;</td>
             </tr>
           </tbody>
         </table>
@@ -696,137 +684,146 @@
     </div>
   </section>
 
-  <div class="line-glow max-w-4xl mx-auto"></div>
-
   <!-- ===== PRICING ===== -->
-  <section id="pricing" class="py-24 lg:py-32">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="max-w-2xl mx-auto text-center mb-16">
-        <p class="text-[13px] font-semibold text-accent-400 uppercase tracking-wider mb-4">Pricing</p>
-        <h2 class="text-3xl lg:text-[2.75rem] font-bold tracking-tight text-white leading-tight">
-          Simple, transparent pricing
-        </h2>
+  <section id="pricing" class="py-24 lg:py-32 bg-white">
+    <div class="max-w-[1200px] mx-auto px-6 lg:px-8">
+      <div class="max-w-xl mb-16">
+        <p class="text-[11px] font-mono font-bold text-warm-500 uppercase tracking-widest mb-4">Pricing</p>
+        <h2 class="font-heading text-3xl lg:text-4xl font-bold tracking-tight leading-tight">Simple. Transparent.</h2>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-5xl mx-auto">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <!-- Free -->
-        <div class="glow-card rounded-2xl border border-white/[0.06] bg-white/[0.015] p-7">
-          <h3 class="text-[15px] font-semibold text-white mb-1">Free</h3>
-          <p class="text-xs text-gray-500 mb-5">Explore & try</p>
-          <div class="mb-6">
-            <span class="text-3xl font-black text-white">$0</span>
-          </div>
-          <ul class="space-y-2.5 mb-7 text-sm text-gray-500">
-            <li class="flex items-center gap-2"><svg class="w-4 h-4 text-gray-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>Limited content import</li>
-            <li class="flex items-center gap-2"><svg class="w-4 h-4 text-gray-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>Basic live hints</li>
-            <li class="flex items-center gap-2"><svg class="w-4 h-4 text-gray-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>Trial rehearsal</li>
+        <div class="bento-card rounded-3xl border border-ink/[0.04] bg-cream/50 p-7">
+          <p class="text-[11px] font-mono text-ink/30 uppercase tracking-widest mb-1">Free</p>
+          <p class="font-heading text-3xl font-bold mb-1">$0</p>
+          <p class="text-xs text-ink/30 mb-6">Explore & try</p>
+          <ul class="space-y-3 mb-8">
+            <li class="flex items-center gap-2.5 text-[13px] text-ink/40"><span class="w-1 h-1 rounded-full bg-ink/15"></span>Limited content import</li>
+            <li class="flex items-center gap-2.5 text-[13px] text-ink/40"><span class="w-1 h-1 rounded-full bg-ink/15"></span>Basic live hints</li>
+            <li class="flex items-center gap-2.5 text-[13px] text-ink/40"><span class="w-1 h-1 rounded-full bg-ink/15"></span>Trial rehearsal</li>
           </ul>
-          <a href="#waitlist" class="block w-full py-2.5 text-center text-sm font-medium text-gray-400 border border-white/[0.08] rounded-xl hover:bg-white/5 hover:text-white transition-all">Get started</a>
+          <a href="#waitlist" class="block w-full py-3 text-center text-[13px] font-semibold text-ink/50 border border-ink/10 rounded-full hover:bg-ink/5 transition-all">Get started</a>
         </div>
 
         <!-- Pro -->
-        <div class="relative rounded-2xl border border-accent-500/30 bg-accent-500/[0.04] p-7 shadow-lg shadow-accent-500/5">
-          <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 bg-accent-600 text-white text-[10px] font-bold rounded-full uppercase tracking-wider">Popular</div>
-          <h3 class="text-[15px] font-semibold text-white mb-1">Pro</h3>
-          <p class="text-xs text-gray-500 mb-5">Individual presenters</p>
-          <div class="mb-6">
-            <span class="text-3xl font-black text-white">$19</span>
-            <span class="text-sm text-gray-500">/mo</span>
-          </div>
-          <ul class="space-y-2.5 mb-7 text-sm text-gray-400">
-            <li class="flex items-center gap-2"><svg class="w-4 h-4 text-accent-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>Full narrative engine</li>
-            <li class="flex items-center gap-2"><svg class="w-4 h-4 text-accent-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>AI prompter + live hints</li>
-            <li class="flex items-center gap-2"><svg class="w-4 h-4 text-accent-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>Recovery mode + Q&A</li>
-            <li class="flex items-center gap-2"><svg class="w-4 h-4 text-accent-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>Session summaries</li>
+        <div class="relative rounded-3xl border-2 border-ink bg-white p-7 shadow-lg">
+          <div class="absolute -top-3 left-6 px-3 py-0.5 bg-ink text-white text-[10px] font-mono font-bold rounded-full uppercase tracking-wider">Popular</div>
+          <p class="text-[11px] font-mono text-ink/30 uppercase tracking-widest mb-1">Pro</p>
+          <p class="font-heading text-3xl font-bold mb-1">$19<span class="text-base font-normal text-ink/30">/mo</span></p>
+          <p class="text-xs text-ink/30 mb-6">Individual presenters</p>
+          <ul class="space-y-3 mb-8">
+            <li class="flex items-center gap-2.5 text-[13px] text-ink/60"><span class="w-1 h-1 rounded-full bg-warm-500"></span>Full narrative engine</li>
+            <li class="flex items-center gap-2.5 text-[13px] text-ink/60"><span class="w-1 h-1 rounded-full bg-warm-500"></span>AI prompter + live hints</li>
+            <li class="flex items-center gap-2.5 text-[13px] text-ink/60"><span class="w-1 h-1 rounded-full bg-warm-500"></span>Recovery mode + Q&A</li>
+            <li class="flex items-center gap-2.5 text-[13px] text-ink/60"><span class="w-1 h-1 rounded-full bg-warm-500"></span>Session summaries</li>
+            <li class="flex items-center gap-2.5 text-[13px] text-ink/60"><span class="w-1 h-1 rounded-full bg-warm-500"></span>Screen intelligence</li>
           </ul>
-          <a href="#waitlist" class="block w-full py-2.5 text-center text-sm font-semibold text-white bg-accent-600 rounded-xl hover:bg-accent-500 transition-all shadow-lg shadow-accent-500/20">Get early access</a>
+          <a href="#waitlist" class="block w-full py-3 text-center text-[13px] font-semibold text-white bg-ink rounded-full hover:bg-warm-600 transition-all magnetic">Get early access</a>
         </div>
 
         <!-- Team -->
-        <div class="glow-card rounded-2xl border border-white/[0.06] bg-white/[0.015] p-7">
-          <h3 class="text-[15px] font-semibold text-white mb-1">Team</h3>
-          <p class="text-xs text-gray-500 mb-5">Academies & teams</p>
-          <div class="mb-6">
-            <span class="text-3xl font-black text-white">$24</span>
-            <span class="text-sm text-gray-500">/seat/mo</span>
-          </div>
-          <ul class="space-y-2.5 mb-7 text-sm text-gray-500">
-            <li class="flex items-center gap-2"><svg class="w-4 h-4 text-gray-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>Everything in Pro</li>
-            <li class="flex items-center gap-2"><svg class="w-4 h-4 text-gray-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>Shared workspace</li>
-            <li class="flex items-center gap-2"><svg class="w-4 h-4 text-gray-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>Analytics + team memory</li>
+        <div class="bento-card rounded-3xl border border-ink/[0.04] bg-cream/50 p-7">
+          <p class="text-[11px] font-mono text-ink/30 uppercase tracking-widest mb-1">Team</p>
+          <p class="font-heading text-3xl font-bold mb-1">$24<span class="text-base font-normal text-ink/30">/seat</span></p>
+          <p class="text-xs text-ink/30 mb-6">Academies & teams</p>
+          <ul class="space-y-3 mb-8">
+            <li class="flex items-center gap-2.5 text-[13px] text-ink/40"><span class="w-1 h-1 rounded-full bg-ink/15"></span>Everything in Pro</li>
+            <li class="flex items-center gap-2.5 text-[13px] text-ink/40"><span class="w-1 h-1 rounded-full bg-ink/15"></span>Shared workspace</li>
+            <li class="flex items-center gap-2.5 text-[13px] text-ink/40"><span class="w-1 h-1 rounded-full bg-ink/15"></span>Team memory</li>
+            <li class="flex items-center gap-2.5 text-[13px] text-ink/40"><span class="w-1 h-1 rounded-full bg-ink/15"></span>Analytics</li>
           </ul>
-          <a href="#waitlist" class="block w-full py-2.5 text-center text-sm font-medium text-gray-400 border border-white/[0.08] rounded-xl hover:bg-white/5 hover:text-white transition-all">Get early access</a>
+          <a href="#waitlist" class="block w-full py-3 text-center text-[13px] font-semibold text-ink/50 border border-ink/10 rounded-full hover:bg-ink/5 transition-all">Get early access</a>
         </div>
 
         <!-- Enterprise -->
-        <div class="glow-card rounded-2xl border border-white/[0.06] bg-white/[0.015] p-7">
-          <h3 class="text-[15px] font-semibold text-white mb-1">Enterprise</h3>
-          <p class="text-xs text-gray-500 mb-5">Large organizations</p>
-          <div class="mb-6">
-            <span class="text-xl font-black text-white">Custom</span>
-          </div>
-          <ul class="space-y-2.5 mb-7 text-sm text-gray-500">
-            <li class="flex items-center gap-2"><svg class="w-4 h-4 text-gray-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>SSO + audit log</li>
-            <li class="flex items-center gap-2"><svg class="w-4 h-4 text-gray-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>LMS/CRM integrations</li>
-            <li class="flex items-center gap-2"><svg class="w-4 h-4 text-gray-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>Guardrails + security</li>
+        <div class="bento-card rounded-3xl border border-ink/[0.04] bg-cream/50 p-7">
+          <p class="text-[11px] font-mono text-ink/30 uppercase tracking-widest mb-1">Enterprise</p>
+          <p class="font-heading text-2xl font-bold mb-1">Custom</p>
+          <p class="text-xs text-ink/30 mb-6">Large organizations</p>
+          <ul class="space-y-3 mb-8">
+            <li class="flex items-center gap-2.5 text-[13px] text-ink/40"><span class="w-1 h-1 rounded-full bg-ink/15"></span>SSO + audit log</li>
+            <li class="flex items-center gap-2.5 text-[13px] text-ink/40"><span class="w-1 h-1 rounded-full bg-ink/15"></span>LMS/CRM integrations</li>
+            <li class="flex items-center gap-2.5 text-[13px] text-ink/40"><span class="w-1 h-1 rounded-full bg-ink/15"></span>Guardrails + security</li>
+            <li class="flex items-center gap-2.5 text-[13px] text-ink/40"><span class="w-1 h-1 rounded-full bg-ink/15"></span>Custom deployment</li>
           </ul>
-          <a href="#waitlist" class="block w-full py-2.5 text-center text-sm font-medium text-gray-400 border border-white/[0.08] rounded-xl hover:bg-white/5 hover:text-white transition-all">Contact us</a>
+          <a href="#waitlist" class="block w-full py-3 text-center text-[13px] font-semibold text-ink/50 border border-ink/10 rounded-full hover:bg-ink/5 transition-all">Contact us</a>
         </div>
       </div>
     </div>
   </section>
 
   <!-- ===== CTA / WAITLIST ===== -->
-  <section id="waitlist" class="py-24 lg:py-32 relative overflow-hidden border-t border-white/[0.04]">
-    <div class="orb w-[600px] h-[600px] bg-accent-700/10 top-[-20%] left-[30%]"></div>
-    <div class="orb w-[400px] h-[400px] bg-purple-700/8 bottom-[-10%] right-[20%]"></div>
+  <section id="waitlist" class="py-24 lg:py-32 relative overflow-hidden">
+    <div class="absolute inset-0 dot-pattern opacity-50"></div>
+    <div class="absolute top-20 left-10 w-40 h-40 bg-warm-500/5 rounded-full blur-3xl"></div>
+    <div class="absolute bottom-20 right-10 w-60 h-60 bg-sage-100 rounded-full blur-3xl"></div>
 
-    <div class="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-      <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full badge-glow mb-8">
-        <span class="w-1.5 h-1.5 rounded-full bg-green-400 pulse-slow"></span>
-        <span class="text-xs font-medium text-accent-300">MVP launching Q2 2026</span>
+    <div class="relative max-w-2xl mx-auto px-6 lg:px-8 text-center">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-warm-500/5 border border-warm-500/10 mb-8">
+        <span class="w-2 h-2 rounded-full bg-warm-500 live-pulse"></span>
+        <span class="text-[11px] font-mono font-bold text-warm-500 uppercase tracking-wider">MVP launching Q2 2026</span>
       </div>
 
-      <h2 class="text-3xl lg:text-5xl font-black text-white tracking-tight mb-5">
+      <h2 class="font-heading text-4xl lg:text-6xl font-bold tracking-tight mb-5 leading-tight">
         Ready to present<br>
-        <span class="text-gradient">with superpowers?</span>
+        <span class="handwritten text-warm-500 font-body text-[1.05em]">with a copilot?</span>
       </h2>
 
-      <p class="text-base text-gray-400 max-w-lg mx-auto mb-10 font-light leading-relaxed">
+      <p class="text-base text-ink/40 max-w-md mx-auto mb-10 font-light leading-relaxed">
         Join the early access list. Be among the first to use Pretive and shape the future of live presentations.
       </p>
 
       <form id="waitlist-form" class="max-w-sm mx-auto flex flex-col sm:flex-row gap-2.5" onsubmit="handleWaitlist(event)">
-        <input type="email" placeholder="you@company.com" required class="flex-1 px-4 py-3 rounded-xl bg-white/[0.06] border border-white/[0.08] text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-accent-500/50 focus:border-accent-500/30 text-sm font-light">
-        <button type="submit" class="px-6 py-3 bg-accent-600 hover:bg-accent-500 text-white text-sm font-semibold rounded-xl transition-all shadow-lg shadow-accent-500/20 whitespace-nowrap">Join waitlist</button>
+        <input type="email" placeholder="you@company.com" required class="flex-1 px-5 py-3.5 rounded-full bg-white border border-ink/10 text-ink placeholder-ink/25 focus:outline-none focus:ring-2 focus:ring-warm-500/30 focus:border-warm-500/30 text-sm">
+        <button type="submit" class="px-7 py-3.5 bg-ink text-white text-sm font-semibold rounded-full hover:bg-warm-600 transition-all magnetic whitespace-nowrap">Join waitlist</button>
       </form>
-      <p id="waitlist-success" class="hidden mt-4 text-green-400 text-sm font-medium">You're on the list. We'll be in touch soon.</p>
-      <p class="mt-4 text-[11px] text-gray-600">No spam. Only meaningful updates.</p>
+      <p id="waitlist-success" class="hidden mt-4 text-sage-500 text-sm font-medium">You're on the list. We'll be in touch soon.</p>
+      <p class="mt-4 text-[11px] text-ink/20 font-mono">No spam. Only meaningful updates.</p>
     </div>
   </section>
 
   <!-- ===== FOOTER ===== -->
-  <footer class="py-10 border-t border-white/[0.04]">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+  <footer class="py-10 border-t border-ink/[0.04]">
+    <div class="max-w-[1200px] mx-auto px-6 lg:px-8">
       <div class="flex flex-col md:flex-row items-center justify-between gap-6">
-        <div class="flex items-center gap-2.5">
-          <img src="logo.jpg" alt="Pretive" class="w-7 h-7 rounded-lg object-cover">
-          <span class="text-sm font-bold text-white tracking-tight">PRETIVE</span>
+        <div class="flex items-center gap-3">
+          <img src="logo.jpg" alt="Pretive" class="w-7 h-7 rounded-xl object-cover">
+          <span class="text-sm font-heading font-bold tracking-tight">pretive</span>
         </div>
-        <div class="flex items-center gap-6 text-[13px] text-gray-500">
-          <a href="#features" class="hover:text-white transition-colors">Features</a>
-          <a href="#pricing" class="hover:text-white transition-colors">Pricing</a>
-          <a href="mailto:hello@pretive.com" class="hover:text-white transition-colors">Contact</a>
+        <div class="flex items-center gap-8 text-[13px] text-ink/30">
+          <a href="#features" class="hover:text-ink transition-colors">Features</a>
+          <a href="#pricing" class="hover:text-ink transition-colors">Pricing</a>
+          <a href="mailto:hello@pretive.com" class="hover:text-ink transition-colors">Contact</a>
         </div>
-        <p class="text-[12px] text-gray-600">&copy; 2026 Pretive. All rights reserved.</p>
+        <p class="text-[11px] text-ink/20 font-mono">&copy; 2026 Pretive</p>
       </div>
     </div>
   </footer>
 
   <script>
+    // Mobile menu
     document.getElementById('mobile-menu-btn').addEventListener('click', () => document.getElementById('mobile-menu').classList.toggle('hidden'));
     document.querySelectorAll('#mobile-menu a').forEach(l => l.addEventListener('click', () => document.getElementById('mobile-menu').classList.add('hidden')));
+
+    // Waitlist
     function handleWaitlist(e) { e.preventDefault(); document.getElementById('waitlist-form').classList.add('hidden'); document.getElementById('waitlist-success').classList.remove('hidden'); }
+
+    // Nav scroll effect
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 20);
+    });
+
+    // Stagger in animation
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => entry.target.classList.add('visible'), i * 100);
+        }
+      });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.stagger-in').forEach(el => observer.observe(el));
   </script>
 </body>
 </html>
