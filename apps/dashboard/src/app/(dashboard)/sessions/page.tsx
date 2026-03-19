@@ -27,7 +27,7 @@ export default function SessionsPage() {
   useEffect(() => {
     async function fetchSessions() {
       try {
-        const data = await get<Session[]>("/sessions");
+        const data = await get<Session[]>("/api/sessions");
         setSessions(data);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load sessions");

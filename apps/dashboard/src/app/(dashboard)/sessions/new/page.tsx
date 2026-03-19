@@ -31,7 +31,7 @@ export default function NewSessionPage() {
 
     try {
       // Create the session
-      const session = await post<CreateSessionResponse>("/sessions", {
+      const session = await post<CreateSessionResponse>("/api/sessions", {
         title: title.trim(),
       });
 
@@ -40,7 +40,7 @@ export default function NewSessionPage() {
         for (const file of files) {
           const formData = new FormData();
           formData.append("file", file);
-          await upload(`/sessions/${session.id}/documents`, formData);
+          await upload(`/api/sessions/${session.id}/documents`, formData);
         }
       }
 
