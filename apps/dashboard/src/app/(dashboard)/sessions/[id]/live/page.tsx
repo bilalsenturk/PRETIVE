@@ -27,7 +27,7 @@ interface Card {
 
 interface MatchResponse {
   cards: Card[];
-  position: string | null;
+  position: { heading?: string; chunk_index?: number } | string | null;
 }
 
 type LiveState = "idle" | "recording" | "stopped";
@@ -98,8 +98,11 @@ export default function LiveSessionPage() {
             if (res.cards && res.cards.length > 0) {
               setActiveCards(res.cards);
             }
-            if (res.position !== undefined) {
-              setCurrentPosition(res.position);
+            if (res.position) {
+              const pos = res.position;
+              setCurrentPosition(
+                typeof pos === "string" ? pos : pos.heading || `Section ${pos.chunk_index ?? ""}`
+              );
             }
           })
           .catch(() => {
