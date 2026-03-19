@@ -1,2 +1,8 @@
+# Vercel
 .vercel
 .env*.local
+
+# Astro
+node_modules/
+dist/
+.astro/

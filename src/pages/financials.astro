@@ -1,213 +1,19 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PRETIVE — Financial Projections</title>
-  <meta name="description" content="Pretive financial projections, unit economics, and investment details for investors.">
-  <link rel="icon" type="image/jpeg" href="logo.jpg">
-  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700;800;900&family=Caveat:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg: #F5F0EB;
-      --ink: #111;
-      --red: #D94228;
-      --yellow: #F5C842;
-      --blue: #2D5BFF;
-      --green: #2A7D4F;
-      --paper: #FFFDF9;
-      --shadow: rgba(0,0,0,0.06);
-    }
-    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
-    ::selection { background: var(--red); color: white; }
-    html { scroll-behavior: smooth; }
-    body { background: var(--bg); color: var(--ink); font-family: 'Inter', sans-serif; overflow-x: hidden; cursor: default; }
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+---
 
-    .cursor-dot {
-      width: 8px; height: 8px;
-      background: var(--red);
-      border-radius: 50%;
-      position: fixed;
-      pointer-events: none;
-      z-index: 9999;
-      transition: transform 0.15s ease, opacity 0.15s ease;
-      mix-blend-mode: exclusion;
-    }
-    .cursor-dot.hovering { transform: scale(4); opacity: 0.5; }
+<BaseLayout title="PRETIVE — Financial Projections" description="Pretive financial projections, unit economics, and investment details for investors.">
 
-    .serif { font-family: 'Instrument Serif', serif; }
-    .handwrite { font-family: 'Caveat', cursive; }
-    .mono { font-family: 'IBM Plex Mono', monospace; }
-
-    .sticky {
-      background: var(--yellow);
-      padding: 16px 20px;
-      font-family: 'Caveat', cursive;
-      font-size: 18px;
-      color: #333;
-      box-shadow: 2px 3px 12px rgba(0,0,0,0.1);
-      position: relative;
-      line-height: 1.4;
-    }
-    .sticky::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 4px;
-      background: rgba(0,0,0,0.05);
-    }
-
-    .highlight {
-      background: linear-gradient(180deg, transparent 55%, rgba(245, 200, 66, 0.35) 55%, rgba(245, 200, 66, 0.35) 90%, transparent 90%);
-    }
-    .highlight-red {
-      background: linear-gradient(180deg, transparent 55%, rgba(217, 66, 40, 0.15) 55%, rgba(217, 66, 40, 0.15) 90%, transparent 90%);
-    }
-
-    .stamp {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      border: 3px solid var(--red);
-      color: var(--red);
-      padding: 6px 14px;
-      font-family: 'IBM Plex Mono', monospace;
-      font-weight: 600;
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      transform: rotate(-3deg);
-      opacity: 0.8;
-    }
-
-    .paper {
-      background: var(--paper);
-      border: 1px solid rgba(0,0,0,0.06);
-      box-shadow: 0 1px 3px var(--shadow), 0 8px 24px -8px var(--shadow);
-    }
-
-    nav {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      z-index: 100;
-      padding: 0 24px;
-      transition: background 0.3s, box-shadow 0.3s;
-    }
-    nav.scrolled {
-      background: rgba(245, 240, 235, 0.92);
-      backdrop-filter: blur(16px);
-      box-shadow: 0 1px 0 rgba(0,0,0,0.06);
-    }
-
-    a { text-decoration: none; color: inherit; }
-
-    .reveal {
-      opacity: 0;
-      transform: translateY(40px);
-      transition: all 0.9s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .reveal.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    /* Table styling */
-    .data-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 14px;
-    }
-    .data-table thead th {
-      text-align: left;
-      padding: 14px 16px;
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: rgba(0,0,0,0.35);
-      border-bottom: 2px solid rgba(0,0,0,0.08);
-      font-family: 'IBM Plex Mono', monospace;
-    }
-    .data-table tbody td {
-      padding: 12px 16px;
-      border-bottom: 1px solid rgba(0,0,0,0.04);
-      color: var(--ink);
-    }
-    .data-table tbody tr:last-child td {
-      border-bottom: none;
-    }
-    .data-table tbody tr:hover {
-      background: rgba(0,0,0,0.015);
-    }
-    .data-table .row-label {
-      font-weight: 500;
-      color: rgba(0,0,0,0.6);
-      font-size: 13px;
-    }
-    .data-table .row-total td {
-      font-weight: 700;
-      border-top: 2px solid rgba(0,0,0,0.08);
-      padding-top: 14px;
-    }
-    .data-table .row-highlight td {
-      background: rgba(217, 66, 40, 0.04);
-    }
-
-    /* Pricing cards */
-    .pricing-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
-    }
-
-    /* Allocation bar */
-    .alloc-bar {
-      height: 8px;
-      border-radius: 4px;
-      overflow: hidden;
-      display: flex;
-      margin-top: 6px;
-    }
-
-    @media (max-width: 768px) {
-      .pricing-grid { grid-template-columns: 1fr; }
-      .data-table { font-size: 12px; }
-      .data-table thead th, .data-table tbody td { padding: 10px 10px; }
-      .hide-mobile { display: none !important; }
-    }
-  </style>
-</head>
-<body>
-
-  <!-- Cursor -->
-  <div class="cursor-dot" id="cursor"></div>
-
-  <!-- Nav -->
-  <nav id="nav">
-    <div style="max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 64px;">
-      <a href="index.html" style="display: flex; align-items: center; gap: 10px;" class="hoverable">
-        <img src="logo.jpg" alt="Pretive" style="width: 32px; height: 32px; border-radius: 10px; object-fit: cover;">
-        <span style="font-size: 15px; font-weight: 700; letter-spacing: -0.5px;">pretive</span>
-      </a>
-      <div style="display: flex; align-items: center; gap: 32px;" class="hide-mobile">
-        <a href="index.html#features" class="hoverable" style="font-size: 13px; color: rgba(0,0,0,0.4); font-weight: 500;">Features</a>
-        <a href="index.html#compare" class="hoverable" style="font-size: 13px; color: rgba(0,0,0,0.4); font-weight: 500;">Compare</a>
-        <a href="index.html#pricing" class="hoverable" style="font-size: 13px; color: rgba(0,0,0,0.4); font-weight: 500;">Pricing</a>
-        <a href="investors.html" class="hoverable" style="font-size: 13px; color: rgba(0,0,0,0.4); font-weight: 500;">Investors</a>
-        <a href="index.html#waitlist" class="hoverable" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 22px; background: var(--ink); color: white; font-size: 13px; font-weight: 600; border-radius: 50px;">
-          <span style="width: 6px; height: 6px; border-radius: 50%; background: var(--red);"></span>
-          Join Waitlist
-        </a>
-      </div>
-    </div>
-  </nav>
+  <Nav activePage="investors" />
 
   <!-- Main Content -->
   <main style="max-width: 1200px; margin: 0 auto; padding: 120px 24px 80px;">
 
     <!-- Breadcrumb -->
     <div class="reveal" style="margin-bottom: 40px;">
-      <a href="investors.html" class="hoverable" style="font-size: 13px; color: rgba(0,0,0,0.35); font-weight: 500; display: inline-flex; align-items: center; gap: 6px;">
+      <a href="/investors" class="hoverable" style="font-size: 13px; color: rgba(0,0,0,0.35); font-weight: 500; display: inline-flex; align-items: center; gap: 6px;">
         <span>&larr;</span> Back to Investors
       </a>
     </div>
@@ -624,45 +430,6 @@
 
   </main>
 
-  <!-- Footer -->
-  <footer style="padding: 32px 0; border-top: 1px solid rgba(0,0,0,0.06);">
-    <div style="max-width: 1200px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
-      <div style="display: flex; align-items: center; gap: 10px;">
-        <img src="logo.jpg" alt="Pretive" style="width: 24px; height: 24px; border-radius: 8px; object-fit: cover;">
-        <span style="font-size: 13px; font-weight: 700;">pretive</span>
-      </div>
-      <div style="display: flex; gap: 24px;">
-        <a href="index.html#features" style="font-size: 12px; color: rgba(0,0,0,0.3);">Features</a>
-        <a href="index.html#pricing" style="font-size: 12px; color: rgba(0,0,0,0.3);">Pricing</a>
-        <a href="investors.html" style="font-size: 12px; color: rgba(0,0,0,0.3);">Investors</a>
-        <a href="mailto:hello@pretive.com" style="font-size: 12px; color: rgba(0,0,0,0.3);">Contact</a>
-      </div>
-      <span class="mono" style="font-size: 10px; color: rgba(0,0,0,0.15);">&copy; 2026 Pretive</span>
-    </div>
-  </footer>
+  <Footer />
 
-  <script>
-    // Custom cursor
-    const cursor = document.getElementById('cursor');
-    document.addEventListener('mousemove', e => {
-      cursor.style.left = e.clientX - 4 + 'px';
-      cursor.style.top = e.clientY - 4 + 'px';
-    });
-    document.querySelectorAll('.hoverable, a, button').forEach(el => {
-      el.addEventListener('mouseenter', () => cursor.classList.add('hovering'));
-      el.addEventListener('mouseleave', () => cursor.classList.remove('hovering'));
-    });
-
-    // Nav scroll
-    const nav = document.getElementById('nav');
-    window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 30));
-
-    // Reveal on scroll
-    const revealObs = new IntersectionObserver((entries) => {
-      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-    }, { threshold: 0.15 });
-    document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
-  </script>
-
-</body>
-</html>
+</BaseLayout>

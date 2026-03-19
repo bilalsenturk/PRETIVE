@@ -1,0 +1,485 @@
+/* ===========================
+   PRETIVE — Global Styles
+   =========================== */
+
+:root {
+  --bg: #F5F0EB;
+  --ink: #111;
+  --red: #D94228;
+  --yellow: #F5C842;
+  --blue: #2D5BFF;
+  --green: #2A7D4F;
+  --paper: #FFFDF9;
+  --shadow: rgba(0,0,0,0.06);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+::selection { background: var(--red); color: white; }
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--ink); font-family: 'Inter', sans-serif; overflow-x: hidden; cursor: default; }
+
+/* ===========================
+   Typography
+   =========================== */
+.serif { font-family: 'Instrument Serif', serif; }
+.handwrite { font-family: 'Caveat', cursive; }
+.mono { font-family: 'IBM Plex Mono', monospace; }
+a { text-decoration: none; color: inherit; }
+
+/* ===========================
+   Custom Cursor
+   =========================== */
+.cursor-dot {
+  width: 8px; height: 8px;
+  background: var(--red);
+  border-radius: 50%;
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+  mix-blend-mode: exclusion;
+}
+.cursor-dot.hovering { transform: scale(4); opacity: 0.5; }
+
+/* ===========================
+   Sticky Note
+   =========================== */
+.sticky {
+  background: var(--yellow);
+  padding: 16px 20px;
+  font-family: 'Caveat', cursive;
+  font-size: 18px;
+  color: #333;
+  box-shadow: 2px 3px 12px rgba(0,0,0,0.1);
+  position: relative;
+  line-height: 1.4;
+}
+.sticky::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: rgba(0,0,0,0.05);
+}
+
+/* ===========================
+   Annotation Arrow
+   =========================== */
+.annotation {
+  position: absolute;
+  font-family: 'Caveat', cursive;
+  color: var(--red);
+  font-size: 20px;
+  pointer-events: none;
+  line-height: 1.2;
+}
+
+/* ===========================
+   Highlight Markers
+   =========================== */
+.highlight {
+  background: linear-gradient(180deg, transparent 55%, rgba(245, 200, 66, 0.35) 55%, rgba(245, 200, 66, 0.35) 90%, transparent 90%);
+}
+.highlight-red {
+  background: linear-gradient(180deg, transparent 55%, rgba(217, 66, 40, 0.15) 55%, rgba(217, 66, 40, 0.15) 90%, transparent 90%);
+}
+
+/* ===========================
+   Scribble Underline
+   =========================== */
+.scribble {
+  text-decoration: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 8'%3E%3Cpath d='M0 6 Q50 0 100 5 Q150 10 200 4' fill='none' stroke='%23D94228' stroke-width='2'/%3E%3C/svg%3E");
+  background-position: bottom;
+  background-repeat: repeat-x;
+  background-size: 100px 8px;
+  padding-bottom: 6px;
+}
+
+/* ===========================
+   Stamp Badge
+   =========================== */
+.stamp {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 3px solid var(--red);
+  color: var(--red);
+  padding: 6px 14px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  transform: rotate(-3deg);
+  opacity: 0.8;
+}
+
+/* ===========================
+   Paper Card
+   =========================== */
+.paper {
+  background: var(--paper);
+  border: 1px solid rgba(0,0,0,0.06);
+  box-shadow: 0 1px 3px var(--shadow), 0 8px 24px -8px var(--shadow);
+}
+
+/* ===========================
+   Tape Effect
+   =========================== */
+.tape { position: relative; }
+.tape::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-2deg);
+  width: 80px;
+  height: 24px;
+  background: rgba(200, 190, 170, 0.4);
+  border-radius: 2px;
+  z-index: 1;
+}
+
+/* ===========================
+   Navigation
+   =========================== */
+nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  padding: 0 24px;
+  transition: background 0.3s, box-shadow 0.3s;
+}
+nav.scrolled {
+  background: rgba(245, 240, 235, 0.92);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 1px 0 rgba(0,0,0,0.06);
+}
+
+/* ===========================
+   Side Progress Dots
+   =========================== */
+.progress-track {
+  position: fixed;
+  right: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 50;
+}
+.progress-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 2px solid rgba(0,0,0,0.15);
+  background: transparent;
+  transition: all 0.3s;
+  cursor: pointer;
+}
+.progress-dot.active {
+  background: var(--red);
+  border-color: var(--red);
+  transform: scale(1.3);
+}
+
+/* ===========================
+   Sections
+   =========================== */
+.slide {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+/* ===========================
+   Reveal Animation
+   =========================== */
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: all 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Stagger children */
+.reveal-stagger > * {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal-stagger.visible > * {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-stagger.visible > *:nth-child(1) { transition-delay: 0s; }
+.reveal-stagger.visible > *:nth-child(2) { transition-delay: 0.1s; }
+.reveal-stagger.visible > *:nth-child(3) { transition-delay: 0.2s; }
+.reveal-stagger.visible > *:nth-child(4) { transition-delay: 0.3s; }
+
+/* Pretive hint animation */
+.pretive-hint {
+  position: relative;
+  opacity: 0;
+  transform: translateX(20px);
+  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.pretive-hint.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* ===========================
+   Comparison Pills
+   =========================== */
+.pill-yes { display: inline-block; width: 28px; height: 28px; line-height: 28px; text-align: center; border-radius: 50%; background: var(--green); color: white; font-size: 13px; font-weight: 700; }
+.pill-no { display: inline-block; width: 28px; height: 28px; line-height: 28px; text-align: center; border-radius: 50%; background: rgba(0,0,0,0.04); color: rgba(0,0,0,0.15); font-size: 13px; }
+.pill-partial { display: inline-block; width: 28px; height: 28px; line-height: 28px; text-align: center; border-radius: 50%; background: rgba(245,200,66,0.2); color: #8B7000; font-size: 13px; }
+.pill-pretive { display: inline-block; width: 28px; height: 28px; line-height: 28px; text-align: center; border-radius: 50%; background: var(--red); color: white; font-size: 13px; font-weight: 700; }
+
+/* ===========================
+   Section Label
+   =========================== */
+.section-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--red);
+  margin-bottom: 16px;
+}
+
+/* ===========================
+   Tables
+   =========================== */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+table th {
+  text-align: left;
+  padding: 14px 16px;
+  font-size: 11px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: rgba(0,0,0,0.35);
+  border-bottom: 2px solid rgba(0,0,0,0.08);
+}
+table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  color: rgba(0,0,0,0.6);
+  line-height: 1.5;
+}
+table tr:last-child td { border-bottom: none; }
+table tbody tr:hover { background: rgba(0,0,0,0.015); }
+
+/* Data table variant */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.data-table thead th {
+  text-align: left;
+  padding: 14px 16px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: rgba(0,0,0,0.35);
+  border-bottom: 2px solid rgba(0,0,0,0.08);
+  font-family: 'IBM Plex Mono', monospace;
+}
+.data-table tbody td {
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(0,0,0,0.04);
+  color: var(--ink);
+}
+.data-table tbody tr:last-child td { border-bottom: none; }
+.data-table tbody tr:hover { background: rgba(0,0,0,0.015); }
+.data-table .row-label { font-weight: 500; color: rgba(0,0,0,0.6); font-size: 13px; }
+.data-table .row-total td { font-weight: 700; border-top: 2px solid rgba(0,0,0,0.08); padding-top: 14px; }
+.data-table .row-highlight td { background: rgba(217, 66, 40, 0.04); }
+
+/* Plan table variant */
+.plan-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+.plan-table th {
+  text-align: left;
+  padding: 14px 20px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: rgba(0,0,0,0.3);
+  font-weight: 600;
+  border-bottom: 2px solid rgba(0,0,0,0.06);
+}
+.plan-table td {
+  padding: 18px 20px;
+  font-size: 14px;
+  color: rgba(0,0,0,0.55);
+  line-height: 1.6;
+  border-bottom: 1px solid rgba(0,0,0,0.04);
+  vertical-align: top;
+}
+.plan-table tr:last-child td { border-bottom: none; }
+.plan-table td:first-child { font-weight: 600; color: var(--ink); white-space: nowrap; }
+
+/* ===========================
+   Pricing Cards Grid
+   =========================== */
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+/* ===========================
+   Allocation Bar
+   =========================== */
+.alloc-bar {
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+  margin-top: 6px;
+}
+
+/* ===========================
+   Timeline
+   =========================== */
+.timeline {
+  position: relative;
+  padding-left: 48px;
+}
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 16px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--red), var(--blue), var(--green));
+  border-radius: 2px;
+}
+.timeline-item {
+  position: relative;
+  margin-bottom: 48px;
+}
+.timeline-item:last-child { margin-bottom: 0; }
+.timeline-dot {
+  position: absolute;
+  left: -40px;
+  top: 28px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 3px solid var(--red);
+  background: var(--bg);
+  z-index: 2;
+}
+.timeline-item:nth-child(2) .timeline-dot { border-color: var(--blue); }
+.timeline-item:nth-child(3) .timeline-dot { border-color: var(--green); }
+.timeline-item:nth-child(4) .timeline-dot { border-color: var(--yellow); }
+.timeline-item:nth-child(5) .timeline-dot { border-color: var(--ink); }
+
+/* KPI Pill */
+.kpi-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  background: rgba(0,0,0,0.03);
+  border-radius: 20px;
+  font-size: 12px;
+  color: rgba(0,0,0,0.55);
+  font-weight: 500;
+  margin: 3px 2px;
+}
+.kpi-pill .kpi-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--green);
+  flex-shrink: 0;
+}
+
+/* Phase Badge */
+.phase-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+}
+
+/* Validation Card */
+.validation-card { position: relative; overflow: hidden; }
+.validation-card .day-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 4px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* ===========================
+   Skill Tags
+   =========================== */
+.skill-tag {
+  display: inline-block;
+  padding: 4px 12px;
+  background: rgba(0,0,0,0.03);
+  border-radius: 50px;
+  font-size: 12px;
+  color: rgba(0,0,0,0.4);
+  font-weight: 500;
+  margin: 3px 2px;
+}
+
+/* ===========================
+   Responsive
+   =========================== */
+@media (max-width: 768px) {
+  .progress-track { display: none; }
+  .annotation { display: none; }
+  .hide-mobile { display: none !important; }
+  .pricing-grid { grid-template-columns: 1fr; }
+  .stat-grid { grid-template-columns: 1fr !important; }
+  .segment-grid { grid-template-columns: 1fr !important; }
+  .founder-grid { grid-template-columns: 1fr !important; }
+  .advisory-grid { grid-template-columns: 1fr !important; }
+  .timeline { padding-left: 36px; }
+  .timeline::before { left: 10px; }
+  .timeline-dot { left: -32px; }
+  .table-scroll { overflow-x: auto; }
+  .plan-table-wrap { overflow-x: auto; }
+  .plan-table { min-width: 640px; }
+  .data-table { font-size: 12px; }
+  .data-table thead th, .data-table tbody td { padding: 10px 10px; }
+}
