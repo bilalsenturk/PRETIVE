@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PRETIVE — Product Roadmap</title>
+  <meta name="description" content="Pretive's 5-phase product roadmap: from core MVP to full platform layer. See how we're building real-time presentation intelligence.">
+  <link rel="icon" type="image/jpeg" href="logo.jpg">
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700;800;900&family=Caveat:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #F5F0EB;
+      --ink: #111;
+      --red: #D94228;
+      --yellow: #F5C842;
+      --blue: #2D5BFF;
+      --green: #2A7D4F;
+      --paper: #FFFDF9;
+      --shadow: rgba(0,0,0,0.06);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+    ::selection { background: var(--red); color: white; }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--ink); font-family: 'Inter', sans-serif; overflow-x: hidden; cursor: default; }
+
+    /* Custom cursor dot */
+    .cursor-dot {
+      width: 8px; height: 8px;
+      background: var(--red);
+      border-radius: 50%;
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      transition: transform 0.15s ease, opacity 0.15s ease;
+      mix-blend-mode: exclusion;
+    }
+    .cursor-dot.hovering { transform: scale(4); opacity: 0.5; }
+
+    .serif { font-family: 'Instrument Serif', serif; }
+    .handwrite { font-family: 'Caveat', cursive; }
+    .mono { font-family: 'IBM Plex Mono', monospace; }
+
+    /* Sticky note */
+    .sticky {
+      background: var(--yellow);
+      padding: 16px 20px;
+      font-family: 'Caveat', cursive;
+      font-size: 18px;
+      color: #333;
+      box-shadow: 2px 3px 12px rgba(0,0,0,0.1);
+      position: relative;
+      line-height: 1.4;
+    }
+    .sticky::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: rgba(0,0,0,0.05);
+    }
+
+    /* Highlight marker */
+    .highlight {
+      background: linear-gradient(180deg, transparent 55%, rgba(245, 200, 66, 0.35) 55%, rgba(245, 200, 66, 0.35) 90%, transparent 90%);
+    }
+    .highlight-red {
+      background: linear-gradient(180deg, transparent 55%, rgba(217, 66, 40, 0.15) 55%, rgba(217, 66, 40, 0.15) 90%, transparent 90%);
+    }
+
+    /* Underline scribble */
+    .scribble {
+      text-decoration: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 8'%3E%3Cpath d='M0 6 Q50 0 100 5 Q150 10 200 4' fill='none' stroke='%23D94228' stroke-width='2'/%3E%3C/svg%3E");
+      background-position: bottom;
+      background-repeat: repeat-x;
+      background-size: 100px 8px;
+      padding-bottom: 6px;
+    }
+
+    /* Stamp */
+    .stamp {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 3px solid var(--red);
+      color: var(--red);
+      padding: 6px 14px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-weight: 600;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      transform: rotate(-3deg);
+      opacity: 0.8;
+    }
+
+    /* Paper card */
+    .paper {
+      background: var(--paper);
+      border: 1px solid rgba(0,0,0,0.06);
+      box-shadow: 0 1px 3px var(--shadow), 0 8px 24px -8px var(--shadow);
+    }
+
+    /* Tape effect */
+    .tape { position: relative; }
+    .tape::before {
+      content: '';
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%) rotate(-2deg);
+      width: 80px;
+      height: 24px;
+      background: rgba(200, 190, 170, 0.4);
+      border-radius: 2px;
+      z-index: 1;
+    }
+
+    /* Nav */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 0 24px;
+      transition: background 0.3s, box-shadow 0.3s;
+    }
+    nav.scrolled {
+      background: rgba(245, 240, 235, 0.92);
+      backdrop-filter: blur(16px);
+      box-shadow: 0 1px 0 rgba(0,0,0,0.06);
+    }
+
+    /* Reveal animation */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: all 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    a { text-decoration: none; color: inherit; }
+
+    /* Timeline */
+    .timeline {
+      position: relative;
+      padding-left: 48px;
+    }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 16px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: linear-gradient(to bottom, var(--red), var(--blue), var(--green));
+      border-radius: 2px;
+    }
+    .timeline-item {
+      position: relative;
+      margin-bottom: 48px;
+    }
+    .timeline-item:last-child { margin-bottom: 0; }
+    .timeline-dot {
+      position: absolute;
+      left: -40px;
+      top: 28px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 3px solid var(--red);
+      background: var(--bg);
+      z-index: 2;
+    }
+    .timeline-item:nth-child(2) .timeline-dot { border-color: var(--blue); }
+    .timeline-item:nth-child(3) .timeline-dot { border-color: var(--green); }
+    .timeline-item:nth-child(4) .timeline-dot { border-color: var(--yellow); }
+    .timeline-item:nth-child(5) .timeline-dot { border-color: var(--ink); }
+
+    /* KPI pill */
+    .kpi-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      background: rgba(0,0,0,0.03);
+      border-radius: 20px;
+      font-size: 12px;
+      color: rgba(0,0,0,0.55);
+      font-weight: 500;
+      margin: 3px 2px;
+    }
+    .kpi-pill .kpi-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--green);
+      flex-shrink: 0;
+    }
+
+    /* Phase badge */
+    .phase-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+    }
+
+    /* Validation card */
+    .validation-card {
+      position: relative;
+      overflow: hidden;
+    }
+    .validation-card .day-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 4px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .hide-mobile { display: none !important; }
+      .timeline { padding-left: 36px; }
+      .timeline::before { left: 10px; }
+      .timeline-dot { left: -32px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Cursor -->
+  <div class="cursor-dot" id="cursor"></div>
+
+  <!-- Nav -->
+  <nav id="nav">
+    <div style="max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 64px;">
+      <a href="index.html" style="display: flex; align-items: center; gap: 10px;" class="hoverable">
+        <img src="logo.jpg" alt="Pretive" style="width: 32px; height: 32px; border-radius: 10px; object-fit: cover;">
+        <span style="font-size: 15px; font-weight: 700; letter-spacing: -0.5px;">pretive</span>
+      </a>
+      <div style="display: flex; align-items: center; gap: 32px;" class="hide-mobile">
+        <a href="index.html" class="hoverable" style="font-size: 13px; color: rgba(0,0,0,0.4); font-weight: 500;">Home</a>
+        <a href="investors.html" class="hoverable" style="font-size: 13px; color: rgba(0,0,0,0.4); font-weight: 500;">Investors</a>
+        <a href="roadmap.html" class="hoverable" style="font-size: 13px; color: var(--red); font-weight: 600;">Roadmap</a>
+        <a href="investors.html" class="hoverable" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 22px; background: var(--ink); color: white; font-size: 13px; font-weight: 600; border-radius: 50px;">
+          <span style="width: 6px; height: 6px; border-radius: 50%; background: var(--red);"></span>
+          Investor Deck
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Breadcrumb -->
+  <div style="max-width: 1200px; margin: 0 auto; padding: 84px 24px 0;">
+    <div style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: rgba(0,0,0,0.35);">
+      <a href="investors.html" class="hoverable" style="color: rgba(0,0,0,0.35); transition: color 0.2s;">Investors</a>
+      <span>/</span>
+      <span style="color: rgba(0,0,0,0.6); font-weight: 500;">Product Roadmap</span>
+    </div>
+  </div>
+
+  <!-- ============================== -->
+  <!-- HERO                            -->
+  <!-- ============================== -->
+  <section style="padding: 48px 24px 80px; max-width: 1200px; margin: 0 auto;">
+    <div class="reveal" style="max-width: 740px;">
+      <div class="mono" style="font-size: 11px; color: var(--red); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 16px;">Product Roadmap</div>
+      <h1 class="serif" style="font-size: clamp(2.4rem, 6vw, 4.5rem); line-height: 1.0; letter-spacing: -1.5px; margin-bottom: 20px;">
+        Five phases from <span class="highlight">MVP</span> to <span class="highlight-red">platform</span>
+      </h1>
+      <p style="font-size: 17px; color: rgba(0,0,0,0.45); max-width: 560px; line-height: 1.7; font-weight: 300;">
+        A disciplined 36-month product plan that takes Pretive from a single-user copilot to a full presentation intelligence platform, with clear milestones and measurable KPIs at every stage.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============================== -->
+  <!-- TIMELINE                        -->
+  <!-- ============================== -->
+  <section style="max-width: 1200px; margin: 0 auto; padding: 0 24px 100px;">
+    <div class="timeline">
+
+      <!-- PHASE 1 -->
+      <div class="timeline-item reveal">
+        <div class="timeline-dot"></div>
+        <div class="paper" style="border-radius: 20px; padding: 36px 32px; position: relative;">
+          <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 20px;">
+            <span class="phase-badge" style="background: rgba(217,66,40,0.08); color: var(--red);">Phase 1</span>
+            <span style="font-size: 13px; color: rgba(0,0,0,0.3); font-weight: 500;">Month 0 &ndash; 12</span>
+          </div>
+          <h3 class="serif" style="font-size: 28px; margin-bottom: 8px; letter-spacing: -0.5px;">Core MVP</h3>
+          <p style="font-size: 14px; color: rgba(0,0,0,0.5); line-height: 1.8; margin-bottom: 24px; max-width: 640px;">
+            Build the foundational intelligence loop. Content ingestion from Drive and OneDrive feeds a narrative engine that generates pre-session drafts. A semantic prompter drives live speech tracking while basic screen intelligence and real-time fact-checking ensure accuracy. Every session closes with an automated summary. Ship Zoom and Google Meet integrations to reach users where they already present.
+          </p>
+
+          <div class="mono" style="font-size: 10px; color: var(--red); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px;">Key deliverables</div>
+          <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 24px;">
+            <span style="display: inline-block; padding: 5px 12px; background: rgba(0,0,0,0.03); border-radius: 8px; font-size: 12px; color: rgba(0,0,0,0.55);">Content ingestion</span>
+            <span style="display: inline-block; padding: 5px 12px; background: rgba(0,0,0,0.03); border-radius: 8px; font-size: 12px; color: rgba(0,0,0,0.55);">Pre-session draft generation</span>
+            <span style="display: inline-block; padding: 5px 12px; background: rgba(0,0,0,0.03); border-radius: 8px; font-size: 12px; color: rgba(0,0,0,0.55);">Narrative engine</span>
+            <span style="display: inline-block; padding: 5px 12px; background: rgba(0,0,0,0.03); border-radius: 8px; font-size: 12px; color: rgba(0,0,0,0.55);">Semantic prompter</span>
+            <span style="display: inline-block; padding: 5px 12px; background: rgba(0,0,0,0.03); border-radius: 8px; font-size: 12px; color: rgba(0,0,0,0.55);">Live speech tracking</span>
+            <span style="display: inline-block; padding: 5px 12px; background: rgba(0,0,0,0.03); border-radius: 8px; font-size: 12px; color: rgba(0,0,0,0.55);">Basic screen intelligence</span>
+            <span style="display: inline-block; padding: 5px 12px; background: rgba(0,0,0,0.03); border-radius: 8px; font-size: 12px; color: rgba(0,0,0,0.55);">Basic fact-check</span>
+            <span style="display: inline-block; padding: 5px 12px; background: rgba(0,0,0,0.03); border-radius: 8px; font-size: 12px; color: rgba(0,0,0,0.55);">Session summary</span>
+          </div>
+
+          <div class="mono" style="font-size: 10px; color: var(--red); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px;">Integrations</div>
+          <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 24px;">
+            <span style="display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; background: rgba(45,91,255,0.06); border-radius: 8px; font-size: 12px; color: var(--blue); font-weight: 500;">Zoom</span>
+            <span style="display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; background: rgba(42,125,79,0.06); border-radius: 8px; font-size: 12px; color: var(--green); font-weight: 500;">Google Meet</span>
+            <span style="display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; background: rgba(0,0,0,0.03); border-radius: 8px; font-size: 12px; color: rgba(0,0,0,0.45);">Google Drive</span>
+            <span style="display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; background: rgba(0,0,0,0.03); border-radius: 8px; font-size: 12px; color: rgba(0,0,0,0.45);">OneDrive</span>
+          </div>
+
+          <div style="border-top: 1px solid rgba(0,0,0,0.05); padding-top: 16px;">
+            <div class="mono" style="font-size: 10px; color: var(--green); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px;">Target KPIs</div>
+            <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+              <span class="kpi-pill"><span class="kpi-dot"></span>150 paying accounts</span>
+              <span class="kpi-pill"><span class="kpi-dot"></span>&euro;8K MRR</span>
+              <span class="kpi-pill"><span class="kpi-dot"></span>Weekly active 60%+</span>
+              <span class="kpi-pill"><span class="kpi-dot"></span>Zoom + Meet marketplace approval</span>
+              <span class="kpi-pill"><span class="kpi-dot"></span>NPS &ge; 40</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PHASE 2 -->
+      <div class="timeline-item reveal">
+        <div class="timeline-dot"></div>
+        <div class="paper" style="border-radius: 20px; padding: 36px 32px; position: relative;">
+          <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 20px;">
+            <span class="phase-badge" style="background: rgba(45,91,255,0.08); color: var(--blue);">Phase 2</span>
+            <span style="font-size: 13px; color: rgba(0,0,0,0.3); font-weight: 500;">Month 13 &ndash; 18</span>
+          </div>
+          <h3 class="serif" style="font-size: 28px; margin-bottom: 8px; letter-spacing: -0.5px;">Controlled Live Augmentation</h3>
+          <p style="font-size: 14px; color: rgba(0,0,0,0.5); line-height: 1.8; margin-bottom: 24px; max-width: 640px;">
+            Graduate from passive guidance to active augmentation. An autonomous decision engine and background agent system work together to surface comparison cards, media additions, and real-time overlays without breaking the presenter's flow. A question engine and command-based expansion give presenters superpowers during live Q&A.
+          </p>
+
+          <div class="mono" style="font-size: 10px; color: var(--red); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px;">Key deliverables</div>
+          <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 24px;">
+            <span style="display: inline-block; padding: 5px 12px; background: rgba(0,0,0,0.03); border-radius: 8px; font-size: 12px; color: rgba(0,0,0,0.55);">Autonomous decision engine</span>
+            <span style="display: inline-block; padding: 5px 12px; background: rgba(0,0,0,0.03); border-radius: 8px; font-size: 12px; color: rgba(0,0,0,0.55);">Background agent system</span>
+            <span style="display: inline-block; padding: 5px 12px; background: rgba(0,0,0,0.03); border-radius: 8px; font-size: 12px; color: rgba(0,0,0,0.55);">Question engine</span>
+            <span style="display: inline-block; padding: 5px 12px; background: rgba(0,0,0,0.03); border-radius: 8px; font-size: 12px; color: rgba(0,0,0,0.55);">Command-based expansion</span>
+            <span style="display: inline-block; padding: 5px 12px; background: rgba(0,0,0,0.03); border-radius: 8px; font-size: 12px; color: rgba(0,0,0,0.55);">Comparison cards</span>
+            <span style="display: inline-block; padding: 5px 12px; background: rgba(0,0,0,0.03); border-radius: 8px; font-size: 12px; color: rgba(0,0,0,0.55);">Media additions</span>
+            <span style="display: inline-block; padding: 5px 12px; background: rgba(0,0,0,0.03); border-radius: 8px; font-size: 12px; color: rgba(0,0,0,0.55);">Online overlay</span>
+          </div>
+
+          <div class="mono" style="font-size: 10px; color: var(--red); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px;">Integrations</div>
+          <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 24px;">
+            <span style="display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; background: rgba(45,91,255,0.06); border-radius: 8px; font-size: 12px; color: var(--blue); font-weight: 500;">Microsoft Teams</span>
+            <span style="display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; background: rgba(42,125,79,0.06); border-radius: 8px; font-size: 12px; color: var(--green); font-weight: 500;">Webex</span>
+          </div>
+
+          <div style="border-top: 1px solid rgba(0,0,0,0.05); padding-top: 16px;">
+            <div class="mono" style="font-size: 10px; color: var(--green); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px;">Target KPIs</div>
+            <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+              <span class="kpi-pill"><span class="kpi-dot"></span>400 accounts</span>
+              <span class="kpi-pill"><span class="kpi-dot"></span>&euro;20K MRR</span>
+              <span class="kpi-pill"><span class="kpi-dot"></span>Teams integration</span>
+              <span class="kpi-pill"><span class="kpi-dot"></span>Monthly churn &lt; 6%</span>
+              <span class="kpi-pill"><span class="kpi-dot"></span>10+ enterprise pilots</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PHASE 3 -->
+      <div class="timeline-item reveal">
+        <div class="timeline-dot"></div>
+        <div class="paper" style="border-radius: 20px; padding: 36px 32px; position: relative;">
+          <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 20px;">
+            <span class="phase-badge" style="background: rgba(42,125,79,0.08); color: var(--green);">Phase 3</span>
+            <span style="font-size: 13px; color: rgba(0,0,0,0.3); font-weight: 500;">Month 19 &ndash; 24</span>
+          </div>
+          <h3 class="serif" style="font-size: 28px; margin-bottom: 8px; letter-spacing: -0.5px;">Participant Platform</h3>
+          <p style="font-size: 14px; color: rgba(0,0,0,0.5); line-height: 1.8; margin-bottom: 24px; max-width: 640px;">
+            Flip the model from single-user to multi-sided. Each participant gets their own AI agent, interactive quizzes and surveys, and personal notes that persist after the session ends. For organizations, a corporate workspace with admin panel and interaction analytics turns presentation data into actionable insight. LMS integrations via LTI 1.3 and webinar platform connections expand distribution.
+          </p>
+
+          <div class="mono" style="font-size: 10px; color: var(--red); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px;">Key deliverables</div>
+          <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 24px;">
+            <span style="display: inline-block; padding: 5px 12px; background: rgba(0,0,0,0.03); border-radius: 8px; font-size: 12px; color: rgba(0,0,0,0.55);">Participant agent</span>
+            <span style="display: inline-block; padding: 5px 12px; background: rgba(0,0,0,0.03); border-radius: 8px; font-size: 12px; color: rgba(0,0,0,0.55);">Interactive quiz / survey</span>
+            <span style="display: inline-block; padding: 5px 12px; background: rgba(0,0,0,0.03); border-radius: 8px; font-size: 12px; color: rgba(0,0,0,0.55);">Personal notes</span>
+            <span style="display: inline-block; padding: 5px 12px; background: rgba(0,0,0,0.03); border-radius: 8px; font-size: 12px; color: rgba(0,0,0,0.55);">Corporate workspace</span>
+            <span style="display: inline-block; padding: 5px 12px; background: rgba(0,0,0,0.03); border-radius: 8px; font-size: 12px; color: rgba(0,0,0,0.55);">Admin panel</span>
+            <span style="display: inline-block; padding: 5px 12px; background: rgba(0,0,0,0.03); border-radius: 8px; font-size: 12px; color: rgba(0,0,0,0.55);">Interaction analytics</span>
+          </div>
+
+          <div class="mono" style="font-size: 10px; color: var(--red); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px;">Integrations</div>
+          <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 24px;">
+            <span style="display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; background: rgba(45,91,255,0.06); border-radius: 8px; font-size: 12px; color: var(--blue); font-weight: 500;">LMS (LTI 1.3)</span>
+            <span style="display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; background: rgba(42,125,79,0.06); border-radius: 8px; font-size: 12px; color: var(--green); font-weight: 500;">Webinar platforms</span>
+          </div>
+
+          <div style="border-top: 1px solid rgba(0,0,0,0.05); padding-top: 16px;">
+            <div class="mono" style="font-size: 10px; color: var(--green); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px;">Target KPIs</div>
+            <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+              <span class="kpi-pill"><span class="kpi-dot"></span>800 accounts</span>
+              <span class="kpi-pill"><span class="kpi-dot"></span>&euro;50K MRR</span>
+              <span class="kpi-pill"><span class="kpi-dot"></span>5,000+ active participants</span>
+              <span class="kpi-pill"><span class="kpi-dot"></span>2+ LMS integrations</span>
+              <span class="kpi-pill"><span class="kpi-dot"></span>Participant viral coefficient &ge; 1.1</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PHASE 4 -->
+      <div class="timeline-item reveal">
+        <div class="timeline-dot"></div>
+        <div class="paper" style="border-radius: 20px; padding: 36px 32px; position: relative;">
+          <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 20px;">
+            <span class="phase-badge" style="background: rgba(245,200,66,0.15); color: #8B7000;">Phase 4</span>
+            <span style="font-size: 13px; color: rgba(0,0,0,0.3); font-weight: 500;">Month 25 &ndash; 30</span>
+          </div>
+          <h3 class="serif" style="font-size: 28px; margin-bottom: 8px; letter-spacing: -0.5px;">Adaptive Intelligence</h3>
+          <p style="font-size: 14px; color: rgba(0,0,0,0.5); line-height: 1.8; margin-bottom: 24px; max-width: 640px;">
+            Move from generic assistance to personalized intelligence. The system learns each presenter's teaching style, autonomously manages presentation flow, and builds team-wide memory across sessions. A complete audit log and advanced analytics package makes Pretive enterprise-ready for regulated industries.
+          </p>
+
+          <div class="mono" style="font-size: 10px; color: var(--red); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px;">Key deliverables</div>
+          <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 24px;">
+            <span style="display: inline-block; padding: 5px 12px; background: rgba(0,0,0,0.03); border-radius: 8px; font-size: 12px; color: rgba(0,0,0,0.55);">Teacher style learning</span>
+            <span style="display: inline-block; padding: 5px 12px; background: rgba(0,0,0,0.03); border-radius: 8px; font-size: 12px; color: rgba(0,0,0,0.55);">Autonomous presentation mgmt</span>
+            <span style="display: inline-block; padding: 5px 12px; background: rgba(0,0,0,0.03); border-radius: 8px; font-size: 12px; color: rgba(0,0,0,0.55);">Team memory</span>
+            <span style="display: inline-block; padding: 5px 12px; background: rgba(0,0,0,0.03); border-radius: 8px; font-size: 12px; color: rgba(0,0,0,0.55);">Audit log</span>
+            <span style="display: inline-block; padding: 5px 12px; background: rgba(0,0,0,0.03); border-radius: 8px; font-size: 12px; color: rgba(0,0,0,0.55);">Advanced analytics</span>
+          </div>
+
+          <div style="border-top: 1px solid rgba(0,0,0,0.05); padding-top: 16px;">
+            <div class="mono" style="font-size: 10px; color: var(--green); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px;">Target KPIs</div>
+            <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+              <span class="kpi-pill"><span class="kpi-dot"></span>1,200 accounts</span>
+              <span class="kpi-pill"><span class="kpi-dot"></span>&euro;80K MRR</span>
+              <span class="kpi-pill"><span class="kpi-dot"></span>SOC 2 Type II</span>
+              <span class="kpi-pill"><span class="kpi-dot"></span>Enterprise churn &lt; 3%</span>
+              <span class="kpi-pill"><span class="kpi-dot"></span>Net Revenue Retention &ge; 110%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PHASE 5 -->
+      <div class="timeline-item reveal">
+        <div class="timeline-dot"></div>
+        <div class="paper" style="border-radius: 20px; padding: 36px 32px; position: relative;">
+          <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 20px;">
+            <span class="phase-badge" style="background: rgba(0,0,0,0.06); color: var(--ink);">Phase 5</span>
+            <span style="font-size: 13px; color: rgba(0,0,0,0.3); font-weight: 500;">Month 31 &ndash; 36+</span>
+          </div>
+          <h3 class="serif" style="font-size: 28px; margin-bottom: 8px; letter-spacing: -0.5px;">Platform Layer</h3>
+          <p style="font-size: 14px; color: rgba(0,0,0,0.5); line-height: 1.8; margin-bottom: 24px; max-width: 640px;">
+            Open the engine to the ecosystem. A public API and SDK let third parties build on Pretive's real-time intelligence. Deeper enterprise controls, whitelabel options, and live delivery infrastructure transform the product from a standalone tool into presentation infrastructure that other products are built on top of.
+          </p>
+
+          <div class="mono" style="font-size: 10px; color: var(--red); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px;">Key deliverables</div>
+          <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 24px;">
+            <span style="display: inline-block; padding: 5px 12px; background: rgba(0,0,0,0.03); border-radius: 8px; font-size: 12px; color: rgba(0,0,0,0.55);">API / SDK</span>
+            <span style="display: inline-block; padding: 5px 12px; background: rgba(0,0,0,0.03); border-radius: 8px; font-size: 12px; color: rgba(0,0,0,0.55);">Third-party integrations</span>
+            <span style="display: inline-block; padding: 5px 12px; background: rgba(0,0,0,0.03); border-radius: 8px; font-size: 12px; color: rgba(0,0,0,0.55);">Deeper enterprise controls</span>
+            <span style="display: inline-block; padding: 5px 12px; background: rgba(0,0,0,0.03); border-radius: 8px; font-size: 12px; color: rgba(0,0,0,0.55);">Live delivery infrastructure</span>
+          </div>
+
+          <div style="border-top: 1px solid rgba(0,0,0,0.05); padding-top: 16px;">
+            <div class="mono" style="font-size: 10px; color: var(--green); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px;">Target KPIs</div>
+            <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+              <span class="kpi-pill"><span class="kpi-dot"></span>&euro;1M+ ARR</span>
+              <span class="kpi-pill"><span class="kpi-dot"></span>20+ API customers</span>
+              <span class="kpi-pill"><span class="kpi-dot"></span>Monthly positive cash flow</span>
+              <span class="kpi-pill"><span class="kpi-dot"></span>Gross margin 85%+</span>
+              <span class="kpi-pill"><span class="kpi-dot"></span>3+ whitelabel deals</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============================== -->
+  <!-- FIRST 90 DAYS                   -->
+  <!-- ============================== -->
+  <section style="max-width: 1200px; margin: 0 auto; padding: 0 24px 100px;">
+    <div class="reveal" style="margin-bottom: 48px;">
+      <div class="mono" style="font-size: 11px; color: var(--red); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 16px;">Technical Validation</div>
+      <h2 class="serif" style="font-size: clamp(1.8rem, 4vw, 3rem); letter-spacing: -1px; margin-bottom: 12px;">The first 90 days</h2>
+      <p style="font-size: 15px; color: rgba(0,0,0,0.4); max-width: 480px; line-height: 1.7; font-weight: 300;">
+        Three focused sprints to validate the hardest technical assumptions before writing a single line of product code.
+      </p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+
+      <!-- Day 0-30 -->
+      <div class="paper validation-card reveal" style="border-radius: 20px; padding: 32px 28px;">
+        <span class="day-badge" style="background: rgba(217,66,40,0.08); color: var(--red); margin-bottom: 16px;">Day 0 &ndash; 30</span>
+        <h4 style="font-size: 17px; font-weight: 700; margin: 16px 0 8px; letter-spacing: -0.3px;">Speech-to-Graph Matching PoC</h4>
+        <p style="font-size: 13px; color: rgba(0,0,0,0.45); line-height: 1.7; margin-bottom: 20px;">
+          Prove that spoken words can be mapped to presentation graph nodes in real time. This is the foundational capability every other feature depends on.
+        </p>
+        <div style="display: flex; align-items: center; gap: 8px; padding: 10px 14px; background: rgba(42,125,79,0.05); border-radius: 10px;">
+          <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--green); flex-shrink: 0;"></span>
+          <span style="font-size: 12px; color: var(--green); font-weight: 600;">Target: 85%+ position accuracy</span>
+        </div>
+      </div>
+
+      <!-- Day 30-60 -->
+      <div class="paper validation-card reveal" style="border-radius: 20px; padding: 32px 28px;">
+        <span class="day-badge" style="background: rgba(45,91,255,0.08); color: var(--blue); margin-bottom: 16px;">Day 30 &ndash; 60</span>
+        <h4 style="font-size: 17px; font-weight: 700; margin: 16px 0 8px; letter-spacing: -0.3px;">Live Pipeline on Zoom SDK</h4>
+        <p style="font-size: 13px; color: rgba(0,0,0,0.45); line-height: 1.7; margin-bottom: 20px;">
+          Stress-test the full real-time pipeline end-to-end on Zoom's SDK. Latency and uptime at production thresholds are non-negotiable for a live copilot.
+        </p>
+        <div style="display: flex; align-items: center; gap: 8px; padding: 10px 14px; background: rgba(45,91,255,0.05); border-radius: 10px;">
+          <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--blue); flex-shrink: 0;"></span>
+          <span style="font-size: 12px; color: var(--blue); font-weight: 600;">Target: &lt;1.5s end-to-end, 90%+ uptime</span>
+        </div>
+      </div>
+
+      <!-- Day 60-90 -->
+      <div class="paper validation-card reveal" style="border-radius: 20px; padding: 32px 28px;">
+        <span class="day-badge" style="background: rgba(42,125,79,0.08); color: var(--green); margin-bottom: 16px;">Day 60 &ndash; 90</span>
+        <h4 style="font-size: 17px; font-weight: 700; margin: 16px 0 8px; letter-spacing: -0.3px;">Decision Quality Validation</h4>
+        <p style="font-size: 13px; color: rgba(0,0,0,0.45); line-height: 1.7; margin-bottom: 20px;">
+          Put the decision engine in front of 10 real teachers and measure whether interventions are genuinely helpful. User perception is the ultimate benchmark.
+        </p>
+        <div style="display: flex; align-items: center; gap: 8px; padding: 10px 14px; background: rgba(42,125,79,0.05); border-radius: 10px;">
+          <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--green); flex-shrink: 0;"></span>
+          <span style="font-size: 12px; color: var(--green); font-weight: 600;">Target: 70%+ rated "useful", false positive &lt;5%</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============================== -->
+  <!-- STICKY NOTE                     -->
+  <!-- ============================== -->
+  <section style="max-width: 1200px; margin: 0 auto; padding: 0 24px 100px;">
+    <div class="reveal" style="max-width: 600px; margin: 0 auto;">
+      <div class="sticky tape" style="padding: 28px 28px 24px; border-radius: 2px; transform: rotate(-1deg); font-size: 20px; line-height: 1.5;">
+        <span style="font-weight: 700; display: block; margin-bottom: 8px;">Technical difficulty = Defensibility.</span>
+        Real-time narration intelligence requires orchestrating multiple AI disciplines&mdash;STT, NLU, decision theory, real-time render&mdash;simultaneously. This complexity is what keeps general-purpose platforms from solving it in a weekend hackathon.
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================== -->
+  <!-- FOOTER                          -->
+  <!-- ============================== -->
+  <footer style="padding: 32px 0; border-top: 1px solid rgba(0,0,0,0.06);">
+    <div style="max-width: 1200px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <img src="logo.jpg" alt="Pretive" style="width: 24px; height: 24px; border-radius: 8px; object-fit: cover;">
+        <span style="font-size: 13px; font-weight: 700;">pretive</span>
+      </div>
+      <div style="display: flex; gap: 24px;">
+        <a href="index.html" style="font-size: 12px; color: rgba(0,0,0,0.3);">Home</a>
+        <a href="investors.html" style="font-size: 12px; color: rgba(0,0,0,0.3);">Investors</a>
+        <a href="mailto:hello@pretive.com" style="font-size: 12px; color: rgba(0,0,0,0.3);">Contact</a>
+      </div>
+      <span class="mono" style="font-size: 10px; color: rgba(0,0,0,0.15);">&copy; 2026 Pretive</span>
+    </div>
+  </footer>
+
+  <script>
+    // Custom cursor
+    const cursor = document.getElementById('cursor');
+    document.addEventListener('mousemove', e => {
+      cursor.style.left = e.clientX - 4 + 'px';
+      cursor.style.top = e.clientY - 4 + 'px';
+    });
+    document.querySelectorAll('.hoverable, a, button').forEach(el => {
+      el.addEventListener('mouseenter', () => cursor.classList.add('hovering'));
+      el.addEventListener('mouseleave', () => cursor.classList.remove('hovering'));
+    });
+
+    // Nav scroll
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 30));
+
+    // Reveal on scroll
+    const revealObs = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.15 });
+    document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+  </script>
+</body>
+</html>

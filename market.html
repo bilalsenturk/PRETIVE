@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PRETIVE — Market Analysis</title>
+  <meta name="description" content="Pretive market opportunity: EdTech market size, target segments, TAM/SAM/SOM, and competitive landscape.">
+  <link rel="icon" type="image/jpeg" href="logo.jpg">
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700;800;900&family=Caveat:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #F5F0EB;
+      --ink: #111;
+      --red: #D94228;
+      --yellow: #F5C842;
+      --blue: #2D5BFF;
+      --green: #2A7D4F;
+      --paper: #FFFDF9;
+      --shadow: rgba(0,0,0,0.06);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+    ::selection { background: var(--red); color: white; }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--ink); font-family: 'Inter', sans-serif; overflow-x: hidden; cursor: default; }
+
+    .cursor-dot {
+      width: 8px; height: 8px;
+      background: var(--red);
+      border-radius: 50%;
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      transition: transform 0.15s ease, opacity 0.15s ease;
+      mix-blend-mode: exclusion;
+    }
+    .cursor-dot.hovering { transform: scale(4); opacity: 0.5; }
+
+    .serif { font-family: 'Instrument Serif', serif; }
+    .handwrite { font-family: 'Caveat', cursive; }
+    .mono { font-family: 'IBM Plex Mono', monospace; }
+
+    .sticky {
+      background: var(--yellow);
+      padding: 16px 20px;
+      font-family: 'Caveat', cursive;
+      font-size: 18px;
+      color: #333;
+      box-shadow: 2px 3px 12px rgba(0,0,0,0.1);
+      position: relative;
+      line-height: 1.4;
+    }
+    .sticky::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: rgba(0,0,0,0.05);
+    }
+
+    .highlight {
+      background: linear-gradient(180deg, transparent 55%, rgba(245, 200, 66, 0.35) 55%, rgba(245, 200, 66, 0.35) 90%, transparent 90%);
+    }
+    .highlight-red {
+      background: linear-gradient(180deg, transparent 55%, rgba(217, 66, 40, 0.15) 55%, rgba(217, 66, 40, 0.15) 90%, transparent 90%);
+    }
+
+    .scribble {
+      text-decoration: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 8'%3E%3Cpath d='M0 6 Q50 0 100 5 Q150 10 200 4' fill='none' stroke='%23D94228' stroke-width='2'/%3E%3C/svg%3E");
+      background-position: bottom;
+      background-repeat: repeat-x;
+      background-size: 100px 8px;
+      padding-bottom: 6px;
+    }
+
+    .stamp {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 3px solid var(--red);
+      color: var(--red);
+      padding: 6px 14px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-weight: 600;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      transform: rotate(-3deg);
+      opacity: 0.8;
+    }
+
+    .paper {
+      background: var(--paper);
+      border: 1px solid rgba(0,0,0,0.06);
+      box-shadow: 0 1px 3px var(--shadow), 0 8px 24px -8px var(--shadow);
+    }
+
+    .tape { position: relative; }
+    .tape::before {
+      content: '';
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%) rotate(-2deg);
+      width: 80px;
+      height: 24px;
+      background: rgba(200, 190, 170, 0.4);
+      border-radius: 2px;
+      z-index: 1;
+    }
+
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 0 24px;
+      transition: background 0.3s, box-shadow 0.3s;
+    }
+    nav.scrolled {
+      background: rgba(245, 240, 235, 0.92);
+      backdrop-filter: blur(16px);
+      box-shadow: 0 1px 0 rgba(0,0,0,0.06);
+    }
+
+    a { text-decoration: none; color: inherit; }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: all 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .section-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--red);
+      margin-bottom: 16px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    table th {
+      text-align: left;
+      padding: 14px 16px;
+      font-size: 11px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: rgba(0,0,0,0.35);
+      border-bottom: 2px solid rgba(0,0,0,0.08);
+    }
+    table td {
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+      color: rgba(0,0,0,0.6);
+      line-height: 1.5;
+    }
+    table tr:last-child td { border-bottom: none; }
+    table tbody tr:hover { background: rgba(0,0,0,0.015); }
+
+    @media (max-width: 768px) {
+      .hide-mobile { display: none !important; }
+      .stat-grid { grid-template-columns: 1fr !important; }
+      .segment-grid { grid-template-columns: 1fr !important; }
+      .table-scroll { overflow-x: auto; }
+      table { min-width: 560px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Cursor -->
+  <div class="cursor-dot" id="cursor"></div>
+
+  <!-- Nav -->
+  <nav id="nav">
+    <div style="max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 64px;">
+      <a href="index.html" style="display: flex; align-items: center; gap: 10px;" class="hoverable">
+        <img src="logo.jpg" alt="Pretive" style="width: 32px; height: 32px; border-radius: 10px; object-fit: cover;">
+        <span style="font-size: 15px; font-weight: 700; letter-spacing: -0.5px;">pretive</span>
+      </a>
+      <div style="display: flex; align-items: center; gap: 32px;" class="hide-mobile">
+        <a href="index.html#features" class="hoverable" style="font-size: 13px; color: rgba(0,0,0,0.4); font-weight: 500;">Features</a>
+        <a href="index.html#compare" class="hoverable" style="font-size: 13px; color: rgba(0,0,0,0.4); font-weight: 500;">Compare</a>
+        <a href="index.html#pricing" class="hoverable" style="font-size: 13px; color: rgba(0,0,0,0.4); font-weight: 500;">Pricing</a>
+        <a href="investors.html" class="hoverable" style="font-size: 13px; color: rgba(0,0,0,0.4); font-weight: 500;">Investors</a>
+        <a href="index.html#waitlist" class="hoverable" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 22px; background: var(--ink); color: white; font-size: 13px; font-weight: 600; border-radius: 50px;">
+          <span style="width: 6px; height: 6px; border-radius: 50%; background: var(--red);"></span>
+          Early access
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Breadcrumb -->
+  <div style="max-width: 1200px; margin: 0 auto; padding: 80px 24px 0;">
+    <a href="investors.html" class="hoverable" style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: rgba(0,0,0,0.35); font-weight: 500; transition: color 0.2s;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      Back to Investors
+    </a>
+  </div>
+
+  <!-- ============================== -->
+  <!-- HERO                           -->
+  <!-- ============================== -->
+  <section style="padding: 40px 24px 80px; max-width: 1200px; margin: 0 auto;">
+    <div class="reveal" style="max-width: 720px;">
+      <div class="stamp" style="margin-bottom: 28px;">
+        <span style="width: 6px; height: 6px; border-radius: 50%; background: var(--red); display: inline-block;"></span>
+        Market Analysis
+      </div>
+
+      <h1 class="serif" style="font-size: clamp(2.8rem, 7vw, 5.5rem); line-height: 0.95; letter-spacing: -2px; margin-bottom: 24px;">
+        Market<br><span class="scribble">Opportunity</span>
+      </h1>
+
+      <p style="font-size: 18px; color: rgba(0,0,0,0.4); max-width: 560px; line-height: 1.7; font-weight: 300;">
+        The global EdTech market is expanding rapidly, driven by the shift toward digital learning, hybrid delivery, and AI-powered tools. Pretive sits at the intersection of <span class="highlight">live education</span> and <span class="highlight">real-time AI</span> &mdash; two of the fastest-growing categories in the space.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============================== -->
+  <!-- MACRO MARKET                   -->
+  <!-- ============================== -->
+  <section style="padding: 0 24px 100px; max-width: 1200px; margin: 0 auto;">
+    <div class="reveal">
+      <p class="section-label">Macro Market</p>
+      <h2 class="serif" style="font-size: clamp(1.8rem, 4vw, 2.8rem); line-height: 1.1; letter-spacing: -1px; margin-bottom: 12px;">
+        A massive and accelerating market
+      </h2>
+      <p style="font-size: 15px; color: rgba(0,0,0,0.4); max-width: 560px; line-height: 1.7; margin-bottom: 48px; font-weight: 300;">
+        The global EdTech industry is on an exponential growth trajectory. According to Grand View Research, the market reached approximately $163 billion in 2024 and is projected to more than double by 2030. HolonIQ estimates the broader education market is approaching $10 trillion by the end of the decade.
+      </p>
+    </div>
+
+    <!-- Stat cards -->
+    <div class="stat-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;">
+      <div class="paper reveal tape" style="border-radius: 20px; padding: 48px 32px; text-align: center;">
+        <p class="mono" style="font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: rgba(0,0,0,0.3); margin-bottom: 12px;">EdTech 2024</p>
+        <p class="serif" style="font-size: clamp(2.5rem, 5vw, 4rem); line-height: 1; color: var(--ink); letter-spacing: -2px;">$163<span style="font-size: 0.5em;">B</span></p>
+        <p style="font-size: 13px; color: rgba(0,0,0,0.3); margin-top: 8px;">Grand View Research</p>
+      </div>
+      <div class="paper reveal tape" style="border-radius: 20px; padding: 48px 32px; text-align: center;">
+        <p class="mono" style="font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: rgba(0,0,0,0.3); margin-bottom: 12px;">Projected 2030</p>
+        <p class="serif" style="font-size: clamp(2.5rem, 5vw, 4rem); line-height: 1; color: var(--blue); letter-spacing: -2px;">$348<span style="font-size: 0.5em;">B</span></p>
+        <p style="font-size: 13px; color: rgba(0,0,0,0.3); margin-top: 8px;">More than 2&times; growth</p>
+      </div>
+      <div class="paper reveal tape" style="border-radius: 20px; padding: 48px 32px; text-align: center;">
+        <p class="mono" style="font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: rgba(0,0,0,0.3); margin-bottom: 12px;">CAGR</p>
+        <p class="serif" style="font-size: clamp(2.5rem, 5vw, 4rem); line-height: 1; color: var(--green); letter-spacing: -2px;">13.3<span style="font-size: 0.5em;">%</span></p>
+        <p style="font-size: 13px; color: rgba(0,0,0,0.3); margin-top: 8px;">Sustained compound growth</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================== -->
+  <!-- TARGET CUSTOMER PROFILES       -->
+  <!-- ============================== -->
+  <section style="padding: 0 24px 100px; max-width: 1200px; margin: 0 auto;">
+    <div class="reveal">
+      <p class="section-label">Target Customers</p>
+      <h2 class="serif" style="font-size: clamp(1.8rem, 4vw, 2.8rem); line-height: 1.1; letter-spacing: -1px; margin-bottom: 12px;">
+        Who we serve &mdash; and when
+      </h2>
+      <p style="font-size: 15px; color: rgba(0,0,0,0.4); max-width: 560px; line-height: 1.7; margin-bottom: 48px; font-weight: 300;">
+        We are pursuing a phased go-to-market strategy, starting with segments where the pain is sharpest and expanding into adjacent verticals as the platform matures.
+      </p>
+    </div>
+
+    <div class="segment-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px;">
+      <!-- Phase 1 -->
+      <div class="paper reveal" style="border-radius: 20px; padding: 40px 32px;">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 24px;">
+          <span style="display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 10px; background: var(--red); color: white; font-size: 14px; font-weight: 700;">1</span>
+          <span class="mono" style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: rgba(0,0,0,0.4); font-weight: 600;">First Phase</span>
+        </div>
+        <ul style="list-style: none; display: flex; flex-direction: column; gap: 16px;">
+          <li style="display: flex; align-items: flex-start; gap: 12px; font-size: 15px; color: rgba(0,0,0,0.55); line-height: 1.5;">
+            <span style="color: var(--red); font-size: 18px; margin-top: 1px;">&#10132;</span>
+            Education institutions &amp; independent trainers
+          </li>
+          <li style="display: flex; align-items: flex-start; gap: 12px; font-size: 15px; color: rgba(0,0,0,0.55); line-height: 1.5;">
+            <span style="color: var(--red); font-size: 18px; margin-top: 1px;">&#10132;</span>
+            Webinar producers
+          </li>
+          <li style="display: flex; align-items: flex-start; gap: 12px; font-size: 15px; color: rgba(0,0,0,0.55); line-height: 1.5;">
+            <span style="color: var(--red); font-size: 18px; margin-top: 1px;">&#10132;</span>
+            Academies &amp; bootcamps
+          </li>
+          <li style="display: flex; align-items: flex-start; gap: 12px; font-size: 15px; color: rgba(0,0,0,0.55); line-height: 1.5;">
+            <span style="color: var(--red); font-size: 18px; margin-top: 1px;">&#10132;</span>
+            Corporate training &amp; L&amp;D teams
+          </li>
+        </ul>
+      </div>
+
+      <!-- Phase 2 -->
+      <div class="paper reveal" style="border-radius: 20px; padding: 40px 32px;">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 24px;">
+          <span style="display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 10px; background: var(--blue); color: white; font-size: 14px; font-weight: 700;">2</span>
+          <span class="mono" style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: rgba(0,0,0,0.4); font-weight: 600;">Second Phase</span>
+        </div>
+        <ul style="list-style: none; display: flex; flex-direction: column; gap: 16px;">
+          <li style="display: flex; align-items: flex-start; gap: 12px; font-size: 15px; color: rgba(0,0,0,0.55); line-height: 1.5;">
+            <span style="color: var(--blue); font-size: 18px; margin-top: 1px;">&#10132;</span>
+            Pre-sales &amp; demo teams
+          </li>
+          <li style="display: flex; align-items: flex-start; gap: 12px; font-size: 15px; color: rgba(0,0,0,0.55); line-height: 1.5;">
+            <span style="color: var(--blue); font-size: 18px; margin-top: 1px;">&#10132;</span>
+            Customer success teams
+          </li>
+          <li style="display: flex; align-items: flex-start; gap: 12px; font-size: 15px; color: rgba(0,0,0,0.55); line-height: 1.5;">
+            <span style="color: var(--blue); font-size: 18px; margin-top: 1px;">&#10132;</span>
+            Internal comms &amp; enablement
+          </li>
+          <li style="display: flex; align-items: flex-start; gap: 12px; font-size: 15px; color: rgba(0,0,0,0.55); line-height: 1.5;">
+            <span style="color: var(--blue); font-size: 18px; margin-top: 1px;">&#10132;</span>
+            Founders giving investor presentations
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================== -->
+  <!-- TAM / SAM / SOM                -->
+  <!-- ============================== -->
+  <section style="padding: 0 24px 100px; max-width: 1200px; margin: 0 auto;">
+    <div class="reveal">
+      <p class="section-label">Addressable Market</p>
+      <h2 class="serif" style="font-size: clamp(1.8rem, 4vw, 2.8rem); line-height: 1.1; letter-spacing: -1px; margin-bottom: 12px;">
+        TAM &middot; SAM &middot; SOM
+      </h2>
+      <p style="font-size: 15px; color: rgba(0,0,0,0.4); max-width: 560px; line-height: 1.7; margin-bottom: 48px; font-weight: 300;">
+        Our bottom-up sizing accounts for live-education professionals, corporate trainers, and presentation-heavy roles across key geographies. Here is how the opportunity stacks up.
+      </p>
+    </div>
+
+    <div class="paper reveal table-scroll" style="border-radius: 20px; padding: 8px 0; overflow: hidden;">
+      <table>
+        <thead>
+          <tr>
+            <th style="padding-left: 24px;">Tier</th>
+            <th>Users</th>
+            <th>Revenue</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="padding-left: 24px;">
+              <span style="font-weight: 600; color: var(--ink);">TAM</span>
+              <span style="display: block; font-size: 12px; color: rgba(0,0,0,0.3); margin-top: 2px;">Total Addressable Market</span>
+            </td>
+            <td style="font-weight: 600; color: var(--ink);">8&ndash;12M users</td>
+            <td style="font-weight: 600; color: var(--ink);">&euro;1.9B &ndash; &euro;5.8B</td>
+          </tr>
+          <tr>
+            <td style="padding-left: 24px;">
+              <span style="font-weight: 600; color: var(--ink);">SAM</span>
+              <span style="display: block; font-size: 12px; color: rgba(0,0,0,0.3); margin-top: 2px;">Serviceable Addressable Market</span>
+            </td>
+            <td style="font-weight: 600; color: var(--ink);">1.2&ndash;1.8M users</td>
+            <td style="font-weight: 600; color: var(--ink);">&euro;288M &ndash; &euro;648M</td>
+          </tr>
+          <tr>
+            <td style="padding-left: 24px;">
+              <span style="font-weight: 600; color: var(--green);">SOM (Base)</span>
+              <span style="display: block; font-size: 12px; color: rgba(0,0,0,0.3); margin-top: 2px;">Serviceable Obtainable Market</span>
+            </td>
+            <td style="font-weight: 600; color: var(--green);">31,000 seats</td>
+            <td style="font-weight: 600; color: var(--green);">&euro;8.85M ARR</td>
+          </tr>
+          <tr>
+            <td style="padding-left: 24px;">
+              <span style="font-weight: 600; color: var(--blue);">SOM (Upper)</span>
+              <span style="display: block; font-size: 12px; color: rgba(0,0,0,0.3); margin-top: 2px;">Upper-bound scenario</span>
+            </td>
+            <td style="font-weight: 600; color: var(--blue);">35,000 seats</td>
+            <td style="font-weight: 600; color: var(--blue);">&euro;10.38M ARR</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============================== -->
+  <!-- SOM BREAKDOWN                  -->
+  <!-- ============================== -->
+  <section style="padding: 0 24px 100px; max-width: 1200px; margin: 0 auto;">
+    <div class="reveal">
+      <p class="section-label">SOM Breakdown</p>
+      <h2 class="serif" style="font-size: clamp(1.8rem, 4vw, 2.8rem); line-height: 1.1; letter-spacing: -1px; margin-bottom: 12px;">
+        Revenue by plan tier
+      </h2>
+      <p style="font-size: 15px; color: rgba(0,0,0,0.4); max-width: 560px; line-height: 1.7; margin-bottom: 48px; font-weight: 300;">
+        Our base SOM scenario breaks down across three pricing tiers. Blended ARPU reflects the product's value at different scales of usage.
+      </p>
+    </div>
+
+    <div class="paper reveal table-scroll" style="border-radius: 20px; padding: 8px 0; overflow: hidden;">
+      <table>
+        <thead>
+          <tr>
+            <th style="padding-left: 24px;">Plan</th>
+            <th>Seats</th>
+            <th>Price / mo</th>
+            <th>ARR</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="padding-left: 24px; font-weight: 600; color: var(--ink);">Individual Pro</td>
+            <td>18,000</td>
+            <td>&euro;19 / mo</td>
+            <td style="font-weight: 600; color: var(--ink);">&euro;4.10M</td>
+          </tr>
+          <tr>
+            <td style="padding-left: 24px; font-weight: 600; color: var(--ink);">Team</td>
+            <td>9,000</td>
+            <td>&euro;24 / mo</td>
+            <td style="font-weight: 600; color: var(--ink);">&euro;2.59M</td>
+          </tr>
+          <tr>
+            <td style="padding-left: 24px; font-weight: 600; color: var(--ink);">Enterprise</td>
+            <td>4,000</td>
+            <td>&euro;45 / mo</td>
+            <td style="font-weight: 600; color: var(--ink);">&euro;2.16M</td>
+          </tr>
+          <tr style="background: rgba(0,0,0,0.02);">
+            <td style="padding-left: 24px; font-weight: 700; color: var(--ink);">Total</td>
+            <td style="font-weight: 700; color: var(--ink);">31,000</td>
+            <td></td>
+            <td style="font-weight: 700; color: var(--red);">&euro;8.85M</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============================== -->
+  <!-- COMPETITIVE LANDSCAPE          -->
+  <!-- ============================== -->
+  <section style="padding: 0 24px 100px; max-width: 1200px; margin: 0 auto;">
+    <div class="reveal">
+      <p class="section-label">Competitive Landscape</p>
+      <h2 class="serif" style="font-size: clamp(1.8rem, 4vw, 2.8rem); line-height: 1.1; letter-spacing: -1px; margin-bottom: 12px;">
+        What exists &mdash; and what&rsquo;s missing
+      </h2>
+      <p style="font-size: 15px; color: rgba(0,0,0,0.4); max-width: 560px; line-height: 1.7; margin-bottom: 48px; font-weight: 300;">
+        Several tools touch parts of the problem. None of them address the full live-delivery experience the way Pretive does.
+      </p>
+    </div>
+
+    <div class="paper reveal table-scroll" style="border-radius: 20px; padding: 8px 0; overflow: hidden;">
+      <table>
+        <thead>
+          <tr>
+            <th style="padding-left: 24px; width: 18%;">Competitor</th>
+            <th style="width: 38%;">What They Do</th>
+            <th style="width: 44%;">What They Miss</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="padding-left: 24px; font-weight: 600; color: var(--ink);">Microsoft Copilot</td>
+            <td>Slide creation, Speaker Coach</td>
+            <td><span style="color: var(--red);">&#10005;</span> No live screen enrichment, no participant agent, no fact-check</td>
+          </tr>
+          <tr>
+            <td style="padding-left: 24px; font-weight: 600; color: var(--ink);">Canva</td>
+            <td>Visual presentations, Canva Live</td>
+            <td><span style="color: var(--red);">&#10005;</span> No semantic flow tracking, no background agent</td>
+          </tr>
+          <tr>
+            <td style="padding-left: 24px; font-weight: 600; color: var(--ink);">PromptSmart</td>
+            <td>Voice-synced teleprompter</td>
+            <td><span style="color: var(--red);">&#10005;</span> Prompter only &mdash; no new content generation, no quiz, no participant interaction</td>
+          </tr>
+          <tr>
+            <td style="padding-left: 24px; font-weight: 600; color: var(--ink);">Gamma</td>
+            <td>Programmatic presentation creation</td>
+            <td><span style="color: var(--red);">&#10005;</span> No live delivery orchestration, no style learning</td>
+          </tr>
+          <tr>
+            <td style="padding-left: 24px; font-weight: 600; color: var(--ink);">Otter</td>
+            <td>Transcription, meeting agent</td>
+            <td><span style="color: var(--red);">&#10005;</span> No education-focused narration management, no participant side</td>
+          </tr>
+          <tr>
+            <td style="padding-left: 24px; font-weight: 600; color: var(--ink);">Mentimeter / Slido</td>
+            <td>Surveys and Q&amp;A</td>
+            <td><span style="color: var(--red);">&#10005;</span> Interaction only &mdash; no narration management, no content enrichment</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============================== -->
+  <!-- WHY PRETIVE CAN WIN            -->
+  <!-- ============================== -->
+  <section style="padding: 0 24px 80px; max-width: 1200px; margin: 0 auto;">
+    <div class="reveal">
+      <p class="section-label">Why Pretive Wins</p>
+      <h2 class="serif" style="font-size: clamp(1.8rem, 4vw, 2.8rem); line-height: 1.1; letter-spacing: -1px; margin-bottom: 48px;">
+        Five structural advantages
+      </h2>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 20px; max-width: 800px;">
+      <div class="paper reveal" style="border-radius: 16px; padding: 28px 32px; display: flex; align-items: flex-start; gap: 16px;">
+        <span style="flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 8px; background: rgba(217,66,40,0.08); color: var(--red); font-size: 14px; font-weight: 700;">1</span>
+        <p style="font-size: 15px; color: rgba(0,0,0,0.55); line-height: 1.6;">
+          <span style="font-weight: 600; color: var(--ink);">Big players focus elsewhere.</span> Microsoft, Canva, and others concentrate on content creation and general meeting assistance &mdash; not live delivery.
+        </p>
+      </div>
+      <div class="paper reveal" style="border-radius: 16px; padding: 28px 32px; display: flex; align-items: flex-start; gap: 16px;">
+        <span style="flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 8px; background: rgba(217,66,40,0.08); color: var(--red); font-size: 14px; font-weight: 700;">2</span>
+        <p style="font-size: 15px; color: rgba(0,0,0,0.55); line-height: 1.6;">
+          <span style="font-weight: 600; color: var(--ink);">Pretive owns the live execution layer.</span> We are purpose-built for the moment of delivery &mdash; when the speaker is actually talking and participants are actively engaged.
+        </p>
+      </div>
+      <div class="paper reveal" style="border-radius: 16px; padding: 28px 32px; display: flex; align-items: flex-start; gap: 16px;">
+        <span style="flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 8px; background: rgba(217,66,40,0.08); color: var(--red); font-size: 14px; font-weight: 700;">3</span>
+        <p style="font-size: 15px; color: rgba(0,0,0,0.55); line-height: 1.6;">
+          <span style="font-weight: 600; color: var(--ink);">Two-sided platform creates deeper loyalty.</span> Both the speaker and the participant benefit, making the product stickier than any single-sided tool.
+        </p>
+      </div>
+      <div class="paper reveal" style="border-radius: 16px; padding: 28px 32px; display: flex; align-items: flex-start; gap: 16px;">
+        <span style="flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 8px; background: rgba(217,66,40,0.08); color: var(--red); font-size: 14px; font-weight: 700;">4</span>
+        <p style="font-size: 15px; color: rgba(0,0,0,0.55); line-height: 1.6;">
+          <span style="font-weight: 600; color: var(--ink);">Data and style learning build a moat.</span> Education data, personal style calibration, and habitual use create compounding switching costs over time.
+        </p>
+      </div>
+      <div class="paper reveal" style="border-radius: 16px; padding: 28px 32px; display: flex; align-items: flex-start; gap: 16px;">
+        <span style="flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 8px; background: rgba(217,66,40,0.08); color: var(--red); font-size: 14px; font-weight: 700;">5</span>
+        <p style="font-size: 15px; color: rgba(0,0,0,0.55); line-height: 1.6;">
+          <span style="font-weight: 600; color: var(--ink);">Additive, not replacement.</span> Pretive works on top of existing tools like Zoom, Google Meet, and PowerPoint &mdash; lowering adoption friction dramatically.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================== -->
+  <!-- CALLOUT / STICKY NOTE          -->
+  <!-- ============================== -->
+  <section style="padding: 0 24px 120px; max-width: 1200px; margin: 0 auto;">
+    <div class="reveal" style="display: flex; justify-content: center;">
+      <div class="sticky" style="max-width: 600px; padding: 32px 36px; transform: rotate(-1deg); font-size: 22px; line-height: 1.5; border-radius: 4px;">
+        <span style="font-size: 28px; display: block; margin-bottom: 8px;">&#128161;</span>
+        &ldquo;The gap Pretive fills: When the speaker is talking, the content and screen should work <em>with</em> them &mdash; and participants should be able to deepen what&rsquo;s being said without interrupting.&rdquo;
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================== -->
+  <!-- FOOTER                         -->
+  <!-- ============================== -->
+  <footer style="padding: 32px 0; border-top: 1px solid rgba(0,0,0,0.06);">
+    <div style="max-width: 1200px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <img src="logo.jpg" alt="Pretive" style="width: 24px; height: 24px; border-radius: 8px; object-fit: cover;">
+        <span style="font-size: 13px; font-weight: 700;">pretive</span>
+      </div>
+      <div style="display: flex; gap: 24px;">
+        <a href="index.html#features" style="font-size: 12px; color: rgba(0,0,0,0.3);">Features</a>
+        <a href="index.html#pricing" style="font-size: 12px; color: rgba(0,0,0,0.3);">Pricing</a>
+        <a href="mailto:hello@pretive.com" style="font-size: 12px; color: rgba(0,0,0,0.3);">Contact</a>
+      </div>
+      <span class="mono" style="font-size: 10px; color: rgba(0,0,0,0.15);">&copy; 2026 Pretive</span>
+    </div>
+  </footer>
+
+  <script>
+    // Custom cursor
+    const cursor = document.getElementById('cursor');
+    document.addEventListener('mousemove', e => {
+      cursor.style.left = e.clientX - 4 + 'px';
+      cursor.style.top = e.clientY - 4 + 'px';
+    });
+    document.querySelectorAll('.hoverable, a, button').forEach(el => {
+      el.addEventListener('mouseenter', () => cursor.classList.add('hovering'));
+      el.addEventListener('mouseleave', () => cursor.classList.remove('hovering'));
+    });
+
+    // Nav scroll
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 30));
+
+    // Reveal on scroll
+    const revealObs = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.15 });
+    document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+
+    // Responsive grid fix
+    function fixGrids() {
+      const w = window.innerWidth;
+      document.querySelectorAll('.segment-grid').forEach(g => {
+        g.style.gridTemplateColumns = w < 768 ? '1fr' : '1fr 1fr';
+      });
+      document.querySelectorAll('.stat-grid').forEach(g => {
+        g.style.gridTemplateColumns = w < 768 ? '1fr' : 'repeat(3, 1fr)';
+      });
+    }
+    fixGrids();
+    window.addEventListener('resize', fixGrids);
+  </script>
+</body>
+</html>
