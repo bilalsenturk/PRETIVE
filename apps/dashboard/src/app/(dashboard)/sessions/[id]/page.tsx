@@ -145,7 +145,7 @@ export default function SessionDetailPage() {
   }
 
   function handleStartSession() {
-    router.push(`/sessions/${id}/prepare`);
+    router.push(`/sessions/${id}/live`);
   }
 
   if (loading) {
