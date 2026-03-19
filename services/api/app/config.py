@@ -9,6 +9,11 @@ class Settings(BaseSettings):
     DEEPGRAM_API_KEY: str = ""
     NEXT_PUBLIC_API_URL: str = "http://localhost:8000"
 
+    # LLM configuration
+    LLM_BASE_URL: str = "https://openrouter.ai/api/v1"  # or platform.moonshot.ai
+    LLM_API_KEY: str = ""  # Kimi K2.5 or OpenAI key
+    LLM_MODEL: str = "moonshotai/kimi-k2.5"  # default model
+
     @property
     def SUPABASE_URL(self) -> str:
         return self.NEXT_PUBLIC_SUPABASE_URL
