@@ -1,14 +1,18 @@
 {
   "name": "pretive",
-  "type": "module",
   "version": "1.0.0",
+  "private": true,
+  "packageManager": "npm@10.8.2",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "dev": "astro dev",
-    "build": "astro build",
-    "preview": "astro preview"
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint"
   },
-  "dependencies": {
-    "astro": "^5.7.5",
-    "@astrojs/vercel": "^8.1.4"
+  "devDependencies": {
+    "turbo": "^2.4.4"
   }
 }

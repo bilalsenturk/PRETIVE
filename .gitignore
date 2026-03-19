@@ -1,8 +1,27 @@
-# Vercel
-.vercel
+# Dependencies
+node_modules/
+
+# Build
+dist/
+.next/
+.astro/
+.turbo/
+.vercel/
+
+# Environment
+.env
+.env.local
 .env*.local
 
-# Astro
-node_modules/
-dist/
-.astro/
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+.DS_Store
