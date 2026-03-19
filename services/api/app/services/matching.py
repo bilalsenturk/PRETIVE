@@ -16,31 +16,31 @@ def find_matching_chunks(text: str, session_id: str, top_k: int = 3) -> list[dic
     supabase = get_supabase()
 
     if is_embedding_available():
-        # Generate embedding for the speech text
         embeddings = generate_embeddings([text])
         if embeddings and embeddings[0]:
             embedding = embeddings[0]
-            # Use Supabase RPC for vector similarity search
-            result = supabase.rpc(
-                "match_chunks",
-                {
-                    "query_embedding": embedding,
-                    "match_session_id": session_id,
-                    "match_count": top_k,
-                }
-            ).execute()
-            if result.data:
-                return result.data
+            try:
+                result = supabase.rpc(
+                    "match_chunks",
+                    {
+                        "query_embedding": embedding,
+                        "match_session_id": session_id,
+                        "match_count": top_k,
+                    }
+                ).execute()
+                if result.data:
+                    return result.data
+            except Exception as exc:
+                logger.warning("Vector search failed: %s. Falling back to text search.", exc)
 
     # Fallback: simple text search using ilike
     logger.info("Using text-based fallback matching for session %s", session_id)
     words = text.lower().split()
-    keywords = [w for w in words if len(w) > 3][:5]  # top 5 meaningful words
+    keywords = [w for w in words if len(w) > 3][:5]
 
     if not keywords:
         return []
 
-    # Search chunks that contain any keyword
     result = (
         supabase.table("content_chunks")
         .select("*")
@@ -53,31 +53,31 @@ def find_matching_chunks(text: str, session_id: str, top_k: int = 3) -> list[dic
 
 
 def get_cards_for_position(session_id: str, chunk_ids: list[str]) -> list[dict]:
-    """Get session cards related to the given content chunks."""
+    """Get session cards related to the matched content.
+
+    Since cards may not have chunk_id set, we always return
+    the most relevant session cards (up to 4).
+    """
     supabase = get_supabase()
 
-    if not chunk_ids:
-        return []
-
-    # Get cards for this session, ordered by relevance
-    result = (
-        supabase.table("session_cards")
-        .select("*")
-        .eq("session_id", session_id)
-        .in_("chunk_id", chunk_ids)
-        .execute()
-    )
-    cards = result.data or []
-
-    # If no chunk-specific cards, return general session cards
-    if not cards:
+    # First try chunk-specific cards
+    if chunk_ids:
         result = (
             supabase.table("session_cards")
             .select("*")
             .eq("session_id", session_id)
-            .limit(4)
+            .in_("chunk_id", chunk_ids)
             .execute()
         )
-        cards = result.data or []
+        if result.data:
+            return result.data
 
-    return cards
+    # Fallback: return general session cards (always works)
+    result = (
+        supabase.table("session_cards")
+        .select("*")
+        .eq("session_id", session_id)
+        .limit(4)
+        .execute()
+    )
+    return result.data or []
