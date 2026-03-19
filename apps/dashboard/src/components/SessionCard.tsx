@@ -7,7 +7,7 @@ interface CardProps {
     id: string;
     card_type: "summary" | "comparison" | "concept" | "context_bridge";
     title: string;
-    content: string;
+    content: string | { text: string };
     display_order: number;
   };
 }
@@ -60,10 +60,12 @@ const cardTypeConfig: Record<
 export default function SessionCard({ card }: CardProps) {
   const config = cardTypeConfig[card.card_type] || cardTypeConfig.summary;
   const Icon = config.icon;
+  const rawContent =
+    typeof card.content === "string"
+      ? card.content
+      : card.content?.text || "";
   const contentPreview =
-    card.content.length > 200
-      ? card.content.slice(0, 200) + "..."
-      : card.content;
+    rawContent.length > 200 ? rawContent.slice(0, 200) + "..." : rawContent;
 
   return (
     <div

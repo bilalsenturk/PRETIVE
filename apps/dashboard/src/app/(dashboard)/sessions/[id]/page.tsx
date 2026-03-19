@@ -33,7 +33,7 @@ interface Card {
   id: string;
   card_type: "summary" | "comparison" | "concept" | "context_bridge";
   title: string;
-  content: string;
+  content: string | { text: string };
   display_order: number;
 }
 

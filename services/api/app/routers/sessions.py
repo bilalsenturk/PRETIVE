@@ -88,6 +88,20 @@ async def get_session(session_id: str) -> SessionResponse:
     return SessionResponse(**result.data)
 
 
+@router.get("/{session_id}/cards")
+async def list_session_cards(session_id: str):
+    """List all generated cards for a session."""
+    supabase = get_supabase()
+    result = (
+        supabase.table("session_cards")
+        .select("*")
+        .eq("session_id", session_id)
+        .order("created_at")
+        .execute()
+    )
+    return result.data or []
+
+
 @router.delete("/{session_id}", status_code=204)
 async def delete_session(session_id: str) -> None:
     """Delete a session by ID."""
