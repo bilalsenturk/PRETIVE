@@ -180,8 +180,7 @@ Return a JSON object:
     {
       "card_type": "summary|concept|comparison|context_bridge",
       "title": "<card title>",
-      "content": "<card content as markdown>",
-      "topic_id": "<the topic id this card belongs to>"
+      "content": "<card content as markdown>"
     }
   ]
 }
@@ -252,10 +251,9 @@ def _generate_cards_with_llm(session_id: str, graph: dict) -> list[dict]:
                 all_cards.append(
                     {
                         "session_id": session_id,
-                        "topic_id": topic.get("id", ""),
-                        "card_type": card.get("card_type", "summary"),
+                                                "card_type": card.get("card_type", "summary"),
                         "title": card.get("title", topic.get("title", "Untitled")),
-                        "content": card.get("content", ""),
+                        "content": {"text": card.get("content", "")},
                     }
                 )
         except Exception as exc:
@@ -294,7 +292,7 @@ def _mock_cards_for_topic(session_id: str, topic: dict) -> list[dict]:
             "topic_id": topic_id,
             "card_type": "summary",
             "title": f"Overview: {title}",
-            "content": summary,
+            "content": {"text": summary},
         }
     )
 
@@ -310,7 +308,7 @@ def _mock_cards_for_topic(session_id: str, topic: dict) -> list[dict]:
                 "topic_id": topic_id,
                 "card_type": "concept",
                 "title": f"Key Concepts: {title}",
-                "content": "\n".join(concept_lines),
+                "content": {"text": "\n".join(concept_lines)},
             }
         )
 
@@ -325,10 +323,9 @@ def _mock_cards_for_topic(session_id: str, topic: dict) -> list[dict]:
             cards.append(
                 {
                     "session_id": session_id,
-                    "topic_id": topic_id,
                     "card_type": "concept",
                     "title": f"Concepts: {subtopic.get('title', '')}",
-                    "content": "\n".join(sub_lines),
+                    "content": {"text": "\n".join(sub_lines)},
                 }
             )
 
@@ -340,7 +337,7 @@ def _mock_cards_for_topic(session_id: str, topic: dict) -> list[dict]:
                 "topic_id": topic_id,
                 "card_type": "context_bridge",
                 "title": f"Connections: {title}",
-                "content": f"This topic connects to: {', '.join(connections)}",
+                "content": {"text": f"This topic connects to: {', '.join(connections)}"},
             }
         )
 

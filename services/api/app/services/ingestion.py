@@ -1,6 +1,11 @@
 import io
 
 
+def _clean_text(text: str) -> str:
+    """Remove NULL bytes and other problematic characters for PostgreSQL."""
+    return text.replace("\x00", "").replace("\u0000", "")
+
+
 def parse_document(file_data: bytes, file_type: str) -> list[dict]:
     """Parse a document and return a list of text chunks.
 
@@ -30,7 +35,7 @@ def _parse_pdf(file_data: bytes) -> list[dict]:
     chunks: list[dict] = []
     for i, page in enumerate(reader.pages):
         text = page.extract_text() or ""
-        text = text.strip()
+        text = _clean_text(text.strip())
         if text:
             chunks.append(
                 {
@@ -54,7 +59,7 @@ def _parse_pptx(file_data: bytes) -> list[dict]:
         for shape in slide.shapes:
             if shape.has_text_frame:
                 for paragraph in shape.text_frame.paragraphs:
-                    para_text = paragraph.text.strip()
+                    para_text = _clean_text(paragraph.text.strip())
                     if para_text:
                         if heading is None:
                             heading = para_text
@@ -100,9 +105,9 @@ def _parse_docx(file_data: bytes) -> list[dict]:
     for paragraph in doc.paragraphs:
         if paragraph.style and paragraph.style.name.startswith("Heading"):
             _flush()
-            current_heading = paragraph.text.strip() or None
+            current_heading = _clean_text(paragraph.text.strip()) or None
         else:
-            text = paragraph.text.strip()
+            text = _clean_text(paragraph.text.strip())
             if text:
                 current_texts.append(text)
 
