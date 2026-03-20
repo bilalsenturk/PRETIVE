@@ -1,7 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "cd apps/web && npm install && npm run build",
-  "outputDirectory": "apps/web/.vercel/output",
-  "installCommand": "npm install --workspace=@pretive/web",
-  "framework": null
+  "buildCommand": "cd apps/web && npm run build",
+  "outputDirectory": "apps/web/dist",
+  "installCommand": "cd apps/web && npm install"
 }
