@@ -82,6 +82,7 @@ def _resolve_user_id(x_user_id: Optional[str]) -> str:
 def _get_session_for_user(session_id: str, user_id: str) -> dict:
     """Fetch a session and verify it belongs to the given user.
 
+    In demo mode (DEMO_USER_ID), ownership check is skipped.
     Raises 404 if not found, 403 if owned by another user.
     """
     supabase = get_supabase()
@@ -100,7 +101,9 @@ def _get_session_for_user(session_id: str, user_id: str) -> dict:
         raise HTTPException(status_code=404, detail="Session not found")
 
     session = result.data
-    if session.get("user_id") != user_id:
+
+    # Skip ownership check in demo mode
+    if user_id != DEMO_USER_ID and session.get("user_id") != user_id:
         logger.warning(
             "Permission denied: user %s tried to access session %s owned by %s",
             user_id, session_id, session.get("user_id"),
@@ -127,7 +130,11 @@ async def create_session(
         supabase = get_supabase()
         result = (
             supabase.table("sessions")
-            .insert({"title": body.title, "user_id": user_id, "status": "draft"})
+            .insert({
+                "title": body.title,
+                "status": "draft",
+                **({"user_id": user_id} if user_id != DEMO_USER_ID else {}),
+            })
             .execute()
         )
     except Exception as exc:
@@ -158,13 +165,11 @@ async def list_sessions(
 
     try:
         supabase = get_supabase()
-        result = (
-            supabase.table("sessions")
-            .select("*")
-            .eq("user_id", user_id)
-            .order("created_at", desc=True)
-            .execute()
-        )
+        query = supabase.table("sessions").select("*")
+        # In demo mode, list all sessions; otherwise filter by user
+        if user_id != DEMO_USER_ID:
+            query = query.eq("user_id", user_id)
+        result = query.order("created_at", desc=True).execute()
     except Exception as exc:
         logger.exception("DB error listing sessions: %s", exc)
         raise HTTPException(status_code=500, detail="Failed to list sessions")
