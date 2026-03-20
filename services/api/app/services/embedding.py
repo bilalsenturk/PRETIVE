@@ -1,74 +1,140 @@
 """Embedding generation service.
 
-Uses OpenAI text-embedding-3-small when an OPENAI_API_KEY is available.
-Falls back to mock random embeddings otherwise.
+Uses Moonshot (via LLM_BASE_URL) or OpenAI for embeddings. No mock data.
 """
 
 import logging
-import random
+import time
 
 from openai import OpenAI
+from tenacity import retry, stop_after_attempt, wait_exponential
 
 from app.config import settings
 
 logger = logging.getLogger(__name__)
 
 EMBEDDING_DIM = 1536
+_MAX_BATCH_SIZE = 50
+_MAX_CHAR_LENGTH = 32000  # ~8000 tokens approximation
 
 _embedding_client: OpenAI | None = None
 
 
-def _get_embedding_client() -> OpenAI | None:
-    """Return a cached OpenAI client for embeddings, or None if no key."""
+def _get_embedding_client() -> OpenAI:
+    """Return a cached OpenAI-compatible client for embeddings.
+
+    Uses OpenAI if OPENAI_API_KEY is set, otherwise uses LLM provider (Moonshot).
+
+    Raises:
+        RuntimeError: If no API key is configured.
+    """
     global _embedding_client
-    if not settings.OPENAI_API_KEY:
-        return None
     if _embedding_client is None:
-        _embedding_client = OpenAI(api_key=settings.OPENAI_API_KEY)
+        if settings.OPENAI_API_KEY:
+            logger.info("Embedding client: OpenAI")
+            _embedding_client = OpenAI(api_key=settings.OPENAI_API_KEY)
+        elif settings.LLM_API_KEY and settings.LLM_BASE_URL:
+            logger.info("Embedding client: %s", settings.LLM_BASE_URL)
+            _embedding_client = OpenAI(
+                api_key=settings.LLM_API_KEY,
+                base_url=settings.LLM_BASE_URL,
+            )
+        else:
+            raise RuntimeError(
+                "No embedding provider configured. Set OPENAI_API_KEY or LLM_API_KEY + LLM_BASE_URL."
+            )
     return _embedding_client
+
+
+def _get_embedding_model() -> str:
+    """Return the embedding model to use."""
+    if settings.OPENAI_API_KEY:
+        return "text-embedding-3-small"
+    return settings.EMBEDDING_MODEL
+
+
+def _truncate_text(text: str) -> str:
+    """Truncate text to approximate 8000 token limit."""
+    if len(text) > _MAX_CHAR_LENGTH:
+        return text[:_MAX_CHAR_LENGTH]
+    return text
+
+
+@retry(stop=stop_after_attempt(3), wait=wait_exponential(min=1, max=10))
+def _call_embeddings_api(client: OpenAI, model: str, batch: list[str]) -> list[list[float]]:
+    """Call embeddings API with retry logic."""
+    response = client.embeddings.create(
+        model=model,
+        input=batch,
+    )
+    return [item.embedding for item in response.data]
 
 
 def generate_embeddings(texts: list[str]) -> list[list[float]]:
     """Generate embeddings for a list of texts.
 
-    If OPENAI_API_KEY is configured, uses OpenAI text-embedding-3-small.
-    Otherwise returns mock random 1536-dimensional vectors with a warning.
+    Uses OpenAI text-embedding-3-small or Moonshot embedding model.
 
     Args:
         texts: List of text strings to embed.
 
     Returns:
-        List of embedding vectors (each a list of 1536 floats).
+        List of embedding vectors.
+
+    Raises:
+        RuntimeError: If no embedding provider is configured.
+        ValueError: If texts is not a list of strings.
+        Exception: If the API call fails after retries.
     """
     if not texts:
         return []
 
+    if not isinstance(texts, list) or not all(isinstance(t, str) for t in texts):
+        raise ValueError("texts must be a list of strings")
+
     client = _get_embedding_client()
+    model = _get_embedding_model()
 
-    if client is None:
-        logger.warning(
-            "OPENAI_API_KEY not set. Returning mock embeddings for %d texts. "
-            "Set OPENAI_API_KEY for real embeddings.",
-            len(texts),
-        )
-        return _mock_embeddings(len(texts))
+    # Truncate long texts
+    truncated_texts = []
+    for t in texts:
+        truncated = _truncate_text(t)
+        if len(truncated) < len(t):
+            logger.warning(
+                "Text truncated from %d to %d chars for embedding",
+                len(t),
+                len(truncated),
+            )
+        truncated_texts.append(truncated)
 
-    logger.info("Generating embeddings for %d texts via OpenAI", len(texts))
-    response = client.embeddings.create(
-        model="text-embedding-3-small",
-        input=texts,
+    total_chars = sum(len(t) for t in truncated_texts)
+    logger.info(
+        "Generating embeddings for %d texts (%d total chars) via %s",
+        len(truncated_texts),
+        total_chars,
+        model,
     )
-    return [item.embedding for item in response.data]
 
+    all_embeddings: list[list[float]] = []
+    start_time = time.time()
 
-def _mock_embeddings(count: int) -> list[list[float]]:
-    """Generate mock random embeddings for development/testing."""
-    return [
-        [random.uniform(-1.0, 1.0) for _ in range(EMBEDDING_DIM)]
-        for _ in range(count)
-    ]
+    # Process in batches
+    for i in range(0, len(truncated_texts), _MAX_BATCH_SIZE):
+        batch = truncated_texts[i : i + _MAX_BATCH_SIZE]
+        batch_embeddings = _call_embeddings_api(client, model, batch)
+        all_embeddings.extend(batch_embeddings)
+
+    elapsed = time.time() - start_time
+    logger.info(
+        "Embeddings generated: %d vectors in %.2fs via %s",
+        len(all_embeddings),
+        elapsed,
+        model,
+    )
+
+    return all_embeddings
 
 
 def is_embedding_available() -> bool:
     """Check whether real embedding generation is available."""
-    return bool(settings.OPENAI_API_KEY)
+    return bool(settings.OPENAI_API_KEY) or bool(settings.LLM_API_KEY and settings.LLM_BASE_URL)

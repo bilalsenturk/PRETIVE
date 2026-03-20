@@ -1,18 +1,37 @@
 """Narrative engine: builds topic graphs and generates session cards from content chunks.
 
-Uses the LLM (Kimi K2.5 via OpenRouter / OpenAI) when available.
-Falls back to mock/heuristic generation when no API key is configured.
+Uses the LLM (via OpenAI-compatible endpoint). No mock/fallback generation.
 """
 
 import json
 import logging
 import uuid
-from collections import defaultdict
+
+from fastapi import HTTPException
+from pydantic import BaseModel, ValidationError
 
 from app.db.supabase import get_supabase
-from app.services.llm import chat_completion_json, is_llm_available
+from app.services.llm import chat_completion_json
 
 logger = logging.getLogger(__name__)
+
+
+# ---------------------------------------------------------------------------
+# Pydantic models for graph validation
+# ---------------------------------------------------------------------------
+
+
+class TopicNode(BaseModel):
+    id: str
+    title: str
+    summary: str
+    chunk_ids: list[str] = []
+    children: list["TopicNode"] = []
+
+
+class NarrativeGraph(BaseModel):
+    topics: list[TopicNode]
+
 
 # ---------------------------------------------------------------------------
 # Narrative graph
@@ -27,29 +46,24 @@ Return a JSON object with this exact schema:
       "id": "<unique-id>",
       "title": "<topic title>",
       "summary": "<brief summary of the topic>",
-      "subtopics": [
+      "chunk_ids": ["<chunk_id_1>", "<chunk_id_2>"],
+      "children": [
         {
           "id": "<unique-id>",
           "title": "<subtopic title>",
           "summary": "<brief summary>",
-          "key_concepts": [
-            {"term": "<concept name>", "definition": "<short definition>"}
-          ]
+          "chunk_ids": ["<chunk_id>"],
+          "children": []
         }
-      ],
-      "key_concepts": [
-        {"term": "<concept name>", "definition": "<short definition>"}
-      ],
-      "connections": ["<id of related topic>"]
+      ]
     }
   ]
 }
 
 Rules:
 - Identify 3-8 main topics from the content.
-- Each topic can have 0-5 subtopics.
-- Extract key concepts (terms + definitions) at both topic and subtopic level.
-- Identify connections between related topics.
+- Each topic can have 0-5 children (subtopics).
+- Reference the chunk IDs that belong to each topic in chunk_ids.
 - Keep summaries concise (1-2 sentences).
 - Use unique string IDs for topics and subtopics."""
 
@@ -61,11 +75,17 @@ def build_narrative_graph(session_id: str) -> dict:
         session_id: The session to build the graph for.
 
     Returns:
-        A structured JSON dict with topics, subtopics, key concepts, and connections.
+        A validated NarrativeGraph as a dict.
+
+    Raises:
+        HTTPException: If the graph generation fails.
+        ValueError: If session_id is empty.
     """
+    if not session_id or not session_id.strip():
+        raise ValueError("session_id is required")
+
     supabase = get_supabase()
 
-    # Fetch all content chunks for this session
     result = (
         supabase.table("content_chunks")
         .select("*")
@@ -79,26 +99,32 @@ def build_narrative_graph(session_id: str) -> dict:
         logger.warning("No content chunks found for session %s", session_id)
         return {"topics": []}
 
-    if is_llm_available():
-        return _build_graph_with_llm(chunks)
-    else:
-        logger.info("No LLM_API_KEY set. Building mock narrative graph from headings.")
-        return _build_mock_graph(chunks)
+    return _build_graph_with_llm(chunks)
 
 
 def _build_graph_with_llm(chunks: list[dict]) -> dict:
-    """Use the LLM to create a structured topic tree from chunks."""
-    # Prepare chunk text for the prompt
+    """Use the LLM to create a structured topic tree from chunks.
+
+    Raises:
+        HTTPException: If LLM call or validation fails.
+    """
+    # Prepare chunk text for the prompt, including chunk IDs
     chunk_texts = []
     for c in chunks:
+        chunk_id = c.get("id", "")
         heading = c.get("heading") or "Untitled"
-        chunk_texts.append(f"[{heading}]\n{c['content']}")
+        chunk_texts.append(f"[Chunk ID: {chunk_id}] [{heading}]\n{c['content']}")
 
     combined = "\n\n---\n\n".join(chunk_texts)
 
     # Truncate if extremely long (keep first ~60k chars to stay within context)
-    if len(combined) > 60000:
+    original_len = len(combined)
+    if original_len > 60000:
         combined = combined[:60000] + "\n\n[...truncated]"
+        logger.warning(
+            "Content truncated from %d to 60000 chars for narrative graph",
+            original_len,
+        )
 
     messages = [
         {"role": "system", "content": _GRAPH_SYSTEM_PROMPT},
@@ -109,57 +135,29 @@ def _build_graph_with_llm(chunks: list[dict]) -> dict:
     ]
 
     try:
-        graph = chat_completion_json(messages)
-        # Ensure the expected top-level key exists
-        if "topics" not in graph:
-            graph = {"topics": [graph] if isinstance(graph, dict) else []}
-        logger.info("LLM narrative graph: %d topics", len(graph.get("topics", [])))
-        return graph
+        graph_raw = chat_completion_json(messages)
     except Exception as exc:
-        logger.exception("LLM graph generation failed: %s. Falling back to mock.", exc)
-        return _build_mock_graph(chunks)
+        logger.exception("LLM narrative graph generation failed: %s", exc)
+        raise HTTPException(
+            status_code=500,
+            detail="Narrative graph generation failed",
+        ) from exc
 
+    # Ensure the expected top-level key exists
+    if "topics" not in graph_raw:
+        graph_raw = {"topics": [graph_raw] if isinstance(graph_raw, dict) else []}
 
-def _build_mock_graph(chunks: list[dict]) -> dict:
-    """Generate a simple topic graph from chunk headings (no LLM needed)."""
-    # Group chunks by heading
-    groups: dict[str, list[dict]] = defaultdict(list)
-    for c in chunks:
-        heading = c.get("heading") or "General"
-        groups[heading].append(c)
-
-    topics = []
-    topic_ids = []
-    for heading, group_chunks in groups.items():
-        topic_id = uuid.uuid4().hex[:8]
-        topic_ids.append(topic_id)
-
-        # Extract simple key concepts from first few words of each chunk
-        key_concepts = []
-        for gc in group_chunks[:3]:
-            first_line = gc["content"].split("\n")[0][:100]
-            key_concepts.append({"term": first_line[:50], "definition": first_line})
-
-        summary = group_chunks[0]["content"][:200] + "..."
-        topics.append(
-            {
-                "id": topic_id,
-                "title": heading,
-                "summary": summary,
-                "subtopics": [],
-                "key_concepts": key_concepts,
-                "connections": [],
-            }
-        )
-
-    # Add basic connections (sequential topics are connected)
-    for i, topic in enumerate(topics):
-        if i > 0:
-            topic["connections"].append(topics[i - 1]["id"])
-        if i < len(topics) - 1:
-            topic["connections"].append(topics[i + 1]["id"])
-
-    return {"topics": topics}
+    # Validate with pydantic
+    try:
+        validated = NarrativeGraph(**graph_raw)
+        logger.info("LLM narrative graph: %d topics", len(validated.topics))
+        return validated.model_dump()
+    except ValidationError as exc:
+        logger.exception("Narrative graph validation failed: %s", exc)
+        raise HTTPException(
+            status_code=500,
+            detail="Narrative graph generation failed: invalid graph structure",
+        ) from exc
 
 
 # ---------------------------------------------------------------------------
@@ -180,65 +178,49 @@ Return a JSON object:
     {
       "card_type": "summary|concept|comparison|context_bridge",
       "title": "<card title>",
-      "content": "<card content as markdown>"
+      "content": "<card content as markdown>",
+      "chunk_ids": ["<chunk_id_1>", "<chunk_id_2>"]
     }
   ]
 }
 
+Each card MUST include a chunk_ids array referencing the source chunk IDs.
 Keep card content concise and presentation-ready. Use bullet points where appropriate."""
 
 
 def generate_session_cards(session_id: str, graph: dict) -> list[dict]:
-    """Generate session cards from a narrative graph.
-
-    For each topic node, creates summary, concept, comparison, and context_bridge cards.
+    """Generate session cards from a narrative graph using the LLM.
 
     Args:
         session_id: The session these cards belong to.
         graph: The narrative graph from build_narrative_graph().
 
     Returns:
-        List of created card dicts.
+        List of saved card dicts.
+
+    Raises:
+        HTTPException: If card generation or saving fails.
+        ValueError: If session_id is empty.
     """
+    if not session_id or not session_id.strip():
+        raise ValueError("session_id is required")
+
     topics = graph.get("topics", [])
     if not topics:
         logger.warning("Empty graph for session %s, no cards to generate", session_id)
         return []
 
-    if is_llm_available():
-        cards = _generate_cards_with_llm(session_id, graph)
-    else:
-        logger.info("No LLM_API_KEY set. Generating cards from chunk text directly.")
-        cards = _generate_mock_cards(session_id, graph)
-
-    # Save cards to session_cards table
-    supabase = get_supabase()
-    if cards:
-        try:
-            result = supabase.table("session_cards").insert(cards).execute()
-            saved = result.data or []
-            logger.info("Saved %d cards for session %s", len(saved), session_id)
-            return saved
-        except Exception as exc:
-            logger.exception("Failed to save cards for session %s: %s", session_id, exc)
-            return cards  # Return unsaved cards so caller knows what was generated
-
-    return []
-
-
-def _generate_cards_with_llm(session_id: str, graph: dict) -> list[dict]:
-    """Use the LLM to generate rich card content from the narrative graph."""
     all_cards: list[dict] = []
+    display_order = 0
 
-    for topic in graph.get("topics", []):
+    for topic in topics:
         topic_json = json.dumps(topic, indent=2)
         messages = [
             {"role": "system", "content": _CARDS_SYSTEM_PROMPT},
             {
                 "role": "user",
                 "content": (
-                    f"Generate presentation cards for this topic:\n\n{topic_json}\n\n"
-                    f"Connected topics context: {json.dumps(topic.get('connections', []))}"
+                    f"Generate presentation cards for this topic:\n\n{topic_json}"
                 ),
             },
         ]
@@ -246,99 +228,52 @@ def _generate_cards_with_llm(session_id: str, graph: dict) -> list[dict]:
         try:
             result = chat_completion_json(messages)
             cards_data = result.get("cards", [])
-
-            for card in cards_data:
-                all_cards.append(
-                    {
-                        "session_id": session_id,
-                                                "card_type": card.get("card_type", "summary"),
-                        "title": card.get("title", topic.get("title", "Untitled")),
-                        "content": {"text": card.get("content", "")},
-                    }
-                )
         except Exception as exc:
-            logger.warning(
-                "LLM card generation failed for topic '%s': %s. Using fallback.",
+            logger.exception(
+                "LLM card generation failed for topic '%s': %s",
                 topic.get("title"),
                 exc,
             )
-            all_cards.extend(_mock_cards_for_topic(session_id, topic))
+            raise HTTPException(
+                status_code=500,
+                detail=f"Card generation failed for topic '{topic.get('title', 'unknown')}'",
+            ) from exc
 
-    return all_cards
+        # Extract chunk_ids from the topic for fallback linking
+        topic_chunk_ids = topic.get("chunk_ids", [])
 
+        for card in cards_data:
+            # Use chunk_ids from the card if provided, otherwise from the topic
+            card_chunk_ids = card.get("chunk_ids", topic_chunk_ids)
+            # Take the first chunk_id for the DB column
+            chunk_id = card_chunk_ids[0] if card_chunk_ids else None
 
-def _generate_mock_cards(session_id: str, graph: dict) -> list[dict]:
-    """Generate cards directly from graph data without LLM."""
-    all_cards: list[dict] = []
-    for topic in graph.get("topics", []):
-        all_cards.extend(_mock_cards_for_topic(session_id, topic))
-    return all_cards
-
-
-def _mock_cards_for_topic(session_id: str, topic: dict) -> list[dict]:
-    """Create mock cards for a single topic node."""
-    topic_id = topic.get("id", "")
-    title = topic.get("title", "Untitled")
-    summary = topic.get("summary", "")
-    key_concepts = topic.get("key_concepts", [])
-    connections = topic.get("connections", [])
-
-    cards: list[dict] = []
-
-    # Summary card
-    cards.append(
-        {
-            "session_id": session_id,
-            "topic_id": topic_id,
-            "card_type": "summary",
-            "title": f"Overview: {title}",
-            "content": {"text": summary},
-        }
-    )
-
-    # Concept card
-    if key_concepts:
-        concept_lines = [
-            f"- **{kc.get('term', '')}**: {kc.get('definition', '')}"
-            for kc in key_concepts
-        ]
-        cards.append(
-            {
-                "session_id": session_id,
-                "topic_id": topic_id,
-                "card_type": "concept",
-                "title": f"Key Concepts: {title}",
-                "content": {"text": "\n".join(concept_lines)},
-            }
-        )
-
-    # Subtopic concepts
-    for subtopic in topic.get("subtopics", []):
-        sub_concepts = subtopic.get("key_concepts", [])
-        if sub_concepts:
-            sub_lines = [
-                f"- **{kc.get('term', '')}**: {kc.get('definition', '')}"
-                for kc in sub_concepts
-            ]
-            cards.append(
+            all_cards.append(
                 {
                     "session_id": session_id,
-                    "card_type": "concept",
-                    "title": f"Concepts: {subtopic.get('title', '')}",
-                    "content": {"text": "\n".join(sub_lines)},
+                    "card_type": card.get("card_type", "summary"),
+                    "title": card.get("title", topic.get("title", "Untitled")),
+                    "content": {"text": card.get("content", "")},
+                    "chunk_id": chunk_id,
+                    "display_order": display_order,
                 }
             )
+            display_order += 1
 
-    # Context bridge card (if there are connections)
-    if connections:
-        cards.append(
-            {
-                "session_id": session_id,
-                "topic_id": topic_id,
-                "card_type": "context_bridge",
-                "title": f"Connections: {title}",
-                "content": {"text": f"This topic connects to: {', '.join(connections)}"},
-            }
-        )
+    # Save cards to session_cards table
+    if not all_cards:
+        logger.warning("No cards generated for session %s", session_id)
+        return []
 
-    return cards
+    supabase = get_supabase()
+    try:
+        result = supabase.table("session_cards").insert(all_cards).execute()
+        saved = result.data or []
+        logger.info("Saved %d cards for session %s", len(saved), session_id)
+        return saved
+    except Exception as exc:
+        logger.exception("Failed to save cards for session %s: %s", session_id, exc)
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to save session cards to database",
+        ) from exc

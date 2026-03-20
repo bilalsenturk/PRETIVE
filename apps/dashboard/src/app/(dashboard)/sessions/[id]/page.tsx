@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -10,6 +10,7 @@ import {
   Loader2,
   Play,
   Zap,
+  RefreshCw,
 } from "lucide-react";
 import { get, post } from "@/lib/api";
 import SessionCard from "@/components/SessionCard";
@@ -29,11 +30,17 @@ interface Document {
   status: string;
 }
 
+interface CardContent {
+  text?: string;
+  summary?: string;
+  [key: string]: unknown;
+}
+
 interface Card {
   id: string;
   card_type: "summary" | "comparison" | "concept" | "context_bridge";
   title: string;
-  content: string | { text: string };
+  content: string | CardContent;
   display_order: number;
 }
 
@@ -41,7 +48,7 @@ const statusConfig: Record<
   string,
   { bg: string; text: string; label: string }
 > = {
-  draft: { bg: "bg-gray-100", text: "text-gray-600", label: "Draft" },
+  draft: { bg: "bg-gray-100", text: "text-gray-700", label: "Draft" },
   preparing: {
     bg: "bg-yellow-50",
     text: "text-yellow-700",
@@ -62,6 +69,33 @@ function formatSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+function LoadingSkeleton() {
+  return (
+    <div className="mx-auto max-w-3xl animate-pulse" role="status">
+      <div className="mb-6 h-4 w-32 rounded bg-gray-200" />
+      <div className="mb-6 flex items-start justify-between">
+        <div>
+          <div className="h-8 w-64 rounded bg-gray-200" />
+          <div className="mt-2 flex items-center gap-3">
+            <div className="h-6 w-20 rounded-full bg-gray-200" />
+            <div className="h-4 w-28 rounded bg-gray-200" />
+          </div>
+        </div>
+        <div className="h-10 w-36 rounded-lg bg-gray-200" />
+      </div>
+      <div className="mb-6 rounded-2xl border border-gray-200 p-5">
+        <div className="mb-3 h-5 w-24 rounded bg-gray-200" />
+        <div className="space-y-2">
+          {[1, 2].map((i) => (
+            <div key={i} className="h-10 rounded-lg bg-gray-200" />
+          ))}
+        </div>
+      </div>
+      <span className="sr-only">Loading session details...</span>
+    </div>
+  );
+}
+
 export default function SessionDetailPage() {
   const params = useParams();
   const router = useRouter();
@@ -74,74 +108,164 @@ export default function SessionDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [preparing, setPreparing] = useState(false);
 
-  const fetchSession = useCallback(async () => {
-    try {
-      const data = await get<Session>(`/api/sessions/${id}`);
-      setSession(data);
-      return data;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load session");
-      return null;
-    }
-  }, [id]);
+  const abortRef = useRef<AbortController | null>(null);
+  const pollIntervalRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const backoffRef = useRef(3000);
 
-  const fetchDocuments = useCallback(async () => {
-    try {
-      const data = await get<Document[]>(`/api/sessions/${id}/documents`);
-      setDocuments(data);
-    } catch {
-      // Documents may not exist yet
-    }
-  }, [id]);
+  const fetchSession = useCallback(
+    async (signal?: AbortSignal) => {
+      try {
+        const data = await get<Session>(`/api/sessions/${id}`, signal);
+        setSession(data);
+        setError(null);
+        return data;
+      } catch (err) {
+        if (signal?.aborted) return null;
+        const message =
+          err instanceof Error ? err.message : "Failed to load session";
+        setError(message);
+        return null;
+      }
+    },
+    [id]
+  );
 
-  const fetchCards = useCallback(async () => {
-    try {
-      const data = await get<Card[]>(`/api/sessions/${id}/cards`);
-      setCards(data);
-    } catch {
-      // Cards may not exist yet
-    }
-  }, [id]);
+  const fetchDocuments = useCallback(
+    async (signal?: AbortSignal) => {
+      try {
+        const data = await get<Document[]>(
+          `/api/sessions/${id}/documents`,
+          signal
+        );
+        setDocuments(data);
+      } catch (err) {
+        if (signal?.aborted) return;
+        // Documents may not exist yet -- non-critical
+        console.warn("Failed to fetch documents:", err);
+      }
+    },
+    [id]
+  );
 
-  useEffect(() => {
-    async function loadAll() {
+  const fetchCards = useCallback(
+    async (signal?: AbortSignal) => {
+      try {
+        const data = await get<Card[]>(`/api/sessions/${id}/cards`, signal);
+        setCards(data);
+      } catch (err) {
+        if (signal?.aborted) return;
+        console.warn("Failed to fetch cards:", err);
+      }
+    },
+    [id]
+  );
+
+  const loadAll = useCallback(
+    async (signal?: AbortSignal) => {
       setLoading(true);
-      const s = await fetchSession();
-      await fetchDocuments();
-      if (s && (s.status === "ready" || s.status === "live" || s.status === "completed")) {
-        await fetchCards();
+      setError(null);
+      const s = await fetchSession(signal);
+      if (signal?.aborted) return;
+      await fetchDocuments(signal);
+      if (signal?.aborted) return;
+      if (
+        s &&
+        (s.status === "ready" ||
+          s.status === "live" ||
+          s.status === "completed")
+      ) {
+        await fetchCards(signal);
       }
-      setLoading(false);
-    }
-    loadAll();
-  }, [fetchSession, fetchDocuments, fetchCards]);
+      if (!signal?.aborted) {
+        setLoading(false);
+      }
+    },
+    [fetchSession, fetchDocuments, fetchCards]
+  );
 
-  // Poll when preparing
+  // Initial load
   useEffect(() => {
-    if (!preparing) return;
+    const controller = new AbortController();
+    abortRef.current = controller;
+    loadAll(controller.signal);
+    return () => {
+      controller.abort();
+    };
+  }, [loadAll]);
 
-    const interval = setInterval(async () => {
-      const s = await fetchSession();
-      if (s && s.status !== "preparing") {
-        setPreparing(false);
-        if (s.status === "ready") {
-          await fetchCards();
+  // Poll when preparing with exponential backoff
+  useEffect(() => {
+    if (!preparing) {
+      backoffRef.current = 3000;
+      return;
+    }
+
+    function schedulePoll() {
+      const controller = new AbortController();
+      abortRef.current = controller;
+
+      pollIntervalRef.current = setTimeout(async () => {
+        const s = await fetchSession(controller.signal);
+        if (controller.signal.aborted) return;
+
+        if (s && s.status !== "preparing") {
+          setPreparing(false);
+          if (s.status === "ready") {
+            await fetchCards(controller.signal);
+          }
+          backoffRef.current = 3000;
+        } else {
+          // Exponential backoff: 3s -> 6s -> 12s -> max 30s
+          backoffRef.current = Math.min(backoffRef.current * 2, 30000);
+          schedulePoll();
         }
-      }
-    }, 3000);
+      }, backoffRef.current);
+    }
 
-    return () => clearInterval(interval);
+    schedulePoll();
+
+    return () => {
+      if (abortRef.current) {
+        abortRef.current.abort();
+      }
+      if (pollIntervalRef.current) {
+        clearTimeout(pollIntervalRef.current);
+        pollIntervalRef.current = null;
+      }
+    };
   }, [preparing, fetchSession, fetchCards]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (abortRef.current) {
+        abortRef.current.abort();
+      }
+      if (pollIntervalRef.current) {
+        clearTimeout(pollIntervalRef.current);
+      }
+    };
+  }, []);
 
   async function handlePrepare() {
     setPreparing(true);
+    setError(null);
     try {
       await post(`/api/sessions/${id}/prepare`, {});
       await fetchSession();
     } catch (err) {
       setPreparing(false);
-      setError(err instanceof Error ? err.message : "Failed to prepare session");
+      setError(
+        err instanceof Error ? err.message : "Failed to prepare session"
+      );
     }
+  }
+
+  function handleRetry() {
+    setError(null);
+    const controller = new AbortController();
+    abortRef.current = controller;
+    loadAll(controller.signal);
   }
 
   function handleStartSession() {
@@ -149,22 +273,31 @@ export default function SessionDetailPage() {
   }
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 size={24} className="animate-spin text-gray-400" />
-      </div>
-    );
+    return <LoadingSkeleton />;
   }
 
-  if (error || !session) {
+  if (error && !session) {
     return (
       <div className="mx-auto max-w-3xl">
-        <div className="rounded-lg bg-red-50 p-4 text-sm text-red-600">
-          {error || "Session not found"}
+        <div
+          className="rounded-lg bg-red-50 p-4 text-sm text-red-600"
+          role="alert"
+        >
+          <p>{error}</p>
+          <button
+            onClick={handleRetry}
+            className="mt-3 inline-flex items-center gap-2 rounded-lg bg-red-100 px-4 py-2 text-sm font-medium text-red-700 transition-colors hover:bg-red-200"
+            aria-label="Retry loading session"
+          >
+            <RefreshCw size={14} aria-hidden="true" />
+            Retry
+          </button>
         </div>
       </div>
     );
   }
+
+  if (!session) return null;
 
   const status = statusConfig[session.status] || statusConfig.draft;
 
@@ -175,11 +308,30 @@ export default function SessionDetailPage() {
         <Link
           href="/sessions"
           className="inline-flex items-center gap-1 text-sm text-gray-500 transition-colors hover:text-gray-700"
+          aria-label="Back to sessions list"
         >
-          <ArrowLeft size={16} />
+          <ArrowLeft size={16} aria-hidden="true" />
           Back to Sessions
         </Link>
       </div>
+
+      {/* Error banner (non-blocking) */}
+      {error && (
+        <div
+          className="mb-4 rounded-lg bg-red-50 p-4 text-sm text-red-600"
+          role="alert"
+        >
+          <p>{error}</p>
+          <button
+            onClick={handleRetry}
+            className="mt-2 inline-flex items-center gap-2 rounded-lg bg-red-100 px-3 py-1.5 text-xs font-medium text-red-700 transition-colors hover:bg-red-200"
+            aria-label="Retry loading"
+          >
+            <RefreshCw size={12} aria-hidden="true" />
+            Retry
+          </button>
+        </div>
+      )}
 
       {/* Header */}
       <div className="mb-6 flex items-start justify-between">
@@ -197,7 +349,7 @@ export default function SessionDetailPage() {
               {status.label}
             </span>
             <span className="flex items-center gap-1 text-xs text-gray-500">
-              <Clock size={12} />
+              <Clock size={12} aria-hidden="true" />
               {new Date(session.created_at).toLocaleDateString()}
             </span>
           </div>
@@ -211,15 +363,20 @@ export default function SessionDetailPage() {
               disabled={preparing}
               className="inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-60"
               style={{ backgroundColor: "var(--red)" }}
+              aria-label={preparing ? "Preparing session" : "Prepare session"}
             >
               {preparing ? (
                 <>
-                  <Loader2 size={16} className="animate-spin" />
+                  <Loader2
+                    size={16}
+                    className="animate-spin"
+                    aria-hidden="true"
+                  />
                   Preparing...
                 </>
               ) : (
                 <>
-                  <Zap size={16} />
+                  <Zap size={16} aria-hidden="true" />
                   Prepare Session
                 </>
               )}
@@ -230,14 +387,22 @@ export default function SessionDetailPage() {
               onClick={handleStartSession}
               className="inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
               style={{ backgroundColor: "var(--red)" }}
+              aria-label="Start live session"
             >
-              <Play size={16} />
+              <Play size={16} aria-hidden="true" />
               Start Session
             </button>
           )}
           {session.status === "preparing" && (
-            <div className="flex items-center gap-2 text-sm text-yellow-600">
-              <Loader2 size={16} className="animate-spin" />
+            <div
+              className="flex items-center gap-2 text-sm text-yellow-600"
+              role="status"
+            >
+              <Loader2
+                size={16}
+                className="animate-spin"
+                aria-hidden="true"
+              />
               Preparing session...
             </div>
           )}
@@ -265,7 +430,11 @@ export default function SessionDetailPage() {
                 className="flex items-center justify-between rounded-lg border border-gray-200 px-3 py-2"
               >
                 <div className="flex items-center gap-2 min-w-0">
-                  <FileText size={16} className="shrink-0 text-gray-400" />
+                  <FileText
+                    size={16}
+                    className="shrink-0 text-gray-400"
+                    aria-hidden="true"
+                  />
                   <span
                     className="truncate text-sm font-medium"
                     style={{ color: "var(--ink)" }}
@@ -285,7 +454,7 @@ export default function SessionDetailPage() {
                       ? "bg-green-50 text-green-700"
                       : doc.status === "processing"
                       ? "bg-yellow-50 text-yellow-700"
-                      : "bg-gray-100 text-gray-600"
+                      : "bg-gray-100 text-gray-700"
                   }`}
                 >
                   {doc.status}

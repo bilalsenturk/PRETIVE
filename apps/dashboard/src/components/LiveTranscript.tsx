@@ -25,10 +25,11 @@ export default function LiveTranscript({
   sessionStartTime,
 }: LiveTranscriptProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    if (bottomRef.current) {
+      bottomRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
     }
   }, [transcripts]);
 
@@ -37,6 +38,7 @@ export default function LiveTranscript({
       <h2
         className="mb-3 text-sm font-semibold uppercase tracking-wide"
         style={{ color: "var(--ink)" }}
+        id="transcript-heading"
       >
         Live Transcript
       </h2>
@@ -45,35 +47,44 @@ export default function LiveTranscript({
         ref={scrollRef}
         className="flex-1 space-y-2 overflow-y-auto rounded-xl border border-gray-200 p-4"
         style={{ backgroundColor: "var(--paper)" }}
+        role="log"
+        aria-live="polite"
+        aria-labelledby="transcript-heading"
       >
         {transcripts.length === 0 ? (
           <div className="flex h-full items-center justify-center">
             <p className="text-sm italic text-gray-400">Listening...</p>
           </div>
         ) : (
-          transcripts.map((entry, i) => {
-            const elapsed =
-              sessionStartTime !== null
-                ? formatElapsed(entry.timestamp - sessionStartTime)
-                : "--:--";
+          <>
+            {transcripts.map((entry, i) => {
+              const elapsed =
+                sessionStartTime !== null
+                  ? formatElapsed(entry.timestamp - sessionStartTime)
+                  : "--:--";
 
-            return (
-              <div key={i} className="flex gap-3">
-                <span className="shrink-0 pt-0.5 text-xs font-mono text-gray-400">
-                  {elapsed}
-                </span>
-                <p
-                  className={`text-sm leading-relaxed ${
-                    entry.isFinal
-                      ? "text-gray-800"
-                      : "italic text-gray-400"
-                  }`}
-                >
-                  {entry.text}
-                </p>
-              </div>
-            );
-          })
+              return (
+                <div key={`${entry.timestamp}-${i}`} className="flex gap-3">
+                  <span
+                    className="shrink-0 pt-0.5 text-xs font-mono text-gray-400"
+                    aria-label={`at ${elapsed}`}
+                  >
+                    {elapsed}
+                  </span>
+                  <p
+                    className={`text-sm leading-relaxed ${
+                      entry.isFinal
+                        ? "text-gray-800"
+                        : "italic text-gray-400"
+                    }`}
+                  >
+                    {entry.text}
+                  </p>
+                </div>
+              );
+            })}
+            <div ref={bottomRef} />
+          </>
         )}
       </div>
     </div>
