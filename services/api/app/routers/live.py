@@ -2,6 +2,7 @@
 
 Includes input validation, rate limiting, event logging, and proper error handling."""
 
+import json
 import logging
 import time
 from datetime import datetime, timezone
@@ -11,6 +12,8 @@ from pydantic import BaseModel, Field
 
 from app.db.supabase import get_supabase
 from app.services.matching import find_matching_chunks, get_cards_for_position
+from app.services.suggestions import get_suggestions
+from app.services.verification import verify_claim
 
 logger = logging.getLogger(__name__)
 
@@ -34,6 +37,8 @@ class MatchResponse(BaseModel):
     chunks: list[dict]
     cards: list[dict]
     position: dict
+    verification: dict = {}
+    suggestions: list[dict] = []
 
 
 class LiveStatusResponse(BaseModel):
@@ -202,6 +207,75 @@ async def match_transcript(session_id: str, body: MatchRequest) -> MatchResponse
         logger.exception("Card lookup failed for session %s: %s", session_id, exc)
         cards = []
 
+    # Run verification on the transcript
+    verification: dict = {}
+    try:
+        verification = await verify_claim(text, session_id, chunks)
+    except Exception as exc:
+        logger.exception("Verification failed for session %s: %s", session_id, exc)
+        verification = {"status": "error", "confidence": 0.0, "claim": None, "evidence": None}
+
+    # Calculate elapsed time from live_start event
+    elapsed: float = 0.0
+    try:
+        supabase = get_supabase()
+        start_event = (
+            supabase.table("session_events")
+            .select("created_at")
+            .eq("session_id", session_id)
+            .eq("event_type", "live_started")
+            .order("created_at", desc=True)
+            .limit(1)
+            .execute()
+        )
+        if start_event.data:
+            start_dt = datetime.fromisoformat(
+                start_event.data[0]["created_at"].replace("Z", "+00:00")
+            )
+            elapsed = (datetime.now(timezone.utc) - start_dt).total_seconds()
+    except Exception as exc:
+        logger.exception("Failed to compute elapsed time for session %s: %s", session_id, exc)
+
+    # Get suggestions
+    suggestions: list[dict] = []
+    try:
+        suggestions = get_suggestions(
+            session_id,
+            position.get("chunk_index"),
+            int(elapsed),
+        )
+    except Exception as exc:
+        logger.exception("Suggestions failed for session %s: %s", session_id, exc)
+
+    # Update session's current state for participant view
+    try:
+        supabase = get_supabase()
+        session_result = (
+            supabase.table("sessions")
+            .select("metadata")
+            .eq("id", session_id)
+            .single()
+            .execute()
+        )
+        existing_metadata = (session_result.data or {}).get("metadata") or {}
+        if isinstance(existing_metadata, str):
+            try:
+                existing_metadata = json.loads(existing_metadata)
+            except (json.JSONDecodeError, TypeError):
+                existing_metadata = {}
+
+        existing_metadata.update({
+            "current_heading": position.get("heading"),
+            "current_cards": [c["id"] for c in cards if "id" in c],
+            "last_match_at": datetime.now(timezone.utc).isoformat(),
+        })
+
+        supabase.table("sessions").update({
+            "metadata": existing_metadata,
+        }).eq("id", session_id).execute()
+    except Exception as exc:
+        logger.exception("Failed to update session metadata for %s: %s", session_id, exc)
+
     # Log event with match details
     _log_event(session_id, "match", {
         "text_length": len(text),
@@ -211,12 +285,26 @@ async def match_transcript(session_id: str, body: MatchRequest) -> MatchResponse
         "chunk_index": position.get("chunk_index"),
     })
 
+    # Log verification result
+    if verification.get("status") not in (None, "no_claim"):
+        _log_event(session_id, "verification", {
+            "claim": verification.get("claim"),
+            "status": verification.get("status"),
+            "confidence": verification.get("confidence"),
+        })
+
     logger.info(
-        "Match result: session=%s, chunks=%d, cards=%d",
-        session_id, len(chunks), len(cards),
+        "Match result: session=%s, chunks=%d, cards=%d, verification=%s, suggestions=%d",
+        session_id, len(chunks), len(cards), verification.get("status"), len(suggestions),
     )
 
-    return MatchResponse(chunks=chunks, cards=cards, position=position)
+    return MatchResponse(
+        chunks=chunks,
+        cards=cards,
+        position=position,
+        verification=verification,
+        suggestions=suggestions,
+    )
 
 
 @router.get("/{session_id}/live/status", response_model=LiveStatusResponse)

@@ -1,12 +1,14 @@
 """Hardened session management router with input validation, permission checks,
 and comprehensive logging."""
 
+import io
 import json
 import logging
 from datetime import datetime
 from typing import Optional
 
 from fastapi import APIRouter, Header, HTTPException
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
 from app.db.supabase import get_supabase
@@ -14,6 +16,7 @@ from app.services.embedding import generate_embeddings, is_embedding_available
 from app.services.ingestion import parse_document
 from app.services.llm import chat_completion
 from app.services.narrative import build_narrative_graph, generate_session_cards
+from app.services.pdf_report import generate_report
 
 logger = logging.getLogger(__name__)
 
@@ -665,3 +668,99 @@ async def generate_session_summary(
     except Exception as exc:
         logger.exception("Failed to generate summary for session %s: %s", session_id, exc)
         raise HTTPException(status_code=500, detail=f"Failed to generate session summary: {str(exc)}")
+
+
+@router.get("/{session_id}/replay")
+async def get_session_replay(
+    session_id: str,
+    x_user_id: Optional[str] = Header(default=None, alias="x-user-id"),
+):
+    """Fetch all session events for replay, ordered chronologically.
+
+    Returns events with relative timestamps from the session start.
+    """
+    user_id = _resolve_user_id(x_user_id)
+    logger.info("Fetching replay for session=%s user=%s", session_id, user_id)
+
+    _get_session_for_user(session_id, user_id)
+
+    supabase = get_supabase()
+
+    try:
+        events_result = (
+            supabase.table("session_events")
+            .select("*")
+            .eq("session_id", session_id)
+            .order("created_at")
+            .execute()
+        )
+        events = events_result.data or []
+    except Exception as exc:
+        logger.exception("Failed to fetch replay events for session %s: %s", session_id, exc)
+        raise HTTPException(status_code=500, detail="Failed to fetch session events")
+
+    if not events:
+        return []
+
+    # Calculate relative timestamps from the first event
+    try:
+        first_ts = datetime.fromisoformat(
+            events[0]["created_at"].replace("Z", "+00:00")
+        )
+    except (ValueError, TypeError, KeyError):
+        first_ts = None
+
+    replay_events = []
+    for event in events:
+        relative_seconds: float = 0.0
+        if first_ts:
+            try:
+                event_ts = datetime.fromisoformat(
+                    event["created_at"].replace("Z", "+00:00")
+                )
+                relative_seconds = (event_ts - first_ts).total_seconds()
+            except (ValueError, TypeError):
+                pass
+
+        payload = event.get("payload") or {}
+        if isinstance(payload, str):
+            try:
+                payload = json.loads(payload)
+            except (json.JSONDecodeError, TypeError):
+                payload = {}
+
+        replay_events.append({
+            "timestamp": round(relative_seconds, 2),
+            "event_type": event.get("event_type"),
+            "payload": payload,
+        })
+
+    return replay_events
+
+
+@router.get("/{session_id}/report")
+async def download_report(
+    session_id: str,
+    x_user_id: Optional[str] = Header(default=None, alias="x-user-id"),
+):
+    """Generate and download a PDF report for the session."""
+    user_id = _resolve_user_id(x_user_id)
+    logger.info("Generating report for session=%s user=%s", session_id, user_id)
+
+    _get_session_for_user(session_id, user_id)
+
+    try:
+        pdf_bytes = generate_report(session_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
+    except Exception as exc:
+        logger.exception("Failed to generate report for session %s: %s", session_id, exc)
+        raise HTTPException(status_code=500, detail="Failed to generate report")
+
+    return StreamingResponse(
+        io.BytesIO(pdf_bytes),
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f'attachment; filename="pretive-report-{session_id[:8]}.pdf"'
+        },
+    )

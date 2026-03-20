@@ -12,6 +12,7 @@ import {
   Loader2,
   RefreshCw,
   Plus,
+  Download,
 } from "lucide-react";
 import { get, post } from "@/lib/api";
 import SessionCard from "@/components/SessionCard";
@@ -169,6 +170,8 @@ export default function SessionSummaryPage() {
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [pdfLoading, setPdfLoading] = useState(false);
+
   const abortRef = useRef<AbortController | null>(null);
 
   const loadData = useCallback(
@@ -267,6 +270,32 @@ export default function SessionSummaryPage() {
       }
     };
   }, []);
+
+  async function handleDownloadPdf() {
+    setPdfLoading(true);
+    try {
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+      const res = await fetch(`${baseUrl}/api/sessions/${id}/report`);
+      if (!res.ok) {
+        throw new Error(`Failed to generate PDF: ${res.statusText}`);
+      }
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `session-${id}-report.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to download PDF"
+      );
+    } finally {
+      setPdfLoading(false);
+    }
+  }
 
   function handleRetry() {
     setError(null);
@@ -445,9 +474,28 @@ export default function SessionSummaryPage() {
       {/* Action buttons */}
       <div className="flex items-center gap-3 border-t border-gray-200 pt-6">
         <button
-          onClick={() => router.push("/sessions/new")}
-          className="inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
+          onClick={handleDownloadPdf}
+          disabled={pdfLoading}
+          className="inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-60"
           style={{ backgroundColor: "var(--red)" }}
+          aria-label={pdfLoading ? "Generating PDF..." : "Download PDF report"}
+        >
+          {pdfLoading ? (
+            <>
+              <Loader2 size={16} className="animate-spin" aria-hidden="true" />
+              PDF Oluşturuluyor...
+            </>
+          ) : (
+            <>
+              <Download size={16} aria-hidden="true" />
+              PDF İndir
+            </>
+          )}
+        </button>
+        <button
+          onClick={() => router.push("/sessions/new")}
+          className="inline-flex items-center gap-2 rounded-lg border border-gray-200 px-5 py-2.5 text-sm font-medium transition-colors hover:bg-gray-50"
+          style={{ color: "var(--ink)" }}
           aria-label="Create new session"
         >
           <Plus size={16} aria-hidden="true" />

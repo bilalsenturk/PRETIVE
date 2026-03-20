@@ -11,6 +11,9 @@ import {
   Play,
   Zap,
   RefreshCw,
+  Copy,
+  Check,
+  PlayCircle,
 } from "lucide-react";
 import { get, post } from "@/lib/api";
 import SessionCard from "@/components/SessionCard";
@@ -107,6 +110,8 @@ export default function SessionDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [preparing, setPreparing] = useState(false);
+
+  const [copied, setCopied] = useState(false);
 
   const abortRef = useRef<AbortController | null>(null);
   const pollIntervalRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -464,6 +469,79 @@ export default function SessionDetailPage() {
           </ul>
         )}
       </div>
+
+      {/* Participant Link — shown when live or ready */}
+      {(session.status === "live" || session.status === "ready") && (
+        <div
+          className="mb-6 rounded-2xl border border-gray-200 p-5"
+          style={{ backgroundColor: "var(--paper)" }}
+        >
+          <h2
+            className="mb-3 text-base font-semibold"
+            style={{ color: "var(--ink)" }}
+          >
+            Katılımcı Linki
+          </h2>
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              readOnly
+              value={
+                typeof window !== "undefined"
+                  ? `${window.location.origin}/participant/${id}`
+                  : `/participant/${id}`
+              }
+              className="flex-1 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-700"
+              onClick={(e) => (e.target as HTMLInputElement).select()}
+            />
+            <button
+              onClick={async () => {
+                const link =
+                  typeof window !== "undefined"
+                    ? `${window.location.origin}/participant/${id}`
+                    : `/participant/${id}`;
+                try {
+                  await navigator.clipboard.writeText(link);
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 2000);
+                } catch {
+                  // Fallback: select the input
+                }
+              }}
+              className="inline-flex items-center gap-2 rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium transition-colors hover:bg-gray-50"
+              style={{ color: "var(--ink)" }}
+              aria-label="Copy participant link"
+            >
+              {copied ? (
+                <>
+                  <Check size={14} className="text-green-600" aria-hidden="true" />
+                  <span className="text-green-600">Kopyalandı!</span>
+                </>
+              ) : (
+                <>
+                  <Copy size={14} aria-hidden="true" />
+                  Kopyala
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Replay button — shown when completed */}
+      {session.status === "completed" && (
+        <div className="mb-6">
+          <button
+            onClick={() => router.push(`/sessions/${id}/replay`)}
+            className="inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
+            style={{ backgroundColor: "var(--red)" }}
+            aria-label="Watch session replay"
+          >
+            <PlayCircle size={16} aria-hidden="true" />
+            Replay
+          </button>
+        </div>
+      )}
 
       {/* Cards section */}
       {cards.length > 0 && (

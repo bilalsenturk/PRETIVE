@@ -9,6 +9,8 @@ import LiveTranscript, {
   type TranscriptEntry,
 } from "@/components/LiveTranscript";
 import ActiveCards from "@/components/ActiveCards";
+import { type Verification } from "@/components/VerificationBadge";
+import Suggestions, { type Suggestion } from "@/components/Suggestions";
 
 interface Session {
   id: string;
@@ -28,6 +30,8 @@ interface Card {
 interface MatchResponse {
   cards: Card[];
   position: { heading?: string; chunk_index?: number } | string | null;
+  verification?: Verification | null;
+  suggestions?: Suggestion[];
 }
 
 type LiveState = "idle" | "recording" | "stopped";
@@ -65,6 +69,8 @@ export default function LiveSessionPage() {
   const [matchCount, setMatchCount] = useState(0);
   const [lastMatchHadCards, setLastMatchHadCards] = useState<boolean | null>(null);
   const [topicVisible, setTopicVisible] = useState(true);
+  const [verification, setVerification] = useState<Verification | null>(null);
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const prevPositionRef = useRef<string | null>(null);
 
   const [elapsed, setElapsed] = useState(0);
@@ -178,6 +184,15 @@ export default function LiveSessionPage() {
             const resolved = resolvePosition(res.position);
             if (resolved) {
               setCurrentPosition(resolved);
+            }
+            if (res.verification) {
+              setVerification(res.verification);
+            }
+            if (res.suggestions && res.suggestions.length > 0) {
+              setSuggestions((prev) => {
+                const combined = [...prev, ...res.suggestions!];
+                return combined;
+              });
             }
           })
           .catch((matchErr) => {
@@ -421,6 +436,7 @@ export default function LiveSessionPage() {
             transcripts={transcripts}
             sessionStartTime={startTimeRef.current}
             currentHeading={currentPosition}
+            verification={verification}
           />
         </div>
 
@@ -432,6 +448,16 @@ export default function LiveSessionPage() {
           />
         </div>
       </div>
+
+      {/* Suggestions strip */}
+      {liveState !== "idle" && (
+        <Suggestions
+          suggestions={suggestions}
+          onDismiss={(index) =>
+            setSuggestions((prev) => prev.filter((_, i) => i !== index))
+          }
+        />
+      )}
 
       {/* Bottom controls */}
       <div

@@ -1,6 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useMemo } from "react";
+import VerificationBadge, {
+  type Verification,
+} from "@/components/VerificationBadge";
 
 export interface TranscriptEntry {
   text: string;
@@ -12,6 +15,7 @@ interface LiveTranscriptProps {
   transcripts: TranscriptEntry[];
   sessionStartTime: number | null;
   currentHeading?: string | null;
+  verification?: Verification | null;
 }
 
 function formatElapsed(ms: number): string {
@@ -56,11 +60,19 @@ export default function LiveTranscript({
   transcripts,
   sessionStartTime,
   currentHeading,
+  verification,
 }: LiveTranscriptProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const keywords = useMemo(() => extractKeywords(currentHeading), [currentHeading]);
+
+  const lastFinalIndex = useMemo(() => {
+    for (let i = transcripts.length - 1; i >= 0; i--) {
+      if (transcripts[i].isFinal) return i;
+    }
+    return -1;
+  }, [transcripts]);
 
   useEffect(() => {
     if (bottomRef.current) {
@@ -114,6 +126,11 @@ export default function LiveTranscript({
                     }`}
                   >
                     {entry.isFinal ? highlightText(entry.text, keywords) : entry.text}
+                    {i === lastFinalIndex && verification && (
+                      <span className="ml-2 inline-flex align-middle">
+                        <VerificationBadge verification={verification} />
+                      </span>
+                    )}
                   </p>
                 </div>
               );
