@@ -1,7 +1,9 @@
 """Hardened session management router with input validation, permission checks,
 and comprehensive logging."""
 
+import json
 import logging
+from datetime import datetime
 from typing import Optional
 
 from fastapi import APIRouter, Header, HTTPException
@@ -10,6 +12,7 @@ from pydantic import BaseModel, Field
 from app.db.supabase import get_supabase
 from app.services.embedding import generate_embeddings, is_embedding_available
 from app.services.ingestion import parse_document
+from app.services.llm import chat_completion
 from app.services.narrative import build_narrative_graph, generate_session_cards
 
 logger = logging.getLogger(__name__)
@@ -43,6 +46,25 @@ class PrepareResponse(BaseModel):
     topics_count: int
     cards_generated: int
     errors: list[str] = []
+
+
+class AnalyticsResponse(BaseModel):
+    session_id: str
+    duration_seconds: int
+    total_events: int
+    match_events: int
+    match_hit_rate: float
+    total_chunks: int
+    matched_chunk_ids: list[str]
+    coverage_rate: float
+    total_cards: int
+    cards_shown: int
+    avg_response_ms: float
+    topics_covered: list[str]
+
+
+class SummaryResponse(BaseModel):
+    summary: str
 
 
 # ---------------------------------------------------------------------------
@@ -399,3 +421,247 @@ async def prepare_session(
         raise HTTPException(
             status_code=500, detail=f"Session preparation failed: {str(exc)}"
         )
+
+
+@router.get("/{session_id}/analytics", response_model=AnalyticsResponse)
+async def get_session_analytics(
+    session_id: str,
+    x_user_id: Optional[str] = Header(default=None, alias="x-user-id"),
+) -> AnalyticsResponse:
+    """Compute analytics for a session from session_events."""
+    user_id = _resolve_user_id(x_user_id)
+    logger.info("Computing analytics for session=%s user=%s", session_id, user_id)
+
+    _get_session_for_user(session_id, user_id)
+
+    supabase = get_supabase()
+
+    try:
+        # Fetch all session events
+        events_result = (
+            supabase.table("session_events")
+            .select("*")
+            .eq("session_id", session_id)
+            .order("created_at")
+            .execute()
+        )
+        events = events_result.data or []
+
+        # Fetch total chunks for the session
+        chunks_result = (
+            supabase.table("content_chunks")
+            .select("id", count="exact")
+            .eq("session_id", session_id)
+            .execute()
+        )
+        total_chunks = chunks_result.count if chunks_result.count else 0
+
+        # Fetch session cards
+        cards_result = (
+            supabase.table("session_cards")
+            .select("*")
+            .eq("session_id", session_id)
+            .execute()
+        )
+        all_cards = cards_result.data or []
+        total_cards = len(all_cards)
+
+        # Compute duration from live_start / live_stop events
+        duration_seconds = 0
+        live_start_time = None
+        for event in events:
+            if event.get("event_type") == "live_start":
+                live_start_time = event.get("created_at")
+            elif event.get("event_type") == "live_stop" and live_start_time:
+                try:
+                    start_dt = datetime.fromisoformat(live_start_time.replace("Z", "+00:00"))
+                    stop_dt = datetime.fromisoformat(event["created_at"].replace("Z", "+00:00"))
+                    duration_seconds = int((stop_dt - start_dt).total_seconds())
+                except (ValueError, TypeError):
+                    pass
+
+        # Compute match metrics
+        total_events = len(events)
+        match_events_list = [e for e in events if e.get("event_type") == "match"]
+        match_events = len(match_events_list)
+        match_hit_rate = round(match_events / total_events, 2) if total_events > 0 else 0.0
+
+        # Extract matched chunk IDs and cards shown from match payloads
+        matched_chunk_ids_set: set[str] = set()
+        cards_shown_ids: set[str] = set()
+        response_times: list[float] = []
+
+        for event in match_events_list:
+            payload = event.get("payload") or {}
+            if isinstance(payload, str):
+                try:
+                    payload = json.loads(payload)
+                except (json.JSONDecodeError, TypeError):
+                    payload = {}
+
+            # Collect matched chunk IDs
+            chunk_ids = payload.get("matched_chunk_ids", [])
+            if isinstance(chunk_ids, list):
+                matched_chunk_ids_set.update(str(cid) for cid in chunk_ids)
+
+            # Collect card IDs shown
+            card_ids = payload.get("card_ids", [])
+            if isinstance(card_ids, list):
+                cards_shown_ids.update(str(cid) for cid in card_ids)
+
+            # Collect response time
+            resp_ms = payload.get("response_ms")
+            if resp_ms is not None:
+                try:
+                    response_times.append(float(resp_ms))
+                except (ValueError, TypeError):
+                    pass
+
+        matched_chunk_ids = sorted(matched_chunk_ids_set)
+        coverage_rate = round(len(matched_chunk_ids) / total_chunks, 2) if total_chunks > 0 else 0.0
+        cards_shown = len(cards_shown_ids)
+        avg_response_ms = round(sum(response_times) / len(response_times), 1) if response_times else 0.0
+
+        # Extract topics from cards
+        topics_covered: list[str] = []
+        seen_topics: set[str] = set()
+        for card in all_cards:
+            title = card.get("title", "")
+            if title and title not in seen_topics:
+                seen_topics.add(title)
+                topics_covered.append(title)
+
+        return AnalyticsResponse(
+            session_id=session_id,
+            duration_seconds=duration_seconds,
+            total_events=total_events,
+            match_events=match_events,
+            match_hit_rate=match_hit_rate,
+            total_chunks=total_chunks,
+            matched_chunk_ids=matched_chunk_ids,
+            coverage_rate=coverage_rate,
+            total_cards=total_cards,
+            cards_shown=cards_shown,
+            avg_response_ms=avg_response_ms,
+            topics_covered=topics_covered,
+        )
+
+    except HTTPException:
+        raise
+    except Exception as exc:
+        logger.exception("Failed to compute analytics for session %s: %s", session_id, exc)
+        raise HTTPException(status_code=500, detail="Failed to compute session analytics")
+
+
+@router.post("/{session_id}/summary", response_model=SummaryResponse)
+async def generate_session_summary(
+    session_id: str,
+    x_user_id: Optional[str] = Header(default=None, alias="x-user-id"),
+) -> SummaryResponse:
+    """Generate an LLM summary for a session and save it to the sessions table."""
+    user_id = _resolve_user_id(x_user_id)
+    logger.info("Generating summary for session=%s user=%s", session_id, user_id)
+
+    session = _get_session_for_user(session_id, user_id)
+
+    supabase = get_supabase()
+
+    try:
+        # Fetch match events
+        events_result = (
+            supabase.table("session_events")
+            .select("*")
+            .eq("session_id", session_id)
+            .eq("event_type", "match")
+            .order("created_at")
+            .execute()
+        )
+        match_events = events_result.data or []
+
+        # Fetch session cards
+        cards_result = (
+            supabase.table("session_cards")
+            .select("*")
+            .eq("session_id", session_id)
+            .order("created_at")
+            .execute()
+        )
+        cards = cards_result.data or []
+
+        # Build context for LLM
+        events_summary = []
+        for event in match_events:
+            payload = event.get("payload") or {}
+            if isinstance(payload, str):
+                try:
+                    payload = json.loads(payload)
+                except (json.JSONDecodeError, TypeError):
+                    payload = {}
+            events_summary.append({
+                "timestamp": event.get("created_at"),
+                "text_length": payload.get("text_length", 0),
+                "chunks_matched": payload.get("chunks_matched", 0),
+                "cards_returned": payload.get("cards_returned", 0),
+            })
+
+        cards_summary = []
+        for card in cards:
+            content = card.get("content", "")
+            if isinstance(content, dict):
+                content = content.get("text", content.get("summary", str(content)))
+            cards_summary.append({
+                "title": card.get("title", ""),
+                "type": card.get("card_type", ""),
+                "content": str(content)[:500],
+            })
+
+        messages = [
+            {
+                "role": "system",
+                "content": (
+                    "You are a presentation coach. Given the session events and "
+                    "cards from a live presentation session, write a concise summary "
+                    "(3-5 paragraphs) covering: what topics were presented, how well "
+                    "the presenter covered the material, engagement patterns, and "
+                    "suggestions for improvement. Be constructive and specific."
+                ),
+            },
+            {
+                "role": "user",
+                "content": json.dumps({
+                    "session_title": session.get("title", ""),
+                    "total_match_events": len(match_events),
+                    "match_events_sample": events_summary[:20],
+                    "cards": cards_summary,
+                }),
+            },
+        ]
+
+        summary_text = chat_completion(
+            messages=messages,
+            temperature=0.7,
+            max_tokens=2048,
+        )
+
+        # Save summary to sessions table via metadata jsonb
+        existing_metadata = session.get("metadata") or {}
+        if isinstance(existing_metadata, str):
+            try:
+                existing_metadata = json.loads(existing_metadata)
+            except (json.JSONDecodeError, TypeError):
+                existing_metadata = {}
+
+        existing_metadata["summary"] = summary_text
+
+        supabase.table("sessions").update(
+            {"metadata": existing_metadata}
+        ).eq("id", session_id).execute()
+
+        logger.info("Summary generated and saved for session %s", session_id)
+        return SummaryResponse(summary=summary_text)
+
+    except HTTPException:
+        raise
+    except Exception as exc:
+        logger.exception("Failed to generate summary for session %s: %s", session_id, exc)
+        raise HTTPException(status_code=500, detail=f"Failed to generate session summary: {str(exc)}")

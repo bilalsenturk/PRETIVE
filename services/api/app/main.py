@@ -12,7 +12,7 @@ from fastapi.responses import JSONResponse
 
 from app.config import settings
 from app.db.supabase import check_connection
-from app.routers import documents, health, live, sessions
+from app.routers import demo, documents, health, live, sessions
 
 # ── Structured logging ────────────────────────────────────────
 logging.basicConfig(
@@ -74,3 +74,4 @@ app.include_router(health.router)
 app.include_router(sessions.router)
 app.include_router(documents.router)
 app.include_router(live.router)
+app.include_router(demo.router)

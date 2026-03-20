@@ -2,8 +2,9 @@
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import Link from "next/link";
-import { Plus, FileText, Clock, RefreshCw } from "lucide-react";
-import { get } from "@/lib/api";
+import { useRouter } from "next/navigation";
+import { Plus, FileText, Clock, RefreshCw, Sparkles } from "lucide-react";
+import { get, post } from "@/lib/api";
 
 interface Session {
   id: string;
@@ -11,6 +12,11 @@ interface Session {
   status: "draft" | "active" | "completed";
   created_at: string;
   document_count: number;
+}
+
+interface DemoSeedResponse {
+  session_id: string;
+  message: string;
 }
 
 const statusStyles: Record<
@@ -55,7 +61,9 @@ export default function SessionsPage() {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [demoLoading, setDemoLoading] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
+  const router = useRouter();
 
   const fetchSessions = useCallback(async (signal?: AbortSignal) => {
     setLoading(true);
@@ -92,6 +100,19 @@ export default function SessionsPage() {
     fetchSessions(controller.signal);
   }
 
+  async function handleDemoSeed() {
+    setDemoLoading(true);
+    try {
+      const data = await post<DemoSeedResponse>("/api/demo/seed", {});
+      router.push(`/sessions/${data.session_id}`);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to create demo session"
+      );
+      setDemoLoading(false);
+    }
+  }
+
   if (loading) {
     return <LoadingSkeleton />;
   }
@@ -113,6 +134,33 @@ export default function SessionsPage() {
           New Session
         </Link>
       </div>
+
+      {/* Demo seed card */}
+      <button
+        onClick={handleDemoSeed}
+        disabled={demoLoading}
+        className="mb-4 flex w-full items-center gap-4 rounded-xl border border-amber-200 bg-amber-50 px-5 py-4 text-left transition-shadow hover:shadow-md disabled:opacity-60"
+        aria-label="Start a demo session"
+      >
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-100">
+          <Sparkles size={20} className="text-amber-600" aria-hidden="true" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <h3 className="text-sm font-semibold text-amber-900">
+            Demo Oturumu Başlat
+          </h3>
+          <p className="mt-0.5 text-xs text-amber-700">
+            Pretive&apos;i hemen deneyin — hazır bir demo oturumu başlatın
+          </p>
+        </div>
+        {demoLoading && (
+          <RefreshCw
+            size={16}
+            className="shrink-0 animate-spin text-amber-600"
+            aria-hidden="true"
+          />
+        )}
+      </button>
 
       {/* Error state */}
       {error && (

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useMemo } from "react";
 
 export interface TranscriptEntry {
   text: string;
@@ -11,6 +11,7 @@ export interface TranscriptEntry {
 interface LiveTranscriptProps {
   transcripts: TranscriptEntry[];
   sessionStartTime: number | null;
+  currentHeading?: string | null;
 }
 
 function formatElapsed(ms: number): string {
@@ -20,12 +21,46 @@ function formatElapsed(ms: number): string {
   return `${String(min).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
 }
 
+function extractKeywords(heading: string | null | undefined): string[] {
+  if (!heading) return [];
+  // Split heading into words, filter out short/common words
+  const stopWords = new Set(["ve", "ile", "bir", "bu", "da", "de", "mi", "mu", "the", "and", "or", "is", "in", "on", "at", "to", "for", "of", "a"]);
+  return heading
+    .split(/\s+/)
+    .map((w) => w.replace(/[^a-zA-ZçğıöşüÇĞİÖŞÜ0-9]/g, "").toLowerCase())
+    .filter((w) => w.length > 2 && !stopWords.has(w));
+}
+
+function highlightText(text: string, keywords: string[]): React.ReactNode {
+  if (keywords.length === 0) return text;
+
+  // Build a regex that matches any keyword (case-insensitive)
+  const escaped = keywords.map((k) => k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  const regex = new RegExp(`(${escaped.join("|")})`, "gi");
+  const parts = text.split(regex);
+
+  return parts.map((part, i) => {
+    const isMatch = keywords.some((k) => part.toLowerCase() === k.toLowerCase());
+    if (isMatch) {
+      return (
+        <span key={i} className="font-bold" style={{ color: "var(--red)" }}>
+          {part}
+        </span>
+      );
+    }
+    return part;
+  });
+}
+
 export default function LiveTranscript({
   transcripts,
   sessionStartTime,
+  currentHeading,
 }: LiveTranscriptProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+
+  const keywords = useMemo(() => extractKeywords(currentHeading), [currentHeading]);
 
   useEffect(() => {
     if (bottomRef.current) {
@@ -66,7 +101,7 @@ export default function LiveTranscript({
               return (
                 <div key={`${entry.timestamp}-${i}`} className="flex gap-3">
                   <span
-                    className="shrink-0 pt-0.5 text-xs font-mono text-gray-400"
+                    className="shrink-0 pt-0.5 font-mono text-xs text-gray-400"
                     aria-label={`at ${elapsed}`}
                   >
                     {elapsed}
@@ -78,7 +113,7 @@ export default function LiveTranscript({
                         : "italic text-gray-400"
                     }`}
                   >
-                    {entry.text}
+                    {entry.isFinal ? highlightText(entry.text, keywords) : entry.text}
                   </p>
                 </div>
               );

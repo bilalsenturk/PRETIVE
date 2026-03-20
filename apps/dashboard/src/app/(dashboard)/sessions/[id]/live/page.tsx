@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Mic, Square, Loader2 } from "lucide-react";
 import { get, post } from "@/lib/api";
@@ -44,7 +44,6 @@ function resolvePosition(
     if (typeof pos.chunk_index === "number") {
       return `Section ${pos.chunk_index}`;
     }
-    // Fallback for unexpected object shapes
     return JSON.stringify(pos);
   }
   return String(pos);
@@ -63,6 +62,10 @@ export default function LiveSessionPage() {
   const [transcripts, setTranscripts] = useState<TranscriptEntry[]>([]);
   const [activeCards, setActiveCards] = useState<Card[]>([]);
   const [currentPosition, setCurrentPosition] = useState<string | null>(null);
+  const [matchCount, setMatchCount] = useState(0);
+  const [lastMatchHadCards, setLastMatchHadCards] = useState<boolean | null>(null);
+  const [topicVisible, setTopicVisible] = useState(true);
+  const prevPositionRef = useRef<string | null>(null);
 
   const [elapsed, setElapsed] = useState(0);
   const startTimeRef = useRef<number | null>(null);
@@ -70,6 +73,28 @@ export default function LiveSessionPage() {
   const streamRef = useRef<DeepgramStream | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const matchAbortRef = useRef<AbortController | null>(null);
+
+  // Word count from all final transcripts
+  const wordCount = useMemo(() => {
+    return transcripts
+      .filter((t) => t.isFinal)
+      .reduce((count, t) => {
+        const words = t.text.trim().split(/\s+/).filter(Boolean);
+        return count + words.length;
+      }, 0);
+  }, [transcripts]);
+
+  // Animate topic transitions
+  useEffect(() => {
+    if (currentPosition !== prevPositionRef.current) {
+      setTopicVisible(false);
+      const timer = setTimeout(() => {
+        setTopicVisible(true);
+        prevPositionRef.current = currentPosition;
+      }, 200);
+      return () => clearTimeout(timer);
+    }
+  }, [currentPosition]);
 
   // Fetch session on mount and call live/start
   useEffect(() => {
@@ -144,9 +169,12 @@ export default function LiveSessionPage() {
         )
           .then((res) => {
             if (matchController.signal.aborted) return;
-            if (res.cards && res.cards.length > 0) {
+            const hasCards = res.cards && res.cards.length > 0;
+            if (hasCards) {
               setActiveCards(res.cards);
+              setMatchCount((prev) => prev + 1);
             }
+            setLastMatchHadCards(hasCards);
             const resolved = resolvePosition(res.position);
             if (resolved) {
               setCurrentPosition(resolved);
@@ -154,7 +182,6 @@ export default function LiveSessionPage() {
           })
           .catch((matchErr) => {
             if (matchController.signal.aborted) return;
-            // Log match errors but don't disrupt the session
             console.error("Match request failed:", matchErr);
           });
       } else {
@@ -200,6 +227,8 @@ export default function LiveSessionPage() {
     setError(null);
     startTimeRef.current = Date.now();
     setElapsed(0);
+    setMatchCount(0);
+    setLastMatchHadCards(null);
     setLiveState("recording");
 
     timerRef.current = setInterval(() => {
@@ -218,7 +247,6 @@ export default function LiveSessionPage() {
       setError(
         err instanceof Error ? err.message : "Kayıt başlatılamadı"
       );
-      // Reset state since we failed to start
       if (timerRef.current) {
         clearInterval(timerRef.current);
         timerRef.current = null;
@@ -313,6 +341,68 @@ export default function LiveSessionPage() {
         </div>
       </div>
 
+      {/* Live stats bar */}
+      {liveState !== "idle" && (
+        <div className="mt-3 flex items-center gap-6 rounded-lg border border-gray-200 px-5 py-2.5" style={{ backgroundColor: "var(--paper)" }}>
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-medium text-gray-500">Sure</span>
+            <span className="font-mono text-sm font-semibold" style={{ color: "var(--ink)" }}>
+              {formatTimer(elapsed)}
+            </span>
+          </div>
+          <div className="h-4 w-px bg-gray-200" />
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-medium text-gray-500">Kelime</span>
+            <span className="font-mono text-sm font-semibold" style={{ color: "var(--ink)" }}>
+              {wordCount}
+            </span>
+          </div>
+          <div className="h-4 w-px bg-gray-200" />
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-medium text-gray-500">Eslesme</span>
+            <span className="font-mono text-sm font-semibold" style={{ color: "var(--ink)" }}>
+              {matchCount}
+            </span>
+          </div>
+          <div className="h-4 w-px bg-gray-200" />
+          {/* Match confidence indicator */}
+          <div className="flex items-center gap-2">
+            {lastMatchHadCards === null ? (
+              <span className="text-xs text-gray-400">Bekleniyor...</span>
+            ) : lastMatchHadCards ? (
+              <>
+                <span className="inline-block h-2.5 w-2.5 rounded-full bg-green-500" />
+                <span className="text-xs font-medium text-green-600">Yuksek Eslesme</span>
+              </>
+            ) : (
+              <>
+                <span className="inline-block h-2.5 w-2.5 rounded-full bg-gray-300" />
+                <span className="text-xs font-medium text-gray-400">Eslesme yok</span>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Current topic banner */}
+      {currentPosition && liveState !== "idle" && (
+        <div
+          className="mt-3 rounded-lg px-5 py-3 transition-opacity duration-300"
+          style={{
+            backgroundColor: "rgba(217, 66, 40, 0.08)",
+            opacity: topicVisible ? 1 : 0,
+          }}
+          aria-live="polite"
+        >
+          <span className="text-xs font-medium uppercase tracking-wide text-gray-500">
+            Su an
+          </span>
+          <p className="mt-0.5 text-lg font-semibold" style={{ color: "var(--ink)" }}>
+            {currentPosition}
+          </p>
+        </div>
+      )}
+
       {/* Error banner */}
       {error && (
         <div
@@ -330,6 +420,7 @@ export default function LiveSessionPage() {
           <LiveTranscript
             transcripts={transcripts}
             sessionStartTime={startTimeRef.current}
+            currentHeading={currentPosition}
           />
         </div>
 
@@ -379,12 +470,12 @@ export default function LiveSessionPage() {
 
         {liveState === "stopped" && (
           <button
-            onClick={() => router.push(`/sessions/${id}`)}
+            onClick={() => router.push(`/sessions/${id}/summary`)}
             className="inline-flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
             style={{ backgroundColor: "var(--ink)" }}
-            aria-label="Return to session details"
+            aria-label="View session summary"
           >
-            Back to Session
+            Ozete Git
           </button>
         )}
       </div>

@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  LayoutDashboard,
   LayoutList,
   ChevronLeft,
   ChevronRight,
@@ -11,7 +12,8 @@ import {
 } from "lucide-react";
 
 const navItems = [
-  { href: "/sessions", label: "Sessions", icon: LayoutList },
+  { href: "/", label: "Dashboard", icon: LayoutDashboard, exact: true },
+  { href: "/sessions", label: "Sessions", icon: LayoutList, exact: false },
 ];
 
 export default function Sidebar() {
@@ -49,7 +51,9 @@ export default function Sidebar() {
       {/* Navigation */}
       <nav className="flex-1 space-y-1 p-2" aria-label="Primary navigation">
         {navItems.map((item) => {
-          const isActive = pathname.startsWith(item.href);
+          const isActive = item.exact
+            ? pathname === item.href
+            : pathname.startsWith(item.href);
           const Icon = item.icon;
           return (
             <Link
