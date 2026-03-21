@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 import {
   LayoutDashboard,
   LayoutList,
@@ -18,6 +19,7 @@ const navItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const [expanded, setExpanded] = useState(false);
 
   return (
@@ -93,6 +95,10 @@ export default function Sidebar() {
         </button>
 
         <button
+          onClick={async () => {
+            await supabase.auth.signOut();
+            router.push("/login");
+          }}
           className="flex w-full items-center rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 hover:text-gray-900"
           aria-label="Sign out"
         >

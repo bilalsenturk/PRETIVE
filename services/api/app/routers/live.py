@@ -179,6 +179,7 @@ async def match_transcript(session_id: str, body: MatchRequest) -> MatchResponse
     # Verify session exists
     _get_session_or_404(session_id)
 
+    _match_start = time.time()
     text = body.text.strip()
     if not text:
         raise HTTPException(status_code=400, detail="Text must not be empty after trimming")
@@ -281,6 +282,8 @@ async def match_transcript(session_id: str, body: MatchRequest) -> MatchResponse
         "text_length": len(text),
         "chunks_matched": len(chunks),
         "cards_returned": len(cards),
+        "matched_chunk_ids": [c["id"] for c in chunks if "id" in c],
+        "response_ms": round((time.time() - _match_start) * 1000, 2),
         "heading": position.get("heading"),
         "chunk_index": position.get("chunk_index"),
     })

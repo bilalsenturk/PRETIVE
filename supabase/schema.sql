@@ -13,7 +13,7 @@ create table if not exists sessions (
   user_id uuid references auth.users(id) on delete cascade not null,
   title text not null,
   status text not null default 'draft'
-    check (status in ('draft', 'preparing', 'ready', 'live', 'completed')),
+    check (status in ('draft', 'parsed', 'preparing', 'ready', 'live', 'completed', 'error')),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );

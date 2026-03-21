@@ -14,8 +14,10 @@ import {
   Copy,
   Check,
   PlayCircle,
+  Trash2,
 } from "lucide-react";
-import { get, post } from "@/lib/api";
+import { QRCodeSVG } from "qrcode.react";
+import { get, post, del } from "@/lib/api";
 import SessionCard from "@/components/SessionCard";
 
 interface Session {
@@ -113,6 +115,7 @@ export default function SessionDetailPage() {
   const [preparing, setPreparing] = useState(false);
 
   const [copied, setCopied] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const abortRef = useRef<AbortController | null>(null);
   const pollIntervalRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -278,6 +281,20 @@ export default function SessionDetailPage() {
     router.push(`/sessions/${id}/live`);
   }
 
+  async function handleDelete() {
+    if (!window.confirm("Bu oturumu silmek istediğinize emin misiniz?")) return;
+    setDeleting(true);
+    try {
+      await del(`/api/sessions/${id}`);
+      router.push("/sessions");
+    } catch (err) {
+      setDeleting(false);
+      setError(
+        err instanceof Error ? err.message : "Failed to delete session"
+      );
+    }
+  }
+
   if (loading) {
     return <LoadingSkeleton />;
   }
@@ -309,8 +326,8 @@ export default function SessionDetailPage() {
 
   return (
     <div className="mx-auto max-w-3xl">
-      {/* Back link */}
-      <div className="mb-6">
+      {/* Back link & delete */}
+      <div className="mb-6 flex items-center justify-between">
         <Link
           href="/sessions"
           className="inline-flex items-center gap-1 text-sm text-gray-500 transition-colors hover:text-gray-700"
@@ -319,6 +336,15 @@ export default function SessionDetailPage() {
           <ArrowLeft size={16} aria-hidden="true" />
           Back to Sessions
         </Link>
+        <button
+          onClick={handleDelete}
+          disabled={deleting}
+          className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-medium text-red-600 transition-colors hover:bg-red-100 disabled:opacity-50"
+          aria-label="Delete session"
+        >
+          <Trash2 size={14} aria-hidden="true" />
+          {deleting ? "Siliniyor..." : "Sil"}
+        </button>
       </div>
 
       {/* Error banner (non-blocking) */}
@@ -483,49 +509,54 @@ export default function SessionDetailPage() {
           >
             Katılımcı Linki
           </h2>
-          <div className="flex items-center gap-2">
-            <input
-              type="text"
-              readOnly
-              value={
-                typeof window !== "undefined"
-                  ? `${window.location.origin}/participant/${id}`
-                  : `/participant/${id}`
-              }
-              className="flex-1 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-700"
-              onClick={(e) => (e.target as HTMLInputElement).select()}
-            />
-            <button
-              onClick={async () => {
-                const link =
-                  typeof window !== "undefined"
-                    ? `${window.location.origin}/participant/${id}`
-                    : `/participant/${id}`;
-                try {
-                  await navigator.clipboard.writeText(link);
-                  setCopied(true);
-                  setTimeout(() => setCopied(false), 2000);
-                } catch {
-                  // Fallback: select the input
-                }
-              }}
-              className="inline-flex items-center gap-2 rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium transition-colors hover:bg-gray-50"
-              style={{ color: "var(--ink)" }}
-              aria-label="Copy participant link"
-            >
-              {copied ? (
-                <>
-                  <Check size={14} className="text-green-600" aria-hidden="true" />
-                  <span className="text-green-600">Kopyalandı!</span>
-                </>
-              ) : (
-                <>
-                  <Copy size={14} aria-hidden="true" />
-                  Kopyala
-                </>
-              )}
-            </button>
-          </div>
+          {(() => {
+            const participantUrl =
+              typeof window !== "undefined"
+                ? `${window.location.origin}/participant/${id}`
+                : `/participant/${id}`;
+            return (
+              <>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    readOnly
+                    value={participantUrl}
+                    className="flex-1 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-700"
+                    onClick={(e) => (e.target as HTMLInputElement).select()}
+                  />
+                  <button
+                    onClick={async () => {
+                      try {
+                        await navigator.clipboard.writeText(participantUrl);
+                        setCopied(true);
+                        setTimeout(() => setCopied(false), 2000);
+                      } catch {
+                        // Fallback: select the input
+                      }
+                    }}
+                    className="inline-flex items-center gap-2 rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium transition-colors hover:bg-gray-50"
+                    style={{ color: "var(--ink)" }}
+                    aria-label="Copy participant link"
+                  >
+                    {copied ? (
+                      <>
+                        <Check size={14} className="text-green-600" aria-hidden="true" />
+                        <span className="text-green-600">Kopyalandı!</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy size={14} aria-hidden="true" />
+                        Kopyala
+                      </>
+                    )}
+                  </button>
+                </div>
+                <div className="mt-4 flex justify-center">
+                  <QRCodeSVG value={participantUrl} size={120} />
+                </div>
+              </>
+            );
+          })()}
         </div>
       )}
 
