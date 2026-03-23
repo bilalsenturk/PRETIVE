@@ -31,7 +31,7 @@ const statusStyles: Record<
 };
 
 function formatDate(date: Date): string {
-  return date.toLocaleDateString("tr-TR", {
+  return date.toLocaleDateString("en-US", {
     day: "numeric",
     month: "long",
     year: "numeric",
@@ -173,7 +173,7 @@ export default function DashboardOverview() {
       {/* Welcome header */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold" style={{ color: "var(--ink)" }}>
-          Hoş geldiniz
+          Welcome
         </h1>
         <p className="mt-1 text-sm text-gray-500">{formatDate(new Date())}</p>
       </div>
@@ -202,19 +202,19 @@ export default function DashboardOverview() {
           <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
             <StatCard
               icon={FileText}
-              label="Toplam Oturum"
+              label="Total Sessions"
               value={totalSessions}
               loading={false}
             />
             <StatCard
               icon={Clock}
-              label="Yüklenen Doküman"
+              label="Uploaded Documents"
               value={totalDocuments}
               loading={false}
             />
             <StatCard
               icon={Radio}
-              label="Canlı Oturum"
+              label="Live Sessions"
               value={liveSessions}
               loading={false}
             />
@@ -227,7 +227,7 @@ export default function DashboardOverview() {
                 className="text-lg font-semibold"
                 style={{ color: "var(--ink)" }}
               >
-                Son Oturumlar
+                Recent Sessions
               </h2>
               {sessions.length > 3 && (
                 <Link
@@ -235,7 +235,7 @@ export default function DashboardOverview() {
                   className="flex items-center gap-1 text-sm font-medium transition-colors hover:opacity-80"
                   style={{ color: "var(--red)" }}
                 >
-                  Tümünü gör
+                  View all
                   <ArrowRight size={14} aria-hidden="true" />
                 </Link>
               )}
@@ -257,10 +257,10 @@ export default function DashboardOverview() {
                   className="text-sm font-medium"
                   style={{ color: "var(--ink)" }}
                 >
-                  Henüz oturum yok
+                  No sessions yet
                 </p>
                 <p className="mt-1 text-xs text-gray-500">
-                  İlk oturumunuzu oluşturarak başlayın.
+                  Create your first session to get started.
                 </p>
               </div>
             ) : (
@@ -288,12 +288,12 @@ export default function DashboardOverview() {
                           <span className="flex items-center gap-1">
                             <Clock size={12} aria-hidden="true" />
                             {new Date(session.created_at).toLocaleDateString(
-                              "tr-TR"
+                              "en-US"
                             )}
                           </span>
                           <span className="flex items-center gap-1">
                             <FileText size={12} aria-hidden="true" />
-                            {session.document_count} doküman
+                            {session.document_count} document{session.document_count !== 1 ? "s" : ""}
                           </span>
                         </div>
                       </div>
@@ -315,19 +315,19 @@ export default function DashboardOverview() {
               href="/sessions/new"
               className="inline-flex items-center gap-2 rounded-lg px-5 py-3 text-sm font-medium text-white transition-opacity hover:opacity-90"
               style={{ backgroundColor: "var(--red)" }}
-              aria-label="Yeni oturum oluştur"
+              aria-label="Create new session"
             >
               <Plus size={16} aria-hidden="true" />
-              Yeni Oturum Oluştur
+              Create New Session
             </Link>
             <Link
               href="/sessions/new?demo=true"
               className="inline-flex items-center gap-2 rounded-lg border border-gray-200 px-5 py-3 text-sm font-medium transition-colors hover:bg-gray-50"
               style={{ color: "var(--ink)", backgroundColor: "var(--paper)" }}
-              aria-label="Demo oturumu dene"
+              aria-label="Try demo session"
             >
               <Play size={16} aria-hidden="true" />
-              Demo Dene
+              Try Demo
             </Link>
           </div>
         </>

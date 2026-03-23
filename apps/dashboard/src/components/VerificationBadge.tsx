@@ -17,21 +17,21 @@ interface VerificationBadgeProps {
 const CONFIG = {
   verified: {
     icon: CheckCircle,
-    label: "Doğrulandı",
+    label: "Verified",
     bg: "rgba(34, 197, 94, 0.1)",
     border: "rgba(34, 197, 94, 0.3)",
     color: "#16a34a",
   },
   contradicted: {
     icon: AlertTriangle,
-    label: "Farklı Bilgi",
+    label: "Different Information",
     bg: "rgba(245, 158, 11, 0.1)",
     border: "rgba(245, 158, 11, 0.3)",
     color: "#d97706",
   },
   unverifiable: {
     icon: HelpCircle,
-    label: "Doğrulanamadı",
+    label: "Unverifiable",
     bg: "rgba(156, 163, 175, 0.15)",
     border: "rgba(156, 163, 175, 0.3)",
     color: "#6b7280",
@@ -83,7 +83,7 @@ export default function VerificationBadge({
           {verification.claim && (
             <p className="mb-1">
               <span className="font-semibold" style={{ color: cfg.color }}>
-                İddia:
+                Claim:
               </span>{" "}
               {verification.claim}
             </p>
@@ -91,14 +91,14 @@ export default function VerificationBadge({
           {verification.evidence && (
             <p className="mb-1">
               <span className="font-semibold" style={{ color: cfg.color }}>
-                Kanıt:
+                Evidence:
               </span>{" "}
               {verification.evidence}
             </p>
           )}
           <p>
             <span className="font-semibold" style={{ color: cfg.color }}>
-              Güven:
+              Confidence:
             </span>{" "}
             {Math.round(verification.confidence * 100)}%
           </p>

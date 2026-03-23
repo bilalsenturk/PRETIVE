@@ -483,12 +483,12 @@ export default function SessionSummaryPage() {
           {pdfLoading ? (
             <>
               <Loader2 size={16} className="animate-spin" aria-hidden="true" />
-              PDF Oluşturuluyor...
+              Generating PDF...
             </>
           ) : (
             <>
               <Download size={16} aria-hidden="true" />
-              PDF İndir
+              Download PDF
             </>
           )}
         </button>

@@ -12,7 +12,7 @@ export function startDeepgramStream(
 ): DeepgramStream {
   if (!apiKey || apiKey.trim().length === 0) {
     throw new Error(
-      "Deepgram API anahtarı yapılandırılmamış. NEXT_PUBLIC_DEEPGRAM_API_KEY ortam değişkenini ayarlayın."
+      "Deepgram API key not configured. Please set the NEXT_PUBLIC_DEEPGRAM_API_KEY environment variable."
     );
   }
 
@@ -77,7 +77,7 @@ export function startDeepgramStream(
     if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
       onError(
         new Error(
-          `Deepgram bağlantısı ${MAX_RECONNECT_ATTEMPTS} denemeden sonra kurulamadı. Lütfen tekrar deneyin.`
+          `Deepgram connection failed after ${MAX_RECONNECT_ATTEMPTS} attempts. Please try again.`
         )
       );
       return;
@@ -98,13 +98,13 @@ export function startDeepgramStream(
 
     try {
       socket = new WebSocket(
-        "wss://api.deepgram.com/v1/listen?model=nova-2&language=tr&punctuate=true",
+        "wss://api.deepgram.com/v1/listen?model=nova-2&language=en&punctuate=true",
         ["token", apiKey]
       );
     } catch (err) {
       onError(
         new Error(
-          `Deepgram WebSocket bağlantısı oluşturulamadı: ${err instanceof Error ? err.message : "Bilinmeyen hata"}`
+          `Failed to create Deepgram WebSocket connection: ${err instanceof Error ? err.message : "Unknown error"}`
         )
       );
       return;
@@ -121,7 +121,7 @@ export function startDeepgramStream(
       } catch (err) {
         onError(
           new Error(
-            `MediaRecorder oluşturulamadı: ${err instanceof Error ? err.message : "Bilinmeyen hata"}`
+            `Failed to create MediaRecorder: ${err instanceof Error ? err.message : "Unknown error"}`
           )
         );
         return;
@@ -160,7 +160,7 @@ export function startDeepgramStream(
 
     socket.onerror = () => {
       if (stopped) return;
-      onError(new Error("Deepgram WebSocket bağlantı hatası oluştu"));
+      onError(new Error("Deepgram WebSocket connection error occurred"));
       attemptReconnect();
     };
 
@@ -170,7 +170,7 @@ export function startDeepgramStream(
       if (event.code !== 1000) {
         onError(
           new Error(
-            `Deepgram bağlantısı beklenmedik şekilde kapandı (kod: ${event.code})`
+            `Deepgram connection closed unexpectedly (code: ${event.code})`
           )
         );
         attemptReconnect();
@@ -186,17 +186,17 @@ export function startDeepgramStream(
         err instanceof DOMException &&
         (err.name === "NotAllowedError" || err.name === "PermissionDeniedError")
       ) {
-        onError(new Error("Mikrofon izni gerekli. Lütfen tarayıcı ayarlarından mikrofon erişimine izin verin."));
+        onError(new Error("Microphone permission required. Please allow microphone access in your browser settings."));
       } else if (
         err instanceof DOMException &&
         err.name === "NotFoundError"
       ) {
-        onError(new Error("Mikrofon bulunamadı. Lütfen bir mikrofon bağlayın."));
+        onError(new Error("No microphone found. Please connect a microphone."));
       } else {
         onError(
           err instanceof Error
-            ? new Error(`Ses yakalama başlatılamadı: ${err.message}`)
-            : new Error("Ses yakalama başlatılamadı")
+            ? new Error(`Failed to start audio capture: ${err.message}`)
+            : new Error("Failed to start audio capture")
         );
       }
       return;

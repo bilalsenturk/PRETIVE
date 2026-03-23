@@ -147,10 +147,10 @@ export default function SessionsPage() {
         </div>
         <div className="min-w-0 flex-1">
           <h3 className="text-sm font-semibold text-amber-900">
-            Demo Oturumu Başlat
+            Start Demo Session
           </h3>
           <p className="mt-0.5 text-xs text-amber-700">
-            Pretive&apos;i hemen deneyin — hazır bir demo oturumu başlatın
+            Try Pretive now — start a ready-made demo session
           </p>
         </div>
         {demoLoading && (

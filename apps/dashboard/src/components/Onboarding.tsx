@@ -14,21 +14,21 @@ interface Step {
 const steps: Step[] = [
   {
     icon: Upload,
-    title: "Doküman Yükle",
+    title: "Upload Document",
     description:
-      "PDF veya PPTX dosyanızı yükleyin. AI içeriğinizi analiz edecek.",
+      "Upload your PDF or PPTX file. AI will analyze your content.",
   },
   {
     icon: Sparkles,
-    title: "AI Hazırlar",
+    title: "AI Prepares",
     description:
-      "Yapay zeka anlatı grafiği ve destek kartları oluşturur.",
+      "AI builds a narrative graph and generates support cards.",
   },
   {
     icon: Mic,
-    title: "Canlı Sunun",
+    title: "Present Live",
     description:
-      "Mikrofonu açın ve konuşun. AI gerçek zamanlı destek sağlar.",
+      "Turn on your microphone and speak. AI provides real-time support.",
   },
 ];
 
@@ -88,7 +88,7 @@ export default function Onboarding() {
         <button
           onClick={handleSkip}
           className="absolute right-4 top-4 rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
-          aria-label="Onboarding'i atla"
+          aria-label="Skip onboarding"
         >
           <X size={18} aria-hidden="true" />
         </button>
@@ -115,7 +115,7 @@ export default function Onboarding() {
         </p>
 
         {/* Dot indicators */}
-        <div className="mb-6 flex items-center justify-center gap-2" aria-label={`Adım ${currentStep + 1} / ${steps.length}`}>
+        <div className="mb-6 flex items-center justify-center gap-2" aria-label={`Step ${currentStep + 1} of ${steps.length}`}>
           {steps.map((_, i) => (
             <div
               key={i}
@@ -137,18 +137,18 @@ export default function Onboarding() {
               onClick={handleBack}
               className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-4 py-2.5 text-sm font-medium transition-colors hover:bg-gray-50"
               style={{ color: "var(--ink)" }}
-              aria-label="Önceki adım"
+              aria-label="Previous step"
             >
               <ArrowLeft size={14} aria-hidden="true" />
-              Geri
+              Back
             </button>
           ) : (
             <button
               onClick={handleSkip}
               className="rounded-lg px-4 py-2.5 text-sm font-medium text-gray-500 transition-colors hover:text-gray-700"
-              aria-label="Onboarding'i atla"
+              aria-label="Skip onboarding"
             >
-              Atla
+              Skip
             </button>
           )}
 
@@ -156,9 +156,9 @@ export default function Onboarding() {
             onClick={handleNext}
             className="inline-flex items-center gap-1.5 rounded-lg px-5 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
             style={{ backgroundColor: "var(--red)" }}
-            aria-label={isLast ? "Başla" : "Sonraki adım"}
+            aria-label={isLast ? "Get started" : "Next step"}
           >
-            {isLast ? "Başla" : "İleri"}
+            {isLast ? "Get Started" : "Next"}
             <ArrowRight size={14} aria-hidden="true" />
           </button>
         </div>

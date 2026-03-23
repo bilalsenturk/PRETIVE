@@ -86,7 +86,7 @@ export default function Suggestions({
 
       {hiddenCount > 0 && (
         <span className="shrink-0 text-xs font-medium text-gray-400">
-          +{hiddenCount} daha
+          +{hiddenCount} more
         </span>
       )}
     </div>

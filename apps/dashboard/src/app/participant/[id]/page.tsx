@@ -177,10 +177,10 @@ function WaitingMessage() {
         className="mb-2 text-lg font-semibold"
         style={{ color: "var(--ink, #111)" }}
       >
-        Oturum hen&uuml;z ba&scedil;lamad&imath;
+        Session has not started yet
       </h2>
       <p className="text-sm text-gray-500">
-        Oturum ba&scedil;lad&imath;&gbreve;&imath;nda kartlar burada g&ouml;r&uuml;necek.
+        Cards will appear here when the session starts.
       </p>
     </div>
   );
@@ -209,10 +209,10 @@ function CompletedMessage() {
         className="mb-2 text-lg font-semibold"
         style={{ color: "var(--ink, #111)" }}
       >
-        Oturum tamamland&imath;
+        Session completed
       </h2>
       <p className="text-sm text-gray-500">
-        Bu oturum sona erdi. Te&scedil;ekk&uuml;rler!
+        This session has ended. Thank you!
       </p>
     </div>
   );
@@ -433,7 +433,7 @@ export default function ParticipantViewPage() {
           {cards.length === 0 ? (
             <div className="py-16 text-center">
               <p className="text-sm text-gray-500">
-                Kartlar y&uuml;kleniyor...
+                Loading cards...
               </p>
             </div>
           ) : (
@@ -451,7 +451,7 @@ export default function ParticipantViewPage() {
       {/* Footer */}
       <footer className="mt-12 border-t border-gray-200 pt-6 text-center">
         <p className="text-xs text-gray-400">
-          Pretive ile sunuldu &middot;{" "}
+          Powered by Pretive &middot;{" "}
           <a
             href="https://pretive.com"
             className="underline transition-colors hover:text-gray-600"

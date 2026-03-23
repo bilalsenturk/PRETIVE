@@ -278,7 +278,7 @@ export default function SessionReplayPage() {
           className="text-2xl font-bold"
           style={{ color: "var(--ink)" }}
         >
-          Oturum Kayd&imath;: {replayData.title}
+          Session Replay: {replayData.title}
         </h1>
       </div>
 

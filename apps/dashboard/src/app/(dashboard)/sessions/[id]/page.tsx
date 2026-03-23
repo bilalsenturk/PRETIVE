@@ -316,7 +316,7 @@ export default function SessionDetailPage() {
   }
 
   async function handleDelete() {
-    if (!window.confirm("Bu oturumu silmek istediğinize emin misiniz?")) return;
+    if (!window.confirm("Are you sure you want to delete this session?")) return;
     setDeleting(true);
     try {
       await del(`/api/sessions/${id}`);
@@ -377,7 +377,7 @@ export default function SessionDetailPage() {
           aria-label="Delete session"
         >
           <Trash2 size={14} aria-hidden="true" />
-          {deleting ? "Siliniyor..." : "Sil"}
+          {deleting ? "Deleting..." : "Delete"}
         </button>
       </div>
 
@@ -545,7 +545,7 @@ export default function SessionDetailPage() {
             className="mb-3 text-base font-semibold"
             style={{ color: "var(--ink)" }}
           >
-            Katılımcı Linki
+            Participant Link
           </h2>
           {(() => {
             const participantUrl =
@@ -579,12 +579,12 @@ export default function SessionDetailPage() {
                     {copied ? (
                       <>
                         <Check size={14} className="text-green-600" aria-hidden="true" />
-                        <span className="text-green-600">Kopyalandı!</span>
+                        <span className="text-green-600">Copied!</span>
                       </>
                     ) : (
                       <>
                         <Copy size={14} aria-hidden="true" />
-                        Kopyala
+                        Copy
                       </>
                     )}
                   </button>

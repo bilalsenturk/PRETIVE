@@ -101,7 +101,7 @@ export default function ActiveCards({
               color: "var(--red)",
             }}
           >
-            {displayCards.length} kart
+            {displayCards.length} card{displayCards.length !== 1 ? "s" : ""}
           </span>
         )}
       </div>
@@ -128,7 +128,7 @@ export default function ActiveCards({
         {displayCards.length === 0 ? (
           <div className="flex h-full items-center justify-center">
             <p className="text-sm italic text-gray-400">
-              {"\u0048en\u00FCz e\u015Fle\u015Fme bulunamad\u0131"}
+              No matches found yet
             </p>
           </div>
         ) : (

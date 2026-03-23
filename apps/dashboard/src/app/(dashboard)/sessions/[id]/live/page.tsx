@@ -235,7 +235,7 @@ export default function LiveSessionPage() {
   function handleStartRecording() {
     const apiKey = process.env.NEXT_PUBLIC_DEEPGRAM_API_KEY;
     if (!apiKey) {
-      setError("Deepgram API anahtarı yapılandırılmamış");
+      setError("Deepgram API key not configured");
       return;
     }
 
@@ -260,7 +260,7 @@ export default function LiveSessionPage() {
       streamRef.current = stream;
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Kayıt başlatılamadı"
+        err instanceof Error ? err.message : "Failed to start recording"
       );
       if (timerRef.current) {
         clearInterval(timerRef.current);
@@ -360,21 +360,21 @@ export default function LiveSessionPage() {
       {liveState !== "idle" && (
         <div className="mt-3 flex items-center gap-6 rounded-lg border border-gray-200 px-5 py-2.5" style={{ backgroundColor: "var(--paper)" }}>
           <div className="flex items-center gap-2">
-            <span className="text-xs font-medium text-gray-500">Sure</span>
+            <span className="text-xs font-medium text-gray-500">Duration</span>
             <span className="font-mono text-sm font-semibold" style={{ color: "var(--ink)" }}>
               {formatTimer(elapsed)}
             </span>
           </div>
           <div className="h-4 w-px bg-gray-200" />
           <div className="flex items-center gap-2">
-            <span className="text-xs font-medium text-gray-500">Kelime</span>
+            <span className="text-xs font-medium text-gray-500">Words</span>
             <span className="font-mono text-sm font-semibold" style={{ color: "var(--ink)" }}>
               {wordCount}
             </span>
           </div>
           <div className="h-4 w-px bg-gray-200" />
           <div className="flex items-center gap-2">
-            <span className="text-xs font-medium text-gray-500">Eslesme</span>
+            <span className="text-xs font-medium text-gray-500">Matches</span>
             <span className="font-mono text-sm font-semibold" style={{ color: "var(--ink)" }}>
               {matchCount}
             </span>
@@ -383,16 +383,16 @@ export default function LiveSessionPage() {
           {/* Match confidence indicator */}
           <div className="flex items-center gap-2">
             {lastMatchHadCards === null ? (
-              <span className="text-xs text-gray-400">Bekleniyor...</span>
+              <span className="text-xs text-gray-400">Waiting...</span>
             ) : lastMatchHadCards ? (
               <>
                 <span className="inline-block h-2.5 w-2.5 rounded-full bg-green-500" />
-                <span className="text-xs font-medium text-green-600">Yuksek Eslesme</span>
+                <span className="text-xs font-medium text-green-600">High Match</span>
               </>
             ) : (
               <>
                 <span className="inline-block h-2.5 w-2.5 rounded-full bg-gray-300" />
-                <span className="text-xs font-medium text-gray-400">Eslesme yok</span>
+                <span className="text-xs font-medium text-gray-400">No match</span>
               </>
             )}
           </div>
@@ -410,7 +410,7 @@ export default function LiveSessionPage() {
           aria-live="polite"
         >
           <span className="text-xs font-medium uppercase tracking-wide text-gray-500">
-            Su an
+            Current
           </span>
           <p className="mt-0.5 text-lg font-semibold" style={{ color: "var(--ink)" }}>
             {currentPosition}
@@ -501,7 +501,7 @@ export default function LiveSessionPage() {
             style={{ backgroundColor: "var(--ink)" }}
             aria-label="View session summary"
           >
-            Ozete Git
+            Go to Summary
           </button>
         )}
       </div>

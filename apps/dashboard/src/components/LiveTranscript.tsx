@@ -28,10 +28,10 @@ function formatElapsed(ms: number): string {
 function extractKeywords(heading: string | null | undefined): string[] {
   if (!heading) return [];
   // Split heading into words, filter out short/common words
-  const stopWords = new Set(["ve", "ile", "bir", "bu", "da", "de", "mi", "mu", "the", "and", "or", "is", "in", "on", "at", "to", "for", "of", "a"]);
+  const stopWords = new Set(["the", "and", "or", "is", "in", "on", "at", "to", "for", "of", "a", "an", "it", "be", "as", "do", "if", "so", "no", "not", "but", "by", "from", "has", "was", "are", "with", "this", "that"]);
   return heading
     .split(/\s+/)
-    .map((w) => w.replace(/[^a-zA-ZçğıöşüÇĞİÖŞÜ0-9]/g, "").toLowerCase())
+    .map((w) => w.replace(/[^a-zA-Z0-9]/g, "").toLowerCase())
     .filter((w) => w.length > 2 && !stopWords.has(w));
 }
 
