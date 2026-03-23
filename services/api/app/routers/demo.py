@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/demo", tags=["demo"])
 
-DEMO_USER_ID = "demo-user-001"
+DEMO_USER_ID = "00000000-0000-0000-0000-000000000001"
 
 
 # ---------------------------------------------------------------------------

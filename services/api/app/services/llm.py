@@ -9,7 +9,7 @@ import logging
 import time
 
 from openai import OpenAI
-from tenacity import retry, stop_after_attempt, wait_exponential
+from tenacity import retry, stop_after_attempt, wait_exponential, RetryError
 
 from app.config import settings
 
@@ -37,7 +37,24 @@ def _get_client() -> OpenAI:
     return _client
 
 
-@retry(stop=stop_after_attempt(3), wait=wait_exponential(min=2, max=15))
+def _retry_error_callback(retry_state):
+    """Return a clear error message instead of raising raw RetryError."""
+    last_exc = retry_state.outcome.exception()
+    logger.error(
+        "LLM call failed after %d attempts. Last error: %s",
+        retry_state.attempt_number,
+        str(last_exc),
+    )
+    raise RuntimeError(
+        f"LLM call failed after {retry_state.attempt_number} attempts: {last_exc}"
+    ) from last_exc
+
+
+@retry(
+    stop=stop_after_attempt(5),
+    wait=wait_exponential(min=2, max=60),
+    retry_error_callback=_retry_error_callback,
+)
 def chat_completion(
     messages: list[dict],
     model: str | None = None,

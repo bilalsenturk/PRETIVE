@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/sessions", tags=["sessions"])
 
-DEMO_USER_ID = "demo-user-001"
+DEMO_USER_ID = "00000000-0000-0000-0000-000000000001"
 
 
 # ---------------------------------------------------------------------------
@@ -707,13 +707,39 @@ async def get_session_replay(
     if not events:
         return []
 
-    # Calculate relative timestamps from the first event
-    try:
-        first_ts = datetime.fromisoformat(
-            events[0]["created_at"].replace("Z", "+00:00")
-        )
-    except (ValueError, TypeError, KeyError):
-        first_ts = None
+    # Find the first "live_start" event and use its timestamp as base.
+    # This avoids timestamp drift when events span days (e.g. prep events
+    # created long before the actual live session).
+    first_ts = None
+    for event in events:
+        if event.get("event_type") in ("live_start", "live_started"):
+            try:
+                first_ts = datetime.fromisoformat(
+                    event["created_at"].replace("Z", "+00:00")
+                )
+            except (ValueError, TypeError):
+                pass
+            break
+
+    # Fallback: use session's created_at, then first event
+    if first_ts is None:
+        session = _get_session_for_user(session_id, user_id)
+        session_created = session.get("created_at")
+        if session_created:
+            try:
+                first_ts = datetime.fromisoformat(
+                    session_created.replace("Z", "+00:00")
+                )
+            except (ValueError, TypeError):
+                pass
+
+    if first_ts is None:
+        try:
+            first_ts = datetime.fromisoformat(
+                events[0]["created_at"].replace("Z", "+00:00")
+            )
+        except (ValueError, TypeError, KeyError):
+            first_ts = None
 
     replay_events = []
     for event in events:
