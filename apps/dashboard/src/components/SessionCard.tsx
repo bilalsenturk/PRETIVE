@@ -1,6 +1,16 @@
 "use client";
 
-import { BookOpen, Columns, Lightbulb, Link as LinkIcon, HelpCircle } from "lucide-react";
+import { useState } from "react";
+import ReactMarkdown from "react-markdown";
+import {
+  BookOpen,
+  Columns,
+  Lightbulb,
+  Link as LinkIcon,
+  HelpCircle,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
 import type { ComponentType } from "react";
 
 interface CardContent {
@@ -29,6 +39,8 @@ interface CardTypeStyle {
   icon: ComponentType<{ size?: number; className?: string }>;
   label: string;
 }
+
+const PREVIEW_CHAR_LIMIT = 200;
 
 const cardTypeConfig: Record<string, CardTypeStyle> = {
   summary: {
@@ -78,10 +90,8 @@ function extractContentText(content: CardData["content"]): string {
   if (content === null || content === undefined) return "";
   if (typeof content === "string") return content;
   if (typeof content === "object") {
-    // Try known text fields
     if (typeof content.text === "string") return content.text;
     if (typeof content.summary === "string") return content.summary;
-    // Fallback: stringify the object for display
     try {
       return JSON.stringify(content, null, 2);
     } catch {
@@ -91,13 +101,28 @@ function extractContentText(content: CardData["content"]): string {
   return String(content);
 }
 
+function MarkdownContent({ content }: { content: string }) {
+  return (
+    <div className="prose-card">
+      <ReactMarkdown>{content}</ReactMarkdown>
+    </div>
+  );
+}
+
 export default function SessionCard({ card }: CardProps) {
+  const [expanded, setExpanded] = useState(false);
+
   const config = cardTypeConfig[card.card_type] || defaultCardStyle;
   const Icon = config.icon;
   const rawContent = extractContentText(card.content);
-  const contentPreview =
-    rawContent.length > 200 ? rawContent.slice(0, 200) + "..." : rawContent;
+  const isLong = rawContent.length > PREVIEW_CHAR_LIMIT;
   const displayTitle = card.title?.trim() || "Untitled";
+
+  const visibleContent = expanded
+    ? rawContent
+    : isLong
+      ? rawContent.slice(0, PREVIEW_CHAR_LIMIT) + "..."
+      : rawContent;
 
   return (
     <article
@@ -125,11 +150,34 @@ export default function SessionCard({ card }: CardProps) {
         {displayTitle}
       </h3>
 
-      {/* Content preview */}
-      {contentPreview ? (
-        <p className="text-xs leading-relaxed text-gray-700">
-          {contentPreview}
-        </p>
+      {/* Content with markdown rendering */}
+      {visibleContent ? (
+        <>
+          <div className="text-xs leading-relaxed text-gray-700">
+            <MarkdownContent content={visibleContent} />
+          </div>
+          {isLong && (
+            <button
+              type="button"
+              onClick={() => setExpanded((prev) => !prev)}
+              className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-gray-500 transition-colors hover:text-gray-700"
+              aria-expanded={expanded}
+              aria-label={expanded ? "Show less content" : "Show more content"}
+            >
+              {expanded ? (
+                <>
+                  <ChevronUp size={12} aria-hidden="true" />
+                  Show less
+                </>
+              ) : (
+                <>
+                  <ChevronDown size={12} aria-hidden="true" />
+                  Show more
+                </>
+              )}
+            </button>
+          )}
+        </>
       ) : (
         <p className="text-xs italic text-gray-400">No content</p>
       )}

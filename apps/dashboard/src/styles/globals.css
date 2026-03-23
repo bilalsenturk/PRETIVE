@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "@tailwindcss/typography";
 
 :root {
   --red: #D94228;
@@ -11,4 +12,146 @@ body {
   color: var(--ink);
   background-color: var(--bg);
   font-family: var(--font-inter), system-ui, sans-serif;
+}
+
+/* Compact prose styles for card markdown content */
+.prose-card {
+  font-size: 0.75rem;
+  line-height: 1.625;
+  color: inherit;
+}
+
+.prose-card p {
+  margin-top: 0.25em;
+  margin-bottom: 0.25em;
+}
+
+.prose-card p:first-child {
+  margin-top: 0;
+}
+
+.prose-card p:last-child {
+  margin-bottom: 0;
+}
+
+.prose-card strong {
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.prose-card em {
+  font-style: italic;
+}
+
+.prose-card ul,
+.prose-card ol {
+  margin-top: 0.25em;
+  margin-bottom: 0.25em;
+  padding-left: 1.25em;
+}
+
+.prose-card ul {
+  list-style-type: disc;
+}
+
+.prose-card ol {
+  list-style-type: decimal;
+}
+
+.prose-card li {
+  margin-top: 0.125em;
+  margin-bottom: 0.125em;
+}
+
+.prose-card li > p {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.prose-card h1,
+.prose-card h2,
+.prose-card h3,
+.prose-card h4 {
+  font-weight: 600;
+  color: var(--ink);
+  margin-top: 0.5em;
+  margin-bottom: 0.25em;
+}
+
+.prose-card h1 {
+  font-size: 0.875rem;
+}
+
+.prose-card h2 {
+  font-size: 0.8125rem;
+}
+
+.prose-card h3,
+.prose-card h4 {
+  font-size: 0.75rem;
+}
+
+.prose-card code {
+  font-size: 0.6875rem;
+  background-color: rgba(0, 0, 0, 0.06);
+  padding: 0.125em 0.25em;
+  border-radius: 0.25em;
+}
+
+.prose-card pre {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  padding: 0.5em 0.75em;
+  border-radius: 0.375em;
+  background-color: rgba(0, 0, 0, 0.04);
+  overflow-x: auto;
+}
+
+.prose-card pre code {
+  background-color: transparent;
+  padding: 0;
+}
+
+.prose-card blockquote {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  padding-left: 0.75em;
+  border-left: 2px solid rgba(0, 0, 0, 0.15);
+  font-style: italic;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.prose-card table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  font-size: 0.6875rem;
+}
+
+.prose-card th,
+.prose-card td {
+  padding: 0.25em 0.5em;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  text-align: left;
+}
+
+.prose-card th {
+  font-weight: 600;
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+.prose-card a {
+  color: var(--red);
+  text-decoration: underline;
+}
+
+.prose-card a:hover {
+  opacity: 0.8;
+}
+
+.prose-card hr {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  border-color: rgba(0, 0, 0, 0.1);
 }

@@ -6,6 +6,9 @@ import Link from "next/link";
 import {
   ArrowLeft,
   FileText,
+  FileSpreadsheet,
+  FileImage,
+  File,
   Clock,
   Loader2,
   Play,
@@ -16,6 +19,7 @@ import {
   PlayCircle,
   Trash2,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { get, post, del } from "@/lib/api";
 import SessionCard from "@/components/SessionCard";
@@ -29,9 +33,9 @@ interface Session {
 
 interface Document {
   id: string;
-  name: string;
+  file_name: string;
+  file_size: number | null;
   type: string;
-  size: number;
   status: string;
 }
 
@@ -73,6 +77,36 @@ function formatSize(bytes: number | null | undefined): string {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function getFileIcon(fileName: string): LucideIcon {
+  const ext = fileName.split(".").pop()?.toLowerCase() ?? "";
+  switch (ext) {
+    case "pdf":
+      return FileText;
+    case "pptx":
+    case "ppt":
+    case "key":
+      return FileSpreadsheet;
+    case "docx":
+    case "doc":
+    case "rtf":
+    case "odt":
+      return FileText;
+    case "xlsx":
+    case "xls":
+    case "csv":
+      return FileSpreadsheet;
+    case "png":
+    case "jpg":
+    case "jpeg":
+    case "gif":
+    case "svg":
+    case "webp":
+      return FileImage;
+    default:
+      return File;
+  }
 }
 
 function LoadingSkeleton() {
@@ -456,43 +490,47 @@ export default function SessionDetailPage() {
           <p className="text-sm text-gray-500">No documents uploaded yet.</p>
         ) : (
           <ul className="space-y-2">
-            {documents.map((doc) => (
-              <li
-                key={doc.id}
-                className="flex items-center justify-between rounded-lg border border-gray-200 px-3 py-2"
-              >
-                <div className="flex items-center gap-2 min-w-0">
-                  <FileText
-                    size={16}
-                    className="shrink-0 text-gray-400"
-                    aria-hidden="true"
-                  />
-                  <span
-                    className="truncate text-sm font-medium"
-                    style={{ color: "var(--ink)" }}
-                  >
-                    {doc.name}
-                  </span>
-                  <span className="shrink-0 text-xs text-gray-400">
-                    {doc.type}
-                  </span>
-                  <span className="shrink-0 text-xs text-gray-400">
-                    {formatSize(doc.size)}
-                  </span>
-                </div>
-                <span
-                  className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${
-                    doc.status === "processed"
-                      ? "bg-green-50 text-green-700"
-                      : doc.status === "processing"
-                      ? "bg-yellow-50 text-yellow-700"
-                      : "bg-gray-100 text-gray-700"
-                  }`}
+            {documents.map((doc) => {
+              const DocIcon = getFileIcon(doc.file_name);
+              const sizeLabel = formatSize(doc.file_size);
+              return (
+                <li
+                  key={doc.id}
+                  className="flex items-center justify-between rounded-lg border border-gray-200 px-3 py-2"
                 >
-                  {doc.status}
-                </span>
-              </li>
-            ))}
+                  <div className="flex items-center gap-2 min-w-0">
+                    <DocIcon
+                      size={16}
+                      className="shrink-0 text-gray-400"
+                      aria-hidden="true"
+                    />
+                    <span
+                      className="truncate text-sm font-medium"
+                      style={{ color: "var(--ink)" }}
+                      title={doc.file_name}
+                    >
+                      {doc.file_name}
+                    </span>
+                    {sizeLabel && (
+                      <span className="shrink-0 text-xs text-gray-400">
+                        {sizeLabel}
+                      </span>
+                    )}
+                  </div>
+                  <span
+                    className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${
+                      doc.status === "processed"
+                        ? "bg-green-50 text-green-700"
+                        : doc.status === "processing"
+                        ? "bg-yellow-50 text-yellow-700"
+                        : "bg-gray-100 text-gray-700"
+                    }`}
+                  >
+                    {doc.status}
+                  </span>
+                </li>
+              );
+            })}
           </ul>
         )}
       </div>
