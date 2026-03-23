@@ -24,7 +24,7 @@ export default function Sidebar() {
 
   return (
     <aside
-      className="flex h-screen flex-col border-r border-gray-200 transition-all duration-200"
+      className="flex h-screen flex-col border-r border-gray-200 transition-all duration-200 ease-in-out"
       style={{
         width: expanded ? 240 : 64,
         backgroundColor: "var(--paper)",
@@ -96,6 +96,7 @@ export default function Sidebar() {
 
         <button
           onClick={async () => {
+            if (!window.confirm("Are you sure you want to sign out?")) return;
             await supabase.auth.signOut();
             router.push("/login");
           }}

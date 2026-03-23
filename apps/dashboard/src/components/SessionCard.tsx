@@ -121,7 +121,11 @@ export default function SessionCard({ card }: CardProps) {
   const visibleContent = expanded
     ? rawContent
     : isLong
-      ? rawContent.slice(0, PREVIEW_CHAR_LIMIT) + "..."
+      ? (() => {
+          const sliced = rawContent.slice(0, PREVIEW_CHAR_LIMIT);
+          const lastSpace = sliced.lastIndexOf(" ");
+          return (lastSpace > 0 ? sliced.slice(0, lastSpace) : sliced) + "...";
+        })()
       : rawContent;
 
   return (

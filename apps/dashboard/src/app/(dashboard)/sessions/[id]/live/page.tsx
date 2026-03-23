@@ -429,9 +429,9 @@ export default function LiveSessionPage() {
       )}
 
       {/* Main content area */}
-      <div className="mt-4 flex flex-1 gap-4 overflow-hidden">
+      <div className="mt-4 flex flex-1 flex-col gap-4 overflow-hidden md:flex-row">
         {/* Left panel: Transcript */}
-        <div className="flex w-1/2 flex-col">
+        <div className="flex w-full flex-col md:w-1/2">
           <LiveTranscript
             transcripts={transcripts}
             sessionStartTime={startTimeRef.current}
@@ -441,7 +441,7 @@ export default function LiveSessionPage() {
         </div>
 
         {/* Right panel: Cards */}
-        <div className="flex w-1/2 flex-col">
+        <div className="flex w-full flex-col md:w-1/2">
           <ActiveCards
             cards={activeCards}
             currentPosition={currentPosition}

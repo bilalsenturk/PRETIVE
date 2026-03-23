@@ -9,6 +9,7 @@ import {
   FileSpreadsheet,
   FileImage,
   File,
+  Presentation,
   Clock,
   Loader2,
   Play,
@@ -27,7 +28,7 @@ import SessionCard from "@/components/SessionCard";
 interface Session {
   id: string;
   title: string;
-  status: "draft" | "preparing" | "ready" | "live" | "completed";
+  status: "draft" | "parsed" | "preparing" | "ready" | "live" | "completed" | "error";
   created_at: string;
 }
 
@@ -58,6 +59,7 @@ const statusConfig: Record<
   { bg: string; text: string; label: string }
 > = {
   draft: { bg: "bg-gray-100", text: "text-gray-700", label: "Draft" },
+  parsed: { bg: "bg-gray-100", text: "text-gray-700", label: "Parsed" },
   preparing: {
     bg: "bg-yellow-50",
     text: "text-yellow-700",
@@ -87,7 +89,7 @@ function getFileIcon(fileName: string): LucideIcon {
     case "pptx":
     case "ppt":
     case "key":
-      return FileSpreadsheet;
+      return Presentation;
     case "docx":
     case "doc":
     case "rtf":
@@ -423,7 +425,7 @@ export default function SessionDetailPage() {
 
         {/* Action buttons */}
         <div className="flex items-center gap-2">
-          {session.status === "draft" && (
+          {(session.status === "draft" || session.status === "parsed") && (
             <button
               onClick={handlePrepare}
               disabled={preparing}
@@ -542,11 +544,14 @@ export default function SessionDetailPage() {
           style={{ backgroundColor: "var(--paper)" }}
         >
           <h2
-            className="mb-3 text-base font-semibold"
+            className="mb-1 text-base font-semibold"
             style={{ color: "var(--ink)" }}
           >
             Participant Link
           </h2>
+          <p className="mb-3 text-sm text-gray-500">
+            Share this link with participants to let them follow along during your live session
+          </p>
           {(() => {
             const participantUrl =
               typeof window !== "undefined"

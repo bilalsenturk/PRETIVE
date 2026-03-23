@@ -26,6 +26,8 @@ export default function FileUpload({ files, onFilesChange }: FileUploadProps) {
   const [dragOver, setDragOver] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const MAX_FILES = 10;
+
   const addFiles = useCallback(
     (newFiles: FileList | File[]) => {
       const valid = Array.from(newFiles).filter(
@@ -34,7 +36,14 @@ export default function FileUpload({ files, onFilesChange }: FileUploadProps) {
           /\.(pdf|pptx|docx)$/i.test(f.name)
       );
       if (valid.length > 0) {
-        onFilesChange([...files, ...valid]);
+        const remaining = MAX_FILES - files.length;
+        const toAdd = valid.slice(0, Math.max(0, remaining));
+        if (toAdd.length > 0) {
+          onFilesChange([...files, ...toAdd]);
+        }
+        if (valid.length > remaining) {
+          alert(`Maximum ${MAX_FILES} files allowed. Some files were not added.`);
+        }
       }
     },
     [files, onFilesChange]
@@ -86,7 +95,7 @@ export default function FileUpload({ files, onFilesChange }: FileUploadProps) {
           Drop files here or click to browse
         </p>
         <p className="mt-1 text-xs text-gray-500">
-          PDF, PPTX, DOCX accepted
+          PDF, PPTX, DOCX accepted &middot; Max 50MB per file
         </p>
         <input
           ref={inputRef}

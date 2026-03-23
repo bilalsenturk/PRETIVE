@@ -126,10 +126,10 @@ function ParticipantCard({ card }: { card: CardData }) {
 
   return (
     <article
-      className={`rounded-2xl border p-4 ${config.bg} ${config.border}`}
+      className={`rounded-2xl border p-3 sm:p-4 ${config.bg} ${config.border}`}
       aria-label={`${config.label} card: ${displayTitle}`}
     >
-      <div className="mb-3 flex items-center gap-2">
+      <div className="mb-2 flex items-center gap-2 sm:mb-3">
         <div
           className={`flex h-7 w-7 items-center justify-center rounded-lg ${config.iconBg}`}
           aria-hidden="true"
@@ -147,7 +147,7 @@ function ParticipantCard({ card }: { card: CardData }) {
         {displayTitle}
       </h3>
       {contentPreview ? (
-        <p className="text-xs leading-relaxed text-gray-700">
+        <p className="text-xs leading-relaxed text-gray-700 sm:text-sm">
           {contentPreview}
         </p>
       ) : (
@@ -323,9 +323,9 @@ export default function ParticipantViewPage() {
     session?.status === "ready";
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-5xl px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
       {/* Header */}
-      <header className="mb-8 flex items-center justify-between">
+      <header className="mb-6 flex flex-col gap-3 sm:mb-8 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           {/* Logo */}
           <div
@@ -449,7 +449,7 @@ export default function ParticipantViewPage() {
       )}
 
       {/* Footer */}
-      <footer className="mt-12 border-t border-gray-200 pt-6 text-center">
+      <footer className="mt-8 border-t border-gray-200 pt-4 text-center sm:mt-12 sm:pt-6">
         <p className="text-xs text-gray-400">
           Powered by Pretive &middot;{" "}
           <a

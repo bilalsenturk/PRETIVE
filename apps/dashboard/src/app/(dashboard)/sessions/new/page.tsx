@@ -16,6 +16,7 @@ export default function NewSessionPage() {
   const [title, setTitle] = useState("");
   const [files, setFiles] = useState<File[]>([]);
   const [loading, setLoading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -37,11 +38,13 @@ export default function NewSessionPage() {
 
       // Upload documents if any
       if (files.length > 0) {
-        for (const file of files) {
+        for (let i = 0; i < files.length; i++) {
+          setUploadProgress(Math.round(((i) / files.length) * 100));
           const formData = new FormData();
-          formData.append("file", file);
+          formData.append("file", files[i]);
           await upload(`/api/sessions/${session.id}/documents`, formData);
         }
+        setUploadProgress(100);
       }
 
       router.push(`/sessions/${session.id}`);
@@ -49,6 +52,7 @@ export default function NewSessionPage() {
       setError(err instanceof Error ? err.message : "Failed to create session");
     } finally {
       setLoading(false);
+      setUploadProgress(null);
     }
   }
 
@@ -98,6 +102,7 @@ export default function NewSessionPage() {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. Q1 Product Review"
+              maxLength={255}
               className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm outline-none transition-colors focus:border-gray-400"
               style={{ backgroundColor: "var(--paper)" }}
             />
@@ -112,7 +117,24 @@ export default function NewSessionPage() {
               Documents
             </label>
             <FileUpload files={files} onFilesChange={setFiles} />
+            <p className="mt-1.5 text-xs text-gray-400">Max 50MB per file</p>
           </div>
+
+          {/* Upload progress */}
+          {uploadProgress !== null && (
+            <div>
+              <div className="mb-1 flex items-center justify-between text-xs text-gray-500">
+                <span>Uploading documents...</span>
+                <span>{uploadProgress}%</span>
+              </div>
+              <div className="h-1.5 w-full overflow-hidden rounded-full bg-gray-200">
+                <div
+                  className="h-full rounded-full transition-all duration-300"
+                  style={{ width: `${uploadProgress}%`, backgroundColor: "var(--red)" }}
+                />
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Submit */}

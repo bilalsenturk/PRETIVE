@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+html {
+  scroll-behavior: smooth;
+}
+
 :root {
   --red: #D94228;
   --ink: #111;
@@ -15,7 +19,7 @@ body {
 
 /* Compact prose styles for card markdown content */
 .prose-card {
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   line-height: 1.625;
   color: inherit;
 }
