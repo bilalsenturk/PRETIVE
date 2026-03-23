@@ -14,6 +14,7 @@ create table if not exists sessions (
   title text not null,
   status text not null default 'draft'
     check (status in ('draft', 'parsed', 'preparing', 'ready', 'live', 'completed', 'error')),
+  metadata jsonb default '{}',
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
