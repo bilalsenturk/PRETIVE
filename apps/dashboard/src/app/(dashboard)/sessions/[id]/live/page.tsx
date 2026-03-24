@@ -4,7 +4,7 @@ import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Mic, Square, Loader2 } from "lucide-react";
 import { get, post } from "@/lib/api";
-import { startDeepgramStream, type DeepgramStream } from "@/lib/deepgram";
+import { startSpeechStream, type SpeechStream } from "@/lib/speech";
 import LiveTranscript, {
   type TranscriptEntry,
 } from "@/components/LiveTranscript";
@@ -76,7 +76,7 @@ export default function LiveSessionPage() {
   const [elapsed, setElapsed] = useState(0);
   const startTimeRef = useRef<number | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const streamRef = useRef<DeepgramStream | null>(null);
+  const streamRef = useRef<SpeechStream | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const matchAbortRef = useRef<AbortController | null>(null);
 
@@ -233,12 +233,6 @@ export default function LiveSessionPage() {
   }
 
   function handleStartRecording() {
-    const apiKey = process.env.NEXT_PUBLIC_DEEPGRAM_API_KEY;
-    if (!apiKey) {
-      setError("Deepgram API key not configured");
-      return;
-    }
-
     setError(null);
     startTimeRef.current = Date.now();
     setElapsed(0);
@@ -253,7 +247,7 @@ export default function LiveSessionPage() {
     }, 1000);
 
     try {
-      const stream = startDeepgramStream(apiKey, handleTranscript, (err) => {
+      const stream = startSpeechStream(handleTranscript, (err) => {
         setError(err.message);
         handleStopRecording();
       });
