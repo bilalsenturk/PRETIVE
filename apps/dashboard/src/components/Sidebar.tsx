@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
+/* eslint-disable @next/next/no-img-element */
 import { usePathname, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import {
@@ -34,12 +34,12 @@ export default function Sidebar() {
         href="/"
         className={`flex items-center mb-6 ${expanded ? "gap-3 px-2" : "justify-center"}`}
       >
-        <Image
+        <img
           src="/logo.jpg"
           alt="PRETIVE logo"
           width={32}
           height={32}
-          className="shrink-0 rounded-xl"
+          className="shrink-0 rounded-xl object-cover"
         />
         {expanded && (
           <span

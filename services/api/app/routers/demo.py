@@ -112,7 +112,7 @@ async def seed_demo(
         session_result = (
             supabase.table("sessions")
             .insert({
-                "title": "Pretive Demo Oturumu",
+                "title": "Pretive Demo Session",
                 "status": "ready",
                 "user_id": user_id,
             })
