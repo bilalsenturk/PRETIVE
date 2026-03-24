@@ -146,14 +146,30 @@ def _parse_pptx(file_bytes: bytes, file_name: str) -> list[dict]:
                             heading = para_text
                         texts.append(para_text)
 
+        # Extract speaker notes
+        speaker_notes = ""
+        if hasattr(slide, 'has_notes_slide') and slide.has_notes_slide:
+            try:
+                notes_frame = slide.notes_slide.notes_text_frame
+                if notes_frame:
+                    speaker_notes = notes_frame.text.strip()
+            except Exception:
+                pass
+
+        # Add to chunk metadata
+        metadata = {"slide_number": i + 1}
+        if speaker_notes:
+            metadata["speaker_notes"] = speaker_notes
+
         content = "\n".join(texts)
         if content.strip():
             chunks.append(
                 {
                     "chunk_index": len(chunks),
                     "content": content,
-                    "heading": heading,
+                    "heading": heading or f"Slide {i + 1}",
                     "chunk_type": "slide",
+                    "metadata": metadata,
                 }
             )
         else:

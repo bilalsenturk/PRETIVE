@@ -310,6 +310,87 @@ async def match_transcript(session_id: str, body: MatchRequest) -> MatchResponse
     )
 
 
+@router.get("/{session_id}/live/slides")
+async def get_session_slides(session_id: str):
+    """Get all slides/chunks for the slide progress strip."""
+    _get_session_or_404(session_id)
+    supabase = get_supabase()
+
+    result = (
+        supabase.table("content_chunks")
+        .select("id, chunk_index, heading, chunk_type, metadata")
+        .eq("session_id", session_id)
+        .order("chunk_index")
+        .execute()
+    )
+
+    slides = []
+    for chunk in (result.data or []):
+        meta = chunk.get("metadata") or {}
+        slides.append({
+            "id": chunk["id"],
+            "index": chunk["chunk_index"],
+            "heading": chunk.get("heading") or f"Section {chunk['chunk_index'] + 1}",
+            "type": chunk.get("chunk_type", "section"),
+            "slide_number": meta.get("slide_number", chunk["chunk_index"] + 1),
+            "has_notes": bool(meta.get("speaker_notes")),
+        })
+
+    return {"slides": slides, "total": len(slides)}
+
+
+class SlideNavigateRequest(BaseModel):
+    slide_index: int = Field(..., ge=0)
+
+
+@router.post("/{session_id}/live/navigate")
+async def navigate_to_slide(session_id: str, body: SlideNavigateRequest):
+    """Navigate to a specific slide manually."""
+    session = _get_session_or_404(session_id)
+    supabase = get_supabase()
+
+    # Get the specific chunk
+    result = (
+        supabase.table("content_chunks")
+        .select("*")
+        .eq("session_id", session_id)
+        .eq("chunk_index", body.slide_index)
+        .execute()
+    )
+
+    if not result.data:
+        raise HTTPException(status_code=404, detail=f"Slide {body.slide_index} not found")
+
+    chunk = result.data[0]
+    chunk_ids = [chunk["id"]]
+
+    # Get cards for this slide
+    cards = get_cards_for_position(session_id, chunk_ids)
+
+    position = {"heading": chunk.get("heading"), "chunk_index": chunk["chunk_index"]}
+
+    # Update session metadata
+    supabase.table("sessions").update({
+        "metadata": {
+            "current_heading": position.get("heading"),
+            "current_chunk_index": body.slide_index,
+            "current_cards": [c["id"] for c in cards],
+            "last_navigate_at": datetime.now(timezone.utc).isoformat(),
+            "navigation_trigger": "manual",
+        }
+    }).eq("id", session_id).execute()
+
+    # Log event
+    _log_event(session_id, "slide_navigation", {
+        "heading": position.get("heading"),
+        "chunk_index": body.slide_index,
+        "trigger": "manual",
+        "cards_returned": len(cards),
+    })
+
+    return {"chunks": [chunk], "cards": cards, "position": position}
+
+
 @router.get("/{session_id}/live/status", response_model=LiveStatusResponse)
 async def get_live_status(session_id: str) -> LiveStatusResponse:
     """Return current session status and last known position."""

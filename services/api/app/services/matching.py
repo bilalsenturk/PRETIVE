@@ -68,7 +68,28 @@ def find_matching_chunks(text: str, session_id: str, top_k: int = 3) -> list[dic
                 len(result.data),
                 session_id,
             )
-            return result.data
+            chunks = result.data
+
+            # Boost chunks with matching speaker notes
+            if chunks:
+                query_words = set(text.lower().split())
+                query_keywords = {w for w in query_words if len(w) > 3}
+
+                for chunk in chunks:
+                    notes = (chunk.get("metadata") or {}).get("speaker_notes", "")
+                    if notes and query_keywords:
+                        notes_lower = notes.lower()
+                        matches = sum(1 for kw in query_keywords if kw in notes_lower)
+                        if matches > 0:
+                            # Boost similarity score
+                            current = chunk.get("similarity", 0.5)
+                            chunk["similarity"] = min(1.0, current + (matches * 0.05))
+                            logger.info("Boosted chunk %s by %d speaker note matches", chunk.get("id", "?")[:8], matches)
+
+                # Re-sort by similarity
+                chunks.sort(key=lambda c: c.get("similarity", 0), reverse=True)
+
+            return chunks
     except Exception as exc:
         logger.warning(
             "Vector search failed for session %s: %s. Falling back to text search.",
@@ -95,11 +116,31 @@ def find_matching_chunks(text: str, session_id: str, top_k: int = 3) -> list[dic
         .limit(top_k)
         .execute()
     )
-    matched = result.data or []
+    chunks = result.data or []
     logger.info(
-        "Text search matched %d chunks for session %s", len(matched), session_id
+        "Text search matched %d chunks for session %s", len(chunks), session_id
     )
-    return matched
+
+    # Boost chunks with matching speaker notes
+    if chunks:
+        query_words = set(text.lower().split())
+        query_keywords = {w for w in query_words if len(w) > 3}
+
+        for chunk in chunks:
+            notes = (chunk.get("metadata") or {}).get("speaker_notes", "")
+            if notes and query_keywords:
+                notes_lower = notes.lower()
+                matches = sum(1 for kw in query_keywords if kw in notes_lower)
+                if matches > 0:
+                    # Boost similarity score
+                    current = chunk.get("similarity", 0.5)
+                    chunk["similarity"] = min(1.0, current + (matches * 0.05))
+                    logger.info("Boosted chunk %s by %d speaker note matches", chunk.get("id", "?")[:8], matches)
+
+        # Re-sort by similarity
+        chunks.sort(key=lambda c: c.get("similarity", 0), reverse=True)
+
+    return chunks
 
 
 def get_cards_for_position(session_id: str, chunk_ids: list[str]) -> list[dict]:

@@ -31,6 +31,10 @@ interface ParticipantSession {
 interface ParticipantCardsResponse {
   session: ParticipantSession;
   cards: CardData[];
+  slide_progress?: {
+    current_slide: number;
+    total_slides: number;
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -232,6 +236,10 @@ export default function ParticipantViewPage() {
   const [cards, setCards] = useState<CardData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [slideProgress, setSlideProgress] = useState<{
+    current_slide: number;
+    total_slides: number;
+  } | null>(null);
 
   const abortRef = useRef<AbortController | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -247,6 +255,9 @@ export default function ParticipantViewPage() {
         if (signal?.aborted) return;
         setSession(data.session);
         setCards(data.cards);
+        if (data.slide_progress) {
+          setSlideProgress(data.slide_progress);
+        }
         setError(null);
       } catch (err) {
         if (signal?.aborted) return;
@@ -424,6 +435,34 @@ export default function ParticipantViewPage() {
       {/* Live state — show cards */}
       {!loading && !error && isLive && (
         <>
+          {/* Slide progress bar */}
+          {slideProgress && slideProgress.total_slides > 0 && (
+            <div className="mb-4 rounded-xl border border-gray-200 bg-white px-4 py-3">
+              <div className="mb-1.5 flex items-center justify-between">
+                <span className="text-xs font-medium text-gray-600">
+                  Slide {slideProgress.current_slide} of {slideProgress.total_slides}
+                </span>
+                <span className="text-xs text-gray-400">
+                  {Math.round(
+                    (slideProgress.current_slide / slideProgress.total_slides) * 100
+                  )}
+                  %
+                </span>
+              </div>
+              <div className="h-1 overflow-hidden rounded-full bg-gray-200">
+                <div
+                  className="h-full rounded-full transition-all duration-500 ease-out"
+                  style={{
+                    width: `${Math.round(
+                      (slideProgress.current_slide / slideProgress.total_slides) * 100
+                    )}%`,
+                    backgroundColor: "#D94228",
+                  }}
+                />
+              </div>
+            </div>
+          )}
+
           {cards.length === 0 ? (
             <div className="py-16 text-center">
               <p className="text-sm text-gray-500">

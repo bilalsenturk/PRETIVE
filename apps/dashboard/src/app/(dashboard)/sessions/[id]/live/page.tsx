@@ -11,6 +11,8 @@ import LiveTranscript, {
 import ActiveCards from "@/components/ActiveCards";
 import { type Verification } from "@/components/VerificationBadge";
 import Suggestions, { type Suggestion } from "@/components/Suggestions";
+import SlideProgressStrip, { type Slide } from "@/components/SlideProgressStrip";
+import PresentationProgress from "@/components/PresentationProgress";
 
 interface Session {
   id: string;
@@ -71,6 +73,9 @@ export default function LiveSessionPage() {
   const [topicVisible, setTopicVisible] = useState(true);
   const [verification, setVerification] = useState<Verification | null>(null);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const [slides, setSlides] = useState<Slide[]>([]);
+  const [currentSlideIndex, setCurrentSlideIndex] = useState<number | null>(null);
+  const [coveredSlides, setCoveredSlides] = useState<Set<number>>(new Set());
   const prevPositionRef = useRef<string | null>(null);
 
   const [elapsed, setElapsed] = useState(0);
@@ -115,6 +120,19 @@ export default function LiveSessionPage() {
         );
         setSession(data);
         await post(`/api/sessions/${id}/live/start`, {}, controller.signal);
+
+        // Fetch slides for screen intelligence
+        try {
+          const slidesRes = await get<{ slides: Slide[]; total: number }>(
+            `/api/sessions/${id}/live/slides`,
+            controller.signal
+          );
+          if (slidesRes.slides) {
+            setSlides(slidesRes.slides);
+          }
+        } catch {
+          // Slides may not be available for all sessions — non-blocking
+        }
       } catch (err) {
         if (controller.signal.aborted) return;
         setError(
@@ -184,6 +202,16 @@ export default function LiveSessionPage() {
             const resolved = resolvePosition(res.position);
             if (resolved) {
               setCurrentPosition(resolved);
+            }
+            // Track slide position for screen intelligence
+            if (
+              res.position &&
+              typeof res.position === "object" &&
+              res.position.chunk_index != null
+            ) {
+              const chunkIdx = res.position.chunk_index;
+              setCurrentSlideIndex(chunkIdx);
+              setCoveredSlides((prev) => new Set([...prev, chunkIdx]));
             }
             if (res.verification) {
               setVerification(res.verification);
@@ -263,6 +291,46 @@ export default function LiveSessionPage() {
       setLiveState("idle");
     }
   }
+
+  // Navigate to a specific slide manually
+  async function navigateToSlide(index: number) {
+    try {
+      const data = await post<MatchResponse>(
+        `/api/sessions/${id}/live/navigate`,
+        { slide_index: index }
+      );
+      setCurrentSlideIndex(index);
+      setCoveredSlides((prev) => new Set([...prev, index]));
+      if (data.cards && data.cards.length > 0) setActiveCards(data.cards);
+      if (data.position) setCurrentPosition(resolvePosition(data.position));
+    } catch {
+      // Navigation failed — just update the index locally
+      setCurrentSlideIndex(index);
+    }
+  }
+
+  // Keyboard shortcuts for slide navigation
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (
+        e.key === "ArrowLeft" &&
+        currentSlideIndex != null &&
+        currentSlideIndex > 0
+      ) {
+        navigateToSlide(currentSlideIndex - 1);
+      }
+      if (
+        e.key === "ArrowRight" &&
+        currentSlideIndex != null &&
+        currentSlideIndex < slides.length - 1
+      ) {
+        navigateToSlide(currentSlideIndex + 1);
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentSlideIndex, slides.length]);
 
   function formatTimer(seconds: number): string {
     const m = Math.floor(seconds / 60);
@@ -422,6 +490,24 @@ export default function LiveSessionPage() {
         </div>
       )}
 
+      {/* Slide progress strip + presentation progress */}
+      {slides.length > 0 && liveState !== "idle" && (
+        <div className="mt-3 space-y-2 rounded-xl border border-gray-200 px-4 py-3" style={{ backgroundColor: "var(--paper)" }}>
+          <SlideProgressStrip
+            slides={slides}
+            currentIndex={currentSlideIndex}
+            coveredIndexes={coveredSlides}
+            onSelectSlide={navigateToSlide}
+          />
+          <PresentationProgress
+            totalSlides={slides.length}
+            coveredCount={coveredSlides.size}
+            currentIndex={currentSlideIndex}
+            elapsedSeconds={elapsed}
+          />
+        </div>
+      )}
+
       {/* Main content area */}
       <div className="mt-4 flex flex-1 flex-col gap-4 overflow-hidden md:flex-row">
         {/* Left panel: Transcript */}
@@ -436,6 +522,17 @@ export default function LiveSessionPage() {
 
         {/* Right panel: Cards */}
         <div className="flex w-full flex-col md:w-1/2">
+          {/* Slide context */}
+          {slides.length > 0 && currentSlideIndex != null && slides[currentSlideIndex] && (
+            <div className="mb-3 flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5">
+              <span className="inline-flex items-center justify-center rounded-lg bg-[#D94228] px-2 py-0.5 text-xs font-bold text-white">
+                {slides[currentSlideIndex].slide_number}
+              </span>
+              <span className="truncate text-sm font-medium" style={{ color: "var(--ink)" }}>
+                {slides[currentSlideIndex].heading || `Slide ${slides[currentSlideIndex].slide_number}`}
+              </span>
+            </div>
+          )}
           <ActiveCards
             cards={activeCards}
             currentPosition={currentPosition}
