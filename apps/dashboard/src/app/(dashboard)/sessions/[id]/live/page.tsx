@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, Mic, Square, Loader2 } from "lucide-react";
+import { ArrowLeft, Mic, Square, Loader2, MessageCircleQuestion } from "lucide-react";
 import { get, post } from "@/lib/api";
 import { startSpeechStream, type SpeechStream } from "@/lib/speech";
 import LiveTranscript, {
@@ -13,6 +13,7 @@ import { type Verification } from "@/components/VerificationBadge";
 import Suggestions, { type Suggestion } from "@/components/Suggestions";
 import SlideProgressStrip, { type Slide } from "@/components/SlideProgressStrip";
 import PresentationProgress from "@/components/PresentationProgress";
+import QAPanel from "@/components/QAPanel";
 
 interface Session {
   id: string;
@@ -76,6 +77,8 @@ export default function LiveSessionPage() {
   const [slides, setSlides] = useState<Slide[]>([]);
   const [currentSlideIndex, setCurrentSlideIndex] = useState<number | null>(null);
   const [coveredSlides, setCoveredSlides] = useState<Set<number>>(new Set());
+  const [qaOpen, setQaOpen] = useState(false);
+  const [qaPendingCount, setQaPendingCount] = useState(0);
   const prevPositionRef = useRef<string | null>(null);
 
   const [elapsed, setElapsed] = useState(0);
@@ -94,6 +97,29 @@ export default function LiveSessionPage() {
         return count + words.length;
       }, 0);
   }, [transcripts]);
+
+  // Poll Q&A pending count
+  useEffect(() => {
+    let cancelled = false;
+    async function pollQA() {
+      try {
+        const res = await get<{ id: string; status: string }[]>(
+          `/api/sessions/${id}/qa/questions`
+        );
+        if (!cancelled) {
+          setQaPendingCount(res.filter((q) => q.status === "pending").length);
+        }
+      } catch {
+        // Ignore
+      }
+    }
+    pollQA();
+    const interval = setInterval(pollQA, 5000);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, [id]);
 
   // Animate topic transitions
   useEffect(() => {
@@ -415,6 +441,26 @@ export default function LiveSessionPage() {
           >
             {formatTimer(elapsed)}
           </span>
+          <button
+            onClick={() => setQaOpen((prev) => !prev)}
+            className={`relative flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
+              qaOpen
+                ? "bg-white/20 text-white"
+                : "text-gray-300 hover:bg-white/10 hover:text-white"
+            }`}
+            aria-label="Toggle Q&A panel"
+          >
+            <MessageCircleQuestion size={16} />
+            Q&A
+            {qaPendingCount > 0 && (
+              <span
+                className="absolute -right-1 -top-1 flex h-4 min-w-[16px] items-center justify-center rounded-full px-1 text-[10px] font-bold text-white"
+                style={{ backgroundColor: "var(--red)" }}
+              >
+                {qaPendingCount}
+              </span>
+            )}
+          </button>
         </div>
       </div>
 
@@ -511,7 +557,7 @@ export default function LiveSessionPage() {
       {/* Main content area */}
       <div className="mt-4 flex flex-1 flex-col gap-4 overflow-hidden md:flex-row">
         {/* Left panel: Transcript */}
-        <div className="flex w-full flex-col md:w-1/2">
+        <div className={`flex flex-col ${qaOpen ? "md:w-1/3" : "md:w-1/2"} w-full`}>
           <LiveTranscript
             transcripts={transcripts}
             sessionStartTime={startTimeRef.current}
@@ -520,8 +566,8 @@ export default function LiveSessionPage() {
           />
         </div>
 
-        {/* Right panel: Cards */}
-        <div className="flex w-full flex-col md:w-1/2">
+        {/* Middle panel: Cards */}
+        <div className={`flex flex-col ${qaOpen ? "md:w-1/3" : "md:w-1/2"} w-full`}>
           {/* Slide context */}
           {slides.length > 0 && currentSlideIndex != null && slides[currentSlideIndex] && (
             <div className="mb-3 flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5">
@@ -538,6 +584,13 @@ export default function LiveSessionPage() {
             currentPosition={currentPosition}
           />
         </div>
+
+        {/* Right panel: Q&A (sliding panel) */}
+        {qaOpen && (
+          <div className="flex w-full flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white md:w-1/3">
+            <QAPanel sessionId={id} />
+          </div>
+        )}
       </div>
 
       {/* Suggestions strip */}

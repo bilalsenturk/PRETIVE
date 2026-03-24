@@ -323,3 +323,24 @@ create policy "Org owners/admins manage invitations"
 create policy "Invitees can view their own invitations"
   on organization_invitations for select
   using (email = auth.email());
+
+-- ============================================
+-- Session Questions (Q&A module)
+-- ============================================
+CREATE TABLE IF NOT EXISTS session_questions (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  session_id uuid REFERENCES sessions(id) ON DELETE CASCADE,
+  text text NOT NULL,
+  participant_name text DEFAULT 'Anonymous',
+  status text DEFAULT 'pending' CHECK (status IN ('pending', 'answered', 'dismissed')),
+  upvotes int DEFAULT 0,
+  ai_context text,
+  answer text,
+  created_at timestamptz DEFAULT now()
+);
+
+CREATE INDEX idx_questions_session ON session_questions(session_id);
+ALTER TABLE session_questions ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Anyone can read session questions" ON session_questions FOR SELECT USING (true);
+CREATE POLICY "Anyone can insert questions" ON session_questions FOR INSERT WITH CHECK (true);
+CREATE POLICY "Anyone can update questions" ON session_questions FOR UPDATE USING (true);

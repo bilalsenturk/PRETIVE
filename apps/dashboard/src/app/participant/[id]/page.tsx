@@ -48,6 +48,7 @@ import {
   Link as LinkIcon,
   HelpCircle,
 } from "lucide-react";
+import ParticipantQA from "@/components/ParticipantQA";
 import type { ComponentType } from "react";
 
 interface CardTypeStyle {
@@ -478,6 +479,9 @@ export default function ParticipantViewPage() {
                 ))}
             </div>
           )}
+
+          {/* Q&A Section */}
+          <ParticipantQA sessionId={sessionId} />
         </>
       )}
 

@@ -1,11 +1,10 @@
-/**
- * Unified speech recognition client.
- *
- * Strategy: Deepgram if API key exists → Web Speech API fallback.
- * Same callback interface for both — live page doesn't need to know which one is active.
- */
+"use client";
 
-import { startDeepgramStream, type DeepgramStream } from "./deepgram";
+/**
+ * Speech recognition client using the Web Speech API.
+ *
+ * Free, no API key required — works in Chrome/Edge (uses Google's speech servers).
+ */
 
 export interface SpeechStream {
   stop: () => void;
@@ -19,39 +18,12 @@ interface SpeechWindow extends Window {
 }
 
 /**
- * Start speech recognition using the best available provider.
+ * Start speech recognition using the Web Speech API.
  *
- * 1. If NEXT_PUBLIC_DEEPGRAM_API_KEY is set → use Deepgram (higher quality)
- * 2. Otherwise → use Web Speech API (free, built into Chrome/Edge)
+ * Same callback interface as the old Deepgram integration — live page
+ * doesn't need to change.
  */
 export function startSpeechStream(
-  onTranscript: (text: string, isFinal: boolean) => void,
-  onError: (error: Error) => void,
-): SpeechStream {
-  const deepgramKey = process.env.NEXT_PUBLIC_DEEPGRAM_API_KEY;
-
-  if (deepgramKey && deepgramKey.length > 0) {
-    console.log("[Speech] Using Deepgram STT");
-    try {
-      const stream: DeepgramStream = startDeepgramStream(
-        deepgramKey,
-        onTranscript,
-        onError,
-      );
-      return { stop: () => stream.stop() };
-    } catch (err) {
-      console.warn("[Speech] Deepgram failed, falling back to Web Speech API:", err);
-      // Fall through to Web Speech API
-    }
-  }
-
-  console.log("[Speech] Using Web Speech API (browser built-in)");
-  return startWebSpeechStream(onTranscript, onError);
-}
-
-// ─── Web Speech API implementation ───────────────────────────
-
-function startWebSpeechStream(
   onTranscript: (text: string, isFinal: boolean) => void,
   onError: (error: Error) => void,
 ): SpeechStream {
@@ -103,7 +75,7 @@ function startWebSpeechStream(
     const message =
       errorMessages[event.error] ?? `Speech recognition error: ${event.error}`;
 
-    // Non-fatal errors — just warn
+    // Non-fatal errors — just warn and let auto-restart handle it
     if (event.error === "no-speech" || event.error === "aborted") {
       console.warn(`[Speech] ${message}`);
       return;

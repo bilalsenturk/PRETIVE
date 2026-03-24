@@ -8,6 +8,7 @@ import { supabase } from "@/lib/supabase";
 import {
   LayoutDashboard,
   Layers,
+  CreditCard,
   Settings,
   ChevronLeft,
   ChevronRight,
@@ -18,6 +19,7 @@ import { useUser } from "@/lib/user-context";
 const navItems = [
   { href: "/", label: "Overview", icon: LayoutDashboard, exact: true },
   { href: "/sessions", label: "Sessions", icon: Layers, exact: false },
+  { href: "/billing", label: "Billing", icon: CreditCard, exact: false },
   { href: "/settings", label: "Settings", icon: Settings, exact: false },
 ];
 

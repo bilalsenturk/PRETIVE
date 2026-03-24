@@ -137,6 +137,18 @@ export function post<T>(
   });
 }
 
+export function patch<T>(
+  path: string,
+  body: unknown,
+  signal?: AbortSignal
+): Promise<T> {
+  return request<T>(path, {
+    method: "PATCH",
+    body: JSON.stringify(body),
+    signal,
+  });
+}
+
 export function del<T>(path: string, signal?: AbortSignal): Promise<T> {
   return request<T>(path, { method: "DELETE", signal });
 }
