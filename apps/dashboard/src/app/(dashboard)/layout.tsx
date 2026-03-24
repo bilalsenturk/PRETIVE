@@ -4,6 +4,7 @@ import { Component, type ErrorInfo, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
 import Onboarding from "@/components/Onboarding";
+import { UserProvider } from "@/lib/user-context";
 
 class ErrorBoundary extends Component<
   { children: ReactNode },
@@ -70,5 +71,9 @@ export default function DashboardLayout({
 }: {
   children: ReactNode;
 }) {
-  return <DashboardContent>{children}</DashboardContent>;
+  return (
+    <UserProvider>
+      <DashboardContent>{children}</DashboardContent>
+    </UserProvider>
+  );
 }

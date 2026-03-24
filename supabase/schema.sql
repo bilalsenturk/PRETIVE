@@ -157,3 +157,169 @@ create trigger sessions_updated_at
 -- ============================================
 -- Run in Supabase dashboard:
 -- insert into storage.buckets (id, name, public) values ('documents', 'documents', false);
+-- insert into storage.buckets (id, name, public) values ('avatars', 'avatars', true);
+
+-- ============================================
+-- Profiles
+-- ============================================
+create table if not exists profiles (
+  id uuid primary key references auth.users(id) on delete cascade,
+  full_name text not null default '',
+  bio text not null default '',
+  avatar_url text,
+  job_title text not null default '',
+  company text not null default '',
+  phone text not null default '',
+  timezone text not null default 'UTC',
+  language text not null default 'en',
+  theme text not null default 'light'
+    check (theme in ('light', 'dark', 'system')),
+  notification_email boolean not null default true,
+  notification_session_end boolean not null default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create trigger profiles_updated_at
+  before update on profiles
+  for each row
+  execute function update_updated_at();
+
+-- Auto-create profile on user sign-up
+create or replace function handle_new_user()
+returns trigger as $$
+begin
+  insert into public.profiles (id, full_name)
+  values (new.id, coalesce(new.raw_user_meta_data->>'full_name', ''));
+  return new;
+end;
+$$ language plpgsql security definer;
+
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row
+  execute function handle_new_user();
+
+-- ============================================
+-- Organizations
+-- ============================================
+create table if not exists organizations (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  slug text not null unique,
+  website text,
+  industry text,
+  size text,
+  owner_id uuid references auth.users(id) on delete set null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create trigger organizations_updated_at
+  before update on organizations
+  for each row
+  execute function update_updated_at();
+
+-- ============================================
+-- Organization Members
+-- ============================================
+create table if not exists organization_members (
+  id uuid primary key default gen_random_uuid(),
+  organization_id uuid references organizations(id) on delete cascade not null,
+  user_id uuid references auth.users(id) on delete cascade not null,
+  role text not null default 'member'
+    check (role in ('owner', 'admin', 'member', 'viewer')),
+  joined_at timestamptz not null default now(),
+  unique (organization_id, user_id)
+);
+
+-- ============================================
+-- Organization Invitations
+-- ============================================
+create table if not exists organization_invitations (
+  id uuid primary key default gen_random_uuid(),
+  organization_id uuid references organizations(id) on delete cascade not null,
+  email text not null,
+  role text not null default 'member'
+    check (role in ('admin', 'member', 'viewer')),
+  invited_by uuid references auth.users(id) on delete set null,
+  status text not null default 'pending'
+    check (status in ('pending', 'accepted', 'declined', 'expired')),
+  created_at timestamptz not null default now()
+);
+
+-- ============================================
+-- Indexes (profiles, orgs, members, invitations)
+-- ============================================
+create index if not exists idx_organizations_slug on organizations(slug);
+create index if not exists idx_organizations_owner_id on organizations(owner_id);
+create index if not exists idx_org_members_org_id on organization_members(organization_id);
+create index if not exists idx_org_members_user_id on organization_members(user_id);
+create index if not exists idx_org_invitations_org_id on organization_invitations(organization_id);
+create index if not exists idx_org_invitations_email on organization_invitations(email);
+
+-- ============================================
+-- RLS — Profiles
+-- ============================================
+alter table profiles enable row level security;
+
+create policy "Users manage own profile"
+  on profiles for all
+  using (auth.uid() = id);
+
+-- ============================================
+-- RLS — Organizations
+-- ============================================
+alter table organizations enable row level security;
+
+create policy "Org members can view their organizations"
+  on organizations for select
+  using (
+    id in (select organization_id from organization_members where user_id = auth.uid())
+  );
+
+create policy "Owners can update their organizations"
+  on organizations for update
+  using (owner_id = auth.uid());
+
+create policy "Authenticated users can create organizations"
+  on organizations for insert
+  with check (auth.uid() is not null);
+
+-- ============================================
+-- RLS — Organization Members
+-- ============================================
+alter table organization_members enable row level security;
+
+create policy "Org members can view fellow members"
+  on organization_members for select
+  using (
+    organization_id in (select organization_id from organization_members where user_id = auth.uid())
+  );
+
+create policy "Org owners/admins manage members"
+  on organization_members for all
+  using (
+    organization_id in (
+      select organization_id from organization_members
+      where user_id = auth.uid() and role in ('owner', 'admin')
+    )
+  );
+
+-- ============================================
+-- RLS — Organization Invitations
+-- ============================================
+alter table organization_invitations enable row level security;
+
+create policy "Org owners/admins manage invitations"
+  on organization_invitations for all
+  using (
+    organization_id in (
+      select organization_id from organization_members
+      where user_id = auth.uid() and role in ('owner', 'admin')
+    )
+  );
+
+create policy "Invitees can view their own invitations"
+  on organization_invitations for select
+  using (email = auth.email());

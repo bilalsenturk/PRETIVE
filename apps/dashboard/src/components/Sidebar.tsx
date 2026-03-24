@@ -8,20 +8,24 @@ import { supabase } from "@/lib/supabase";
 import {
   LayoutDashboard,
   Layers,
+  Settings,
   ChevronLeft,
   ChevronRight,
   LogOut,
 } from "lucide-react";
+import { useUser } from "@/lib/user-context";
 
 const navItems = [
   { href: "/", label: "Overview", icon: LayoutDashboard, exact: true },
   { href: "/sessions", label: "Sessions", icon: Layers, exact: false },
+  { href: "/settings", label: "Settings", icon: Settings, exact: false },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const [expanded, setExpanded] = useState(true);
+  const { profile } = useUser();
 
   return (
     <aside
@@ -104,6 +108,35 @@ export default function Sidebar() {
               </span>
             )}
           </button>
+
+          {/* User info */}
+          {profile && (
+            <div
+              className={`flex items-center rounded-xl px-3 py-2 mb-1 ${
+                !expanded ? "justify-center" : ""
+              }`}
+            >
+              {profile.avatar_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={profile.avatar_url}
+                  alt=""
+                  className="h-8 w-8 rounded-full object-cover shrink-0"
+                />
+              ) : (
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#D94228]/10 text-[#D94228] text-xs font-bold shrink-0">
+                  {profile.full_name
+                    ? profile.full_name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
+                    : "U"}
+                </div>
+              )}
+              {expanded && (
+                <span className="ml-3 text-sm font-medium text-gray-700 truncate max-w-[140px]">
+                  {profile.full_name || "User"}
+                </span>
+              )}
+            </div>
+          )}
 
           <button
             onClick={async () => {
