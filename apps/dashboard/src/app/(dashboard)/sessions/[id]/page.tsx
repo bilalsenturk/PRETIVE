@@ -152,6 +152,7 @@ export default function SessionDetailPage() {
 
   const [copied, setCopied] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const abortRef = useRef<AbortController | null>(null);
   const pollIntervalRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -318,13 +319,13 @@ export default function SessionDetailPage() {
   }
 
   async function handleDelete() {
-    if (!window.confirm("Are you sure you want to delete this session?")) return;
     setDeleting(true);
     try {
       await del(`/api/sessions/${id}`);
       router.push("/sessions");
     } catch (err) {
       setDeleting(false);
+      setShowDeleteConfirm(false);
       setError(
         err instanceof Error ? err.message : "Failed to delete session"
       );
@@ -372,15 +373,39 @@ export default function SessionDetailPage() {
           <ArrowLeft size={16} aria-hidden="true" />
           Back to Sessions
         </Link>
-        <button
-          onClick={handleDelete}
-          disabled={deleting}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-medium text-red-600 transition-colors hover:bg-red-100 disabled:opacity-50"
-          aria-label="Delete session"
-        >
-          <Trash2 size={14} aria-hidden="true" />
-          {deleting ? "Deleting..." : "Delete"}
-        </button>
+        <div className="relative">
+          <button
+            onClick={() => setShowDeleteConfirm(true)}
+            disabled={deleting}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-medium text-red-600 transition-colors hover:bg-red-100 disabled:opacity-50"
+            aria-label="Delete session"
+          >
+            <Trash2 size={14} aria-hidden="true" />
+            {deleting ? "Deleting..." : "Delete"}
+          </button>
+          {showDeleteConfirm && (
+            <div className="absolute right-0 top-full z-10 mt-2 w-64 rounded-lg border border-red-200 bg-red-50 p-4 shadow-lg">
+              <p className="mb-3 text-sm font-medium text-red-700">
+                Are you sure you want to delete this session?
+              </p>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleDelete}
+                  disabled={deleting}
+                  className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-red-700 disabled:opacity-50"
+                >
+                  {deleting ? "Deleting..." : "Delete"}
+                </button>
+                <button
+                  onClick={() => setShowDeleteConfirm(false)}
+                  className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Error banner (non-blocking) */}
@@ -594,8 +619,9 @@ export default function SessionDetailPage() {
                     )}
                   </button>
                 </div>
-                <div className="mt-4 flex justify-center">
-                  <QRCodeSVG value={participantUrl} size={120} />
+                <div className="mt-4 flex flex-col items-center gap-1">
+                  <QRCodeSVG value={participantUrl} size={128} />
+                  <span className="text-xs text-gray-400">Scan to join</span>
                 </div>
               </>
             );

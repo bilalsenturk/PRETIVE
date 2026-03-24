@@ -275,7 +275,10 @@ export default function SessionSummaryPage() {
     setPdfLoading(true);
     try {
       const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-      const res = await fetch(`${baseUrl}/api/sessions/${id}/report`);
+      const res = await fetch(`${baseUrl}/api/sessions/${id}/report`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
       if (!res.ok) {
         throw new Error(`Failed to generate PDF: ${res.statusText}`);
       }

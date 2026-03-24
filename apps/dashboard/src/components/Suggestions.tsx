@@ -53,7 +53,7 @@ export default function Suggestions({
             className="flex min-w-[220px] max-w-[300px] shrink-0 items-start gap-2.5 rounded-lg px-3 py-2.5 animate-in slide-in-from-bottom-2 duration-300"
             style={{
               backgroundColor: "var(--paper)",
-              border: `1.5px solid rgba(${cfg.color === "#d97706" ? "217,119,6" : cfg.color === "#2563eb" ? "37,99,235" : cfg.color === "#D94228" ? "217,66,40" : "22,163,106"}, ${borderOpacity})`,
+              border: `1.5px solid color-mix(in srgb, ${cfg.color} ${Math.round(Number(borderOpacity) * 100)}%, transparent)`,
             }}
           >
             <Icon

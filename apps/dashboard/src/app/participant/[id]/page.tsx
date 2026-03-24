@@ -328,13 +328,7 @@ export default function ParticipantViewPage() {
       <header className="mb-6 flex flex-col gap-3 sm:mb-8 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           {/* Logo */}
-          <div
-            className="flex h-10 w-10 items-center justify-center rounded-full"
-            style={{ backgroundColor: "var(--red, #D94228)" }}
-            aria-hidden="true"
-          >
-            <span className="text-lg font-bold text-white">P</span>
-          </div>
+          <img src="/logo.jpg" alt="PRETIVE" width={28} height={28} className="rounded-lg" />
           <div>
             <h1
               className="text-lg font-bold sm:text-xl"
@@ -342,7 +336,7 @@ export default function ParticipantViewPage() {
             >
               {loading ? "Loading..." : session?.title || "Session"}
             </h1>
-            <span className="text-xs text-gray-500">PRETIVE</span>
+            <span className="text-xs font-bold uppercase tracking-wider text-gray-500">PRETIVE</span>
           </div>
         </div>
 

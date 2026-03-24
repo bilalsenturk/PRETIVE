@@ -25,7 +25,7 @@ export default function Sidebar() {
 
   return (
     <aside
-      className="flex h-screen flex-col bg-white border-r border-[#E5E7EB] p-4 transition-all duration-300 ease-in-out"
+      className="flex h-screen flex-col bg-white border-r border-gray-200 p-4 transition-all duration-300 ease-in-out"
       style={{ width: expanded ? 260 : 72 }}
       aria-label="Main sidebar navigation"
     >
@@ -63,7 +63,7 @@ export default function Sidebar() {
               href={item.href}
               className={`flex items-center h-[44px] rounded-xl px-3 text-sm transition-all duration-200 ${
                 isActive
-                  ? "bg-[#FEF2F0] text-[#D94228] font-semibold"
+                  ? "bg-[var(--red-light)] text-[var(--red)] font-semibold"
                   : "text-gray-500 hover:bg-gray-50 font-medium"
               } ${!expanded ? "justify-center px-0" : ""}`}
               aria-label={item.label}
@@ -82,7 +82,7 @@ export default function Sidebar() {
 
       {/* Bottom section */}
       <div className="mt-auto">
-        <div className="border-t border-[#F3F4F6] my-4" />
+        <div className="border-t border-gray-100 my-4" />
 
         <div className="flex flex-col gap-1">
           <button

@@ -16,6 +16,12 @@ html {
   --bg-card: #FFFFFF;
   --radius-xl: 16px;
   --radius-2xl: 20px;
+  --red-light: #FEF2F0;
+  --green-light: #F0FDF4;
+  --blue-light: #EFF6FF;
+  --amber-light: #FFFBEB;
+  --purple-light: #F5F3FF;
+  --yellow-light: #FEFCE8;
 }
 
 /* Smooth transitions */

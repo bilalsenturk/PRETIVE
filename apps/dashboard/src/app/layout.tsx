@@ -17,7 +17,8 @@ export const metadata: Metadata = {
   title: "PRETIVE — AI Copilot Dashboard",
   description: "Real-time AI copilot for live presentations and education",
   icons: {
-    icon: "/favicon.ico",
+    icon: "/logo.jpg",
+    apple: "/logo.jpg",
   },
 };
 

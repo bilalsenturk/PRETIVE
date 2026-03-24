@@ -18,22 +18,22 @@ const CONFIG = {
   verified: {
     icon: CheckCircle,
     label: "Verified",
-    bg: "rgba(34, 197, 94, 0.1)",
-    border: "rgba(34, 197, 94, 0.3)",
+    bg: "color-mix(in srgb, #22c55e 10%, transparent)",
+    border: "color-mix(in srgb, #22c55e 30%, transparent)",
     color: "#16a34a",
   },
   contradicted: {
     icon: AlertTriangle,
     label: "Different Information",
-    bg: "rgba(245, 158, 11, 0.1)",
-    border: "rgba(245, 158, 11, 0.3)",
+    bg: "color-mix(in srgb, #f59e0b 10%, transparent)",
+    border: "color-mix(in srgb, #f59e0b 30%, transparent)",
     color: "#d97706",
   },
   unverifiable: {
     icon: HelpCircle,
     label: "Unverifiable",
-    bg: "rgba(156, 163, 175, 0.15)",
-    border: "rgba(156, 163, 175, 0.3)",
+    bg: "color-mix(in srgb, #9ca3af 15%, transparent)",
+    border: "color-mix(in srgb, #9ca3af 30%, transparent)",
     color: "#6b7280",
   },
 } as const;
