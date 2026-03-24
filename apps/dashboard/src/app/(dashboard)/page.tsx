@@ -43,23 +43,26 @@ function StatCard({
   label,
   value,
   loading,
+  iconBg = "rgba(217, 66, 40, 0.1)",
+  iconColor = "var(--red)",
 }: {
   icon: React.ElementType;
   label: string;
   value: number;
   loading: boolean;
+  iconBg?: string;
+  iconColor?: string;
 }) {
   return (
     <div
-      className="rounded-xl border border-gray-200 px-5 py-4"
-      style={{ backgroundColor: "var(--paper)" }}
+      className="rounded-2xl border border-gray-200 bg-white px-5 py-4 shadow-sm"
     >
       <div className="flex items-center gap-3">
         <div
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg"
-          style={{ backgroundColor: "rgba(217, 66, 40, 0.1)" }}
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
+          style={{ backgroundColor: iconBg }}
         >
-          <Icon size={20} style={{ color: "var(--red)" }} aria-hidden="true" />
+          <Icon size={20} style={{ color: iconColor }} aria-hidden="true" />
         </div>
         <div>
           {loading ? (
@@ -173,9 +176,9 @@ export default function DashboardOverview() {
       {/* Welcome header */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold" style={{ color: "var(--ink)" }}>
-          Welcome
+          Welcome back
         </h1>
-        <p className="mt-1 text-sm text-gray-500">{formatDate(new Date())}</p>
+        <p className="mt-1 text-sm text-gray-400">{formatDate(new Date())}</p>
       </div>
 
       {/* Error state */}
@@ -205,18 +208,24 @@ export default function DashboardOverview() {
               label="Total Sessions"
               value={totalSessions}
               loading={false}
+              iconBg="#FEF2F2"
+              iconColor="#D94228"
             />
             <StatCard
               icon={Clock}
               label="Uploaded Documents"
               value={totalDocuments}
               loading={false}
+              iconBg="#FFFBEB"
+              iconColor="#D97706"
             />
             <StatCard
               icon={Radio}
               label="Live Sessions"
               value={liveSessions}
               loading={false}
+              iconBg="#EFF6FF"
+              iconColor="#2563EB"
             />
           </div>
 
@@ -243,8 +252,7 @@ export default function DashboardOverview() {
 
             {recentSessions.length === 0 ? (
               <div
-                className="rounded-xl border border-gray-200 py-12 text-center"
-                style={{ backgroundColor: "var(--paper)" }}
+                className="rounded-2xl border border-gray-200 bg-white py-12 text-center shadow-sm"
               >
                 <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-gray-100">
                   <FileText
@@ -272,8 +280,7 @@ export default function DashboardOverview() {
                     <Link
                       key={session.id}
                       href={`/sessions/${session.id}`}
-                      className="flex items-center justify-between rounded-xl border border-gray-200 px-5 py-4 transition-shadow hover:shadow-md"
-                      style={{ backgroundColor: "var(--paper)" }}
+                      className="flex items-center justify-between rounded-2xl border border-gray-200 bg-white px-5 py-4 shadow-sm transition-all duration-200 hover:shadow-md"
                       role="listitem"
                       aria-label={`Session: ${session.title}, Status: ${status.label}`}
                     >
@@ -298,7 +305,7 @@ export default function DashboardOverview() {
                         </div>
                       </div>
                       <span
-                        className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${status.bg} ${status.text}`}
+                        className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium ${status.bg} ${status.text}`}
                       >
                         {status.label}
                       </span>
@@ -313,7 +320,7 @@ export default function DashboardOverview() {
           <div className="flex flex-wrap gap-3">
             <Link
               href="/sessions/new"
-              className="inline-flex items-center gap-2 rounded-lg px-5 py-3 text-sm font-medium text-white transition-opacity hover:opacity-90"
+              className="inline-flex items-center gap-2 rounded-xl px-5 h-11 text-sm font-medium text-white shadow-sm transition-opacity hover:opacity-90"
               style={{ backgroundColor: "var(--red)" }}
               aria-label="Create new session"
             >
@@ -322,8 +329,8 @@ export default function DashboardOverview() {
             </Link>
             <Link
               href="/sessions/new?demo=true"
-              className="inline-flex items-center gap-2 rounded-lg border border-gray-200 px-5 py-3 text-sm font-medium transition-colors hover:bg-gray-50"
-              style={{ color: "var(--ink)", backgroundColor: "var(--paper)" }}
+              className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-5 h-11 text-sm font-medium transition-colors hover:bg-gray-50"
+              style={{ color: "var(--ink)" }}
               aria-label="Try demo session"
             >
               <Play size={16} aria-hidden="true" />

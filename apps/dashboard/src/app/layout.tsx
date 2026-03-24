@@ -14,8 +14,8 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Pretive Dashboard",
-  description: "Pretive session management dashboard",
+  title: "PRETIVE — AI Copilot Dashboard",
+  description: "Real-time AI copilot for live presentations and education",
   icons: {
     icon: "/favicon.ico",
   },

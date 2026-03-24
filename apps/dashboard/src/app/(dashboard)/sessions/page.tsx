@@ -126,12 +126,12 @@ export default function SessionsPage() {
         </h1>
         <Link
           href="/sessions/new"
-          className="inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
+          className="inline-flex items-center gap-2 rounded-xl px-4 h-11 text-sm font-medium text-white shadow-sm transition-opacity hover:opacity-90"
           style={{ backgroundColor: "var(--red)" }}
           aria-label="Create new session"
         >
           <Plus size={16} aria-hidden="true" />
-          New Session
+          + New Session
         </Link>
       </div>
 
@@ -139,7 +139,7 @@ export default function SessionsPage() {
       <button
         onClick={handleDemoSeed}
         disabled={demoLoading}
-        className="mb-4 flex w-full items-center gap-4 rounded-xl border border-amber-200 bg-amber-50 px-5 py-4 text-left transition-shadow hover:shadow-md disabled:opacity-60"
+        className="mb-4 flex w-full items-center gap-4 rounded-2xl border border-dashed border-amber-300 bg-amber-50/50 px-5 py-4 text-left transition-all duration-200 hover:shadow-md hover:border-amber-400 disabled:opacity-60"
         aria-label="Start a demo session"
       >
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-100">
@@ -183,8 +183,7 @@ export default function SessionsPage() {
       {/* Empty state */}
       {!error && sessions.length === 0 && (
         <div
-          className="rounded-2xl border border-gray-200 py-20 text-center"
-          style={{ backgroundColor: "var(--paper)" }}
+          className="rounded-2xl border border-gray-200 bg-white py-20 text-center shadow-sm"
         >
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-gray-100">
             <FileText size={24} className="text-gray-400" aria-hidden="true" />
@@ -200,7 +199,7 @@ export default function SessionsPage() {
           </p>
           <Link
             href="/sessions/new"
-            className="mt-4 inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
+            className="mt-4 inline-flex items-center gap-2 rounded-xl px-4 h-11 text-sm font-medium text-white shadow-sm transition-opacity hover:opacity-90"
             style={{ backgroundColor: "var(--red)" }}
             aria-label="Create your first session"
           >
@@ -220,8 +219,7 @@ export default function SessionsPage() {
               <Link
                 key={session.id}
                 href={`/sessions/${session.id}`}
-                className="flex items-center justify-between rounded-xl border border-gray-200 px-5 py-4 transition-shadow hover:shadow-md"
-                style={{ backgroundColor: "var(--paper)" }}
+                className="flex items-center justify-between rounded-2xl border border-gray-200 bg-white px-5 py-4 shadow-sm transition-all duration-200 hover:shadow-md"
                 role="listitem"
                 aria-label={`Session: ${session.title}, Status: ${status.label}`}
               >
@@ -245,7 +243,7 @@ export default function SessionsPage() {
                   </div>
                 </div>
                 <span
-                  className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${status.bg} ${status.text}`}
+                  className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium ${status.bg} ${status.text}`}
                 >
                   {status.label}
                 </span>

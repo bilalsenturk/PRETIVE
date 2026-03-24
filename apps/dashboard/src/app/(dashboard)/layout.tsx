@@ -57,7 +57,7 @@ function DashboardContent({ children }: { children: ReactNode }) {
       style={{ backgroundColor: "var(--bg)" }}
     >
       <Sidebar />
-      <main className="flex-1 overflow-y-auto p-6">
+      <main className="flex-1 overflow-y-auto p-8 scroll-smooth" style={{ backgroundColor: "#FAFAF8" }}>
         <ErrorBoundary>{children}</ErrorBoundary>
       </main>
       {showOnboarding && <Onboarding />}

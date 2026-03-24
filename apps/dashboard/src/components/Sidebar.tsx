@@ -2,56 +2,56 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import {
   LayoutDashboard,
-  LayoutList,
+  Layers,
   ChevronLeft,
   ChevronRight,
   LogOut,
 } from "lucide-react";
 
 const navItems = [
-  { href: "/", label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { href: "/sessions", label: "Sessions", icon: LayoutList, exact: false },
+  { href: "/", label: "Overview", icon: LayoutDashboard, exact: true },
+  { href: "/sessions", label: "Sessions", icon: Layers, exact: false },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(true);
 
   return (
     <aside
-      className="flex h-screen flex-col border-r border-gray-200 transition-all duration-200 ease-in-out"
-      style={{
-        width: expanded ? 240 : 64,
-        backgroundColor: "var(--paper)",
-      }}
+      className="flex h-screen flex-col bg-white border-r border-[#E5E7EB] p-4 transition-all duration-300 ease-in-out"
+      style={{ width: expanded ? 260 : 72 }}
       aria-label="Main sidebar navigation"
     >
-      {/* Logo */}
-      <div className="flex h-16 items-center justify-center border-b border-gray-200 px-3">
-        <div
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-white font-bold text-sm"
-          style={{ backgroundColor: "var(--red)" }}
-          aria-hidden="true"
-        >
-          P
-        </div>
+      {/* Logo area */}
+      <Link
+        href="/"
+        className={`flex items-center mb-6 ${expanded ? "gap-3 px-2" : "justify-center"}`}
+      >
+        <Image
+          src="/logo.jpg"
+          alt="PRETIVE logo"
+          width={32}
+          height={32}
+          className="shrink-0 rounded-xl"
+        />
         {expanded && (
           <span
-            className="ml-3 text-lg font-bold whitespace-nowrap"
-            style={{ color: "var(--ink)" }}
+            className="text-sm font-bold tracking-wider uppercase text-gray-900 whitespace-nowrap transition-opacity duration-150"
           >
-            Pretive
+            PRETIVE
           </span>
         )}
-      </div>
+      </Link>
 
       {/* Navigation */}
-      <nav className="flex-1 space-y-1 p-2" aria-label="Primary navigation">
+      <nav className="flex-1 flex flex-col gap-1" aria-label="Primary navigation">
         {navItems.map((item) => {
           const isActive = item.exact
             ? pathname === item.href
@@ -61,18 +61,19 @@ export default function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+              className={`flex items-center h-[44px] rounded-xl px-3 text-sm transition-all duration-200 ${
                 isActive
-                  ? "text-white"
-                  : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-              }`}
-              style={isActive ? { backgroundColor: "var(--red)" } : undefined}
+                  ? "bg-[#FEF2F0] text-[#D94228] font-semibold"
+                  : "text-gray-500 hover:bg-gray-50 font-medium"
+              } ${!expanded ? "justify-center px-0" : ""}`}
               aria-label={item.label}
               aria-current={isActive ? "page" : undefined}
             >
               <Icon size={20} className="shrink-0" aria-hidden="true" />
               {expanded && (
-                <span className="ml-3 whitespace-nowrap">{item.label}</span>
+                <span className="ml-3 whitespace-nowrap transition-opacity duration-150">
+                  {item.label}
+                </span>
               )}
             </Link>
           );
@@ -80,32 +81,49 @@ export default function Sidebar() {
       </nav>
 
       {/* Bottom section */}
-      <div className="border-t border-gray-200 p-2 space-y-1">
-        <button
-          onClick={() => setExpanded(!expanded)}
-          className="flex w-full items-center rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 hover:text-gray-900"
-          aria-label={expanded ? "Collapse sidebar" : "Expand sidebar"}
-        >
-          {expanded ? (
-            <ChevronLeft size={20} className="shrink-0" aria-hidden="true" />
-          ) : (
-            <ChevronRight size={20} className="shrink-0" aria-hidden="true" />
-          )}
-          {expanded && <span className="ml-3 whitespace-nowrap">Collapse</span>}
-        </button>
+      <div className="mt-auto">
+        <div className="border-t border-[#F3F4F6] my-4" />
 
-        <button
-          onClick={async () => {
-            if (!window.confirm("Are you sure you want to sign out?")) return;
-            await supabase.auth.signOut();
-            router.push("/login");
-          }}
-          className="flex w-full items-center rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 hover:text-gray-900"
-          aria-label="Sign out"
-        >
-          <LogOut size={20} className="shrink-0" aria-hidden="true" />
-          {expanded && <span className="ml-3 whitespace-nowrap">Sign out</span>}
-        </button>
+        <div className="flex flex-col gap-1">
+          <button
+            onClick={() => setExpanded(!expanded)}
+            className={`flex items-center h-9 w-9 rounded-lg bg-gray-50 text-gray-500 transition-colors hover:bg-gray-100 ${
+              expanded ? "" : "mx-auto"
+            }`}
+            style={expanded ? { width: "auto", paddingLeft: 10, paddingRight: 10 } : {}}
+            aria-label={expanded ? "Collapse sidebar" : "Expand sidebar"}
+          >
+            {expanded ? (
+              <ChevronLeft size={18} className="shrink-0" aria-hidden="true" />
+            ) : (
+              <ChevronRight size={18} className="shrink-0" aria-hidden="true" />
+            )}
+            {expanded && (
+              <span className="ml-2 text-sm font-medium whitespace-nowrap transition-opacity duration-150">
+                Collapse
+              </span>
+            )}
+          </button>
+
+          <button
+            onClick={async () => {
+              if (!window.confirm("Are you sure you want to sign out?")) return;
+              await supabase.auth.signOut();
+              router.push("/login");
+            }}
+            className={`flex items-center h-[44px] rounded-xl text-gray-400 transition-colors hover:text-red-500 ${
+              expanded ? "px-3" : "justify-center"
+            }`}
+            aria-label="Sign out"
+          >
+            <LogOut size={20} className="shrink-0" aria-hidden="true" />
+            {expanded && (
+              <span className="ml-3 text-sm font-medium whitespace-nowrap transition-opacity duration-150">
+                Sign Out
+              </span>
+            )}
+          </button>
+        </div>
       </div>
     </aside>
   );
