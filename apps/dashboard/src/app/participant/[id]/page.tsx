@@ -49,6 +49,7 @@ import {
   HelpCircle,
 } from "lucide-react";
 import ParticipantQA from "@/components/ParticipantQA";
+import ReactionBar from "@/components/ReactionBar";
 import type { ComponentType } from "react";
 
 interface CardTypeStyle {
@@ -256,9 +257,6 @@ export default function ParticipantViewPage() {
   const [showNameInput, setShowNameInput] = useState(!participantName);
   const [nameInputValue, setNameInputValue] = useState(participantName);
 
-  // Emoji reaction animation
-  const [reactedEmoji, setReactedEmoji] = useState<string | null>(null);
-
   const handleNameSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const trimmed = nameInputValue.trim();
@@ -266,11 +264,6 @@ export default function ParticipantViewPage() {
     setParticipantName(trimmed);
     setShowNameInput(false);
     localStorage.setItem("pretive_participant_name", trimmed);
-  };
-
-  const handleReaction = (emoji: string) => {
-    setReactedEmoji(emoji);
-    setTimeout(() => setReactedEmoji(null), 600);
   };
 
   const abortRef = useRef<AbortController | null>(null);
@@ -528,22 +521,8 @@ export default function ParticipantViewPage() {
           )}
 
           {/* Emoji reactions */}
-          <div className="mb-4 flex gap-2 justify-center">
-            {["\uD83D\uDC4D", "\uD83D\uDC4F", "\uD83E\uDD14", "\u2753"].map((emoji) => (
-              <button
-                key={emoji}
-                onClick={() => handleReaction(emoji)}
-                className="text-2xl p-2 rounded-xl transition-transform hover:scale-125 hover:bg-gray-100"
-                style={{
-                  transform:
-                    reactedEmoji === emoji ? "scale(1.4)" : undefined,
-                  opacity: reactedEmoji === emoji ? 0.6 : 1,
-                  transition: "transform 0.3s ease, opacity 0.3s ease",
-                }}
-              >
-                {emoji}
-              </button>
-            ))}
+          <div className="mb-4 flex justify-center">
+            <ReactionBar sessionId={sessionId} compact />
           </div>
 
           {cards.length === 0 ? (

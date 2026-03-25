@@ -14,6 +14,7 @@ import Suggestions, { type Suggestion } from "@/components/Suggestions";
 import SlideProgressStrip, { type Slide } from "@/components/SlideProgressStrip";
 import PresentationProgress from "@/components/PresentationProgress";
 import QAPanel from "@/components/QAPanel";
+import ReactionBar from "@/components/ReactionBar";
 
 interface Session {
   id: string;
@@ -647,19 +648,22 @@ export default function LiveSessionPage() {
         )}
 
         {liveState === "recording" && (
-          <button
-            onClick={handleStopRecording}
-            className="inline-flex items-center gap-2 rounded-lg border-2 px-6 py-3 text-sm font-semibold transition-opacity hover:opacity-90"
-            style={{
-              borderColor: "var(--red)",
-              color: "var(--red)",
-              backgroundColor: "rgba(217, 66, 40, 0.06)",
-            }}
-            aria-label="Stop recording and end session"
-          >
-            <Square size={18} aria-hidden="true" />
-            Stop &amp; End
-          </button>
+          <>
+            <button
+              onClick={handleStopRecording}
+              className="inline-flex items-center gap-2 rounded-lg border-2 px-6 py-3 text-sm font-semibold transition-opacity hover:opacity-90"
+              style={{
+                borderColor: "var(--red)",
+                color: "var(--red)",
+                backgroundColor: "rgba(217, 66, 40, 0.06)",
+              }}
+              aria-label="Stop recording and end session"
+            >
+              <Square size={18} aria-hidden="true" />
+              Stop &amp; End
+            </button>
+            <ReactionBar sessionId={id as string} compact />
+          </>
         )}
 
         {liveState === "stopped" && (
