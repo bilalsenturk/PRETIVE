@@ -159,7 +159,7 @@ async def upload_document(
 
     try:
         # Parse document into chunks
-        chunks = parse_document(file_bytes, suffix.lstrip("."))
+        chunks = parse_document(file_bytes, suffix.lstrip("."), file.filename or "unknown")
         logger.info(
             "Parsed document %s (%s): %d chunks",
             document["id"], file.filename, len(chunks),
