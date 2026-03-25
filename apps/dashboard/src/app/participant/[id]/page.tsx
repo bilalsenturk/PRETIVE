@@ -191,7 +191,7 @@ function WaitingMessage() {
   );
 }
 
-function CompletedMessage() {
+function CompletedMessage({ name }: { name?: string }) {
   return (
     <div className="flex flex-col items-center justify-center py-12 text-center">
       <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-50">
@@ -214,10 +214,15 @@ function CompletedMessage() {
         className="mb-2 text-lg font-semibold"
         style={{ color: "var(--ink, #111)" }}
       >
-        Session completed
+        Session Ended
       </h2>
       <p className="text-sm text-gray-500">
-        This session has ended. Thank you!
+        {name
+          ? `Thank you for participating, ${name}!`
+          : "Thank you for participating!"}
+      </p>
+      <p className="mt-1 text-xs text-gray-400">
+        Your session cards and notes are saved below
       </p>
     </div>
   );
@@ -241,6 +246,32 @@ export default function ParticipantViewPage() {
     current_slide: number;
     total_slides: number;
   } | null>(null);
+
+  // Participant name
+  const [participantName, setParticipantName] = useState(() =>
+    typeof window !== "undefined"
+      ? localStorage.getItem("pretive_participant_name") || ""
+      : ""
+  );
+  const [showNameInput, setShowNameInput] = useState(!participantName);
+  const [nameInputValue, setNameInputValue] = useState(participantName);
+
+  // Emoji reaction animation
+  const [reactedEmoji, setReactedEmoji] = useState<string | null>(null);
+
+  const handleNameSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmed = nameInputValue.trim();
+    if (!trimmed) return;
+    setParticipantName(trimmed);
+    setShowNameInput(false);
+    localStorage.setItem("pretive_participant_name", trimmed);
+  };
+
+  const handleReaction = (emoji: string) => {
+    setReactedEmoji(emoji);
+    setTimeout(() => setReactedEmoji(null), 600);
+  };
 
   const abortRef = useRef<AbortController | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -381,6 +412,38 @@ export default function ParticipantViewPage() {
         )}
       </header>
 
+      {/* Name prompt / Greeting */}
+      {showNameInput ? (
+        <form
+          onSubmit={handleNameSubmit}
+          className="mb-6 flex items-center gap-3 rounded-2xl border border-gray-200 bg-white px-4 py-3"
+        >
+          <input
+            type="text"
+            placeholder="Enter your name to join..."
+            value={nameInputValue}
+            onChange={(e) => setNameInputValue(e.target.value)}
+            className="flex-1 bg-transparent text-sm outline-none"
+            style={{ color: "var(--ink, #111)" }}
+            autoFocus
+          />
+          <button
+            type="submit"
+            disabled={!nameInputValue.trim()}
+            className="rounded-xl px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-40"
+            style={{ backgroundColor: "#D94228" }}
+          >
+            Join
+          </button>
+        </form>
+      ) : participantName ? (
+        <div className="mb-6 rounded-2xl border border-gray-200 bg-white px-4 py-3">
+          <p className="text-sm" style={{ color: "var(--ink, #111)" }}>
+            Hi, {participantName}! {"\uD83D\uDC4B"}
+          </p>
+        </div>
+      ) : null}
+
       {/* Loading */}
       {loading && (
         <div className="flex items-center justify-center py-24" role="status">
@@ -420,8 +483,9 @@ export default function ParticipantViewPage() {
       {/* Completed state with last cards */}
       {!loading && !error && isCompleted && (
         <>
+          <CompletedMessage name={participantName || undefined} />
           {cards.length > 0 && (
-            <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {cards
                 .sort((a, b) => a.display_order - b.display_order)
                 .map((card) => (
@@ -429,7 +493,6 @@ export default function ParticipantViewPage() {
                 ))}
             </div>
           )}
-          <CompletedMessage />
         </>
       )}
 
@@ -463,6 +526,25 @@ export default function ParticipantViewPage() {
               </div>
             </div>
           )}
+
+          {/* Emoji reactions */}
+          <div className="mb-4 flex gap-2 justify-center">
+            {["\uD83D\uDC4D", "\uD83D\uDC4F", "\uD83E\uDD14", "\u2753"].map((emoji) => (
+              <button
+                key={emoji}
+                onClick={() => handleReaction(emoji)}
+                className="text-2xl p-2 rounded-xl transition-transform hover:scale-125 hover:bg-gray-100"
+                style={{
+                  transform:
+                    reactedEmoji === emoji ? "scale(1.4)" : undefined,
+                  opacity: reactedEmoji === emoji ? 0.6 : 1,
+                  transition: "transform 0.3s ease, opacity 0.3s ease",
+                }}
+              >
+                {emoji}
+              </button>
+            ))}
+          </div>
 
           {cards.length === 0 ? (
             <div className="py-16 text-center">

@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Plus,
   FileText,
@@ -10,8 +11,9 @@ import {
   RefreshCw,
   Play,
   ArrowRight,
+  Loader2,
 } from "lucide-react";
-import { get } from "@/lib/api";
+import { get, post } from "@/lib/api";
 
 interface Session {
   id: string;
@@ -122,7 +124,9 @@ export default function DashboardOverview() {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [demoLoading, setDemoLoading] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
+  const router = useRouter();
 
   const fetchData = useCallback(async (signal?: AbortSignal) => {
     setLoading(true);
@@ -157,6 +161,19 @@ export default function DashboardOverview() {
     const controller = new AbortController();
     abortRef.current = controller;
     fetchData(controller.signal);
+  }
+
+  async function handleDemoSeed() {
+    setDemoLoading(true);
+    try {
+      const data = await post<{ session_id: string }>("/api/demo/seed", {});
+      router.push(`/sessions/${data.session_id}`);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to create demo session"
+      );
+      setDemoLoading(false);
+    }
   }
 
   const totalSessions = sessions.length;
@@ -327,15 +344,25 @@ export default function DashboardOverview() {
               <Plus size={16} aria-hidden="true" />
               Create New Session
             </Link>
-            <Link
-              href="/sessions/new?demo=true"
-              className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-5 h-11 text-sm font-medium transition-colors hover:bg-gray-50"
+            <button
+              onClick={handleDemoSeed}
+              disabled={demoLoading}
+              className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-5 h-11 text-sm font-medium transition-colors hover:bg-gray-50 disabled:opacity-60"
               style={{ color: "var(--ink)" }}
               aria-label="Try demo session"
             >
-              <Play size={16} aria-hidden="true" />
-              Try Demo
-            </Link>
+              {demoLoading ? (
+                <>
+                  <Loader2 size={16} className="animate-spin" aria-hidden="true" />
+                  Creating...
+                </>
+              ) : (
+                <>
+                  <Play size={16} aria-hidden="true" />
+                  Try Demo
+                </>
+              )}
+            </button>
           </div>
         </>
       )}

@@ -24,8 +24,13 @@ const statusStyles: Record<
   { bg: string; text: string; label: string }
 > = {
   draft: { bg: "bg-gray-100", text: "text-gray-700", label: "Draft" },
+  parsed: { bg: "bg-gray-100", text: "text-gray-600", label: "Parsed" },
+  preparing: { bg: "bg-yellow-50", text: "text-yellow-700", label: "Preparing" },
+  ready: { bg: "bg-green-50", text: "text-green-700", label: "Ready" },
   active: { bg: "bg-green-50", text: "text-green-700", label: "Active" },
-  completed: { bg: "bg-blue-50", text: "text-blue-700", label: "Completed" },
+  live: { bg: "bg-blue-50", text: "text-blue-700", label: "Live" },
+  completed: { bg: "bg-purple-50", text: "text-purple-700", label: "Completed" },
+  error: { bg: "bg-red-50", text: "text-red-700", label: "Error" },
 };
 
 function LoadingSkeleton() {

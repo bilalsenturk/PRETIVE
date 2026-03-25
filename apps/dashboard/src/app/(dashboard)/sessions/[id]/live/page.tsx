@@ -603,6 +603,30 @@ export default function LiveSessionPage() {
         />
       )}
 
+      {/* Session overview card (idle state) */}
+      {liveState === "idle" && (
+        <div className="mx-auto max-w-lg mb-4 rounded-2xl border bg-white p-5 shadow-sm">
+          <h3 className="text-sm font-semibold text-gray-900 mb-3 text-center">Session Overview</h3>
+          <div className="grid grid-cols-3 gap-4 text-center">
+            <div className="rounded-xl bg-blue-50 p-3">
+              <div className="text-2xl font-bold text-blue-700">{slides.length || "—"}</div>
+              <div className="text-xs text-blue-600">Slides</div>
+            </div>
+            <div className="rounded-xl bg-green-50 p-3">
+              <div className="text-2xl font-bold text-green-700">{activeCards.length || "—"}</div>
+              <div className="text-xs text-green-600">AI Cards</div>
+            </div>
+            <div className="rounded-xl bg-purple-50 p-3">
+              <div className="text-2xl font-bold text-purple-700">✓</div>
+              <div className="text-xs text-purple-600">Ready</div>
+            </div>
+          </div>
+          <p className="mt-3 text-xs text-gray-400 text-center">
+            Click &quot;Start Recording&quot; to begin. Speak naturally — AI will match your speech to content in real-time.
+          </p>
+        </div>
+      )}
+
       {/* Bottom controls */}
       <div
         className="mt-4 flex items-center justify-center gap-4 rounded-xl border border-gray-200 px-6 py-4"

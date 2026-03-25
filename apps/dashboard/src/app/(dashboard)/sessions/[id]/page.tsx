@@ -19,6 +19,9 @@ import {
   Check,
   PlayCircle,
   Trash2,
+  Upload,
+  ClipboardList,
+  BarChart3,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
@@ -476,15 +479,25 @@ export default function SessionDetailPage() {
             </button>
           )}
           {session.status === "ready" && (
-            <button
-              onClick={handleStartSession}
-              className="inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
-              style={{ backgroundColor: "var(--red)" }}
-              aria-label="Start live session"
-            >
-              <Play size={16} aria-hidden="true" />
-              Start Session
-            </button>
+            <>
+              <Link
+                href={`/sessions/${id}/coach`}
+                className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium transition-colors hover:bg-gray-50"
+                style={{ color: "var(--ink)" }}
+              >
+                <ClipboardList size={16} aria-hidden="true" />
+                Prepare &amp; Practice
+              </Link>
+              <button
+                onClick={handleStartSession}
+                className="inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
+                style={{ backgroundColor: "var(--red)" }}
+                aria-label="Start live session"
+              >
+                <Play size={16} aria-hidden="true" />
+                Start Session
+              </button>
+            </>
           )}
           {session.status === "preparing" && (
             <div
@@ -514,7 +527,11 @@ export default function SessionDetailPage() {
           Documents
         </h2>
         {documents.length === 0 ? (
-          <p className="text-sm text-gray-500">No documents uploaded yet.</p>
+          <div className="text-center py-8">
+            <Upload size={32} className="mx-auto mb-3 text-gray-300" />
+            <p className="text-sm text-gray-500">No documents uploaded yet.</p>
+            <p className="text-xs text-gray-400 mt-1">Upload a PDF or PPTX to get AI-powered support cards.</p>
+          </div>
         ) : (
           <ul className="space-y-2">
             {documents.map((doc) => {
@@ -629,9 +646,9 @@ export default function SessionDetailPage() {
         </div>
       )}
 
-      {/* Replay button — shown when completed */}
+      {/* Replay & Analytics buttons — shown when completed */}
       {session.status === "completed" && (
-        <div className="mb-6">
+        <div className="mb-6 flex items-center gap-3">
           <button
             onClick={() => router.push(`/sessions/${id}/replay`)}
             className="inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
@@ -641,6 +658,14 @@ export default function SessionDetailPage() {
             <PlayCircle size={16} aria-hidden="true" />
             Replay
           </button>
+          <Link
+            href={`/sessions/${id}/analytics`}
+            className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium transition-colors hover:bg-gray-50"
+            style={{ color: "var(--ink)" }}
+          >
+            <BarChart3 size={16} aria-hidden="true" />
+            View Analytics
+          </Link>
         </div>
       )}
 
