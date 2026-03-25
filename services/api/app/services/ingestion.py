@@ -85,6 +85,51 @@ def parse_document(
 
 
 def _parse_pdf(file_bytes: bytes, file_name: str) -> list[dict]:
+    # Try pymupdf first (more reliable), fallback to PyPDF2
+    try:
+        return _parse_pdf_pymupdf(file_bytes, file_name)
+    except Exception as exc:
+        logger.warning("pymupdf failed for '%s': %s. Trying PyPDF2...", file_name, exc)
+        return _parse_pdf_pypdf2(file_bytes, file_name)
+
+
+def _parse_pdf_pymupdf(file_bytes: bytes, file_name: str) -> list[dict]:
+    import fitz  # pymupdf
+
+    doc = fitz.open(stream=file_bytes, filetype="pdf")
+    total_pages = len(doc)
+    chunks: list[dict] = []
+    skipped_count = 0
+
+    for i in range(total_pages):
+        page = doc[i]
+        text = page.get_text("text") or ""
+        text = _clean_text(text)
+        if text:
+            chunks.append(
+                {
+                    "chunk_index": len(chunks),
+                    "content": text,
+                    "heading": f"Page {i + 1}",
+                    "chunk_type": "page",
+                }
+            )
+        else:
+            skipped_count += 1
+
+    doc.close()
+
+    if skipped_count > 0:
+        logger.warning(
+            "PDF '%s': skipped %d empty pages out of %d total (pymupdf)",
+            file_name, skipped_count, total_pages,
+        )
+
+    logger.info("PDF parsed with pymupdf: %d chunks from %d pages", len(chunks), total_pages)
+    return chunks
+
+
+def _parse_pdf_pypdf2(file_bytes: bytes, file_name: str) -> list[dict]:
     from PyPDF2 import PdfReader
 
     reader = PdfReader(io.BytesIO(file_bytes))
@@ -109,7 +154,7 @@ def _parse_pdf(file_bytes: bytes, file_name: str) -> list[dict]:
 
     if skipped_count > 0:
         logger.warning(
-            "PDF '%s': skipped %d empty pages out of %d total",
+            "PDF '%s': skipped %d empty pages out of %d total (PyPDF2)",
             file_name,
             skipped_count,
             total_pages,

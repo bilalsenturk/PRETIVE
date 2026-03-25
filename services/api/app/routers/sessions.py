@@ -133,7 +133,7 @@ async def create_session(
             .insert({
                 "title": body.title,
                 "status": "draft",
-                **({"user_id": user_id} if user_id != DEMO_USER_ID else {}),
+                "user_id": user_id,
             })
             .execute()
         )
