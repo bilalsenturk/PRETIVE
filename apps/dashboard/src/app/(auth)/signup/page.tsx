@@ -15,6 +15,7 @@ export default function SignupPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -32,6 +33,11 @@ export default function SignupPage() {
 
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
+      return;
+    }
+
+    if (!acceptedTerms) {
+      setError("Please accept the Privacy Policy to continue.");
       return;
     }
 
@@ -166,9 +172,25 @@ export default function SignupPage() {
             </div>
           </div>
 
+          <label className="flex items-start gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={acceptedTerms}
+              onChange={(e) => setAcceptedTerms(e.target.checked)}
+              className="mt-0.5 h-4 w-4 rounded border-gray-300 accent-[#D94228]"
+            />
+            <span className="text-xs text-gray-500">
+              I agree to the{" "}
+              <a href="/privacy" target="_blank" className="font-medium underline" style={{ color: "var(--red)" }}>
+                Privacy Policy
+              </a>{" "}
+              and consent to my data being processed by AI for content matching and session assistance.
+            </span>
+          </label>
+
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || !acceptedTerms}
             className="w-full rounded-lg px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-60"
             style={{ backgroundColor: "var(--red)" }}
           >

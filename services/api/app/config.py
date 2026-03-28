@@ -35,6 +35,24 @@ class Settings(BaseSettings):
     # ── Deepgram ──────────────────────────────────────────────
     DEEPGRAM_API_KEY: str = Field(..., min_length=1)
 
+    # ── Stripe ──────────────────────────────────────────────
+    STRIPE_SECRET_KEY: str = ""
+    STRIPE_WEBHOOK_SECRET: str = ""
+    STRIPE_PRICE_PRO_MONTHLY: str = ""
+    STRIPE_PRICE_TEAM_MONTHLY: str = ""
+    STRIPE_PRICE_ENTERPRISE_MONTHLY: str = ""
+
+    # ── Google OAuth ──────────────────────────────────────────
+    GOOGLE_CLIENT_ID: str = ""
+    GOOGLE_CLIENT_SECRET: str = ""
+    GOOGLE_REDIRECT_URI: str = "http://localhost:3000/integrations/google/callback"
+
+    # ── Zoom ──────────────────────────────────────────────────
+    ZOOM_CLIENT_ID: str = ""
+    ZOOM_CLIENT_SECRET: str = ""
+    ZOOM_VERIFICATION_TOKEN: str = ""
+    ZOOM_REDIRECT_URI: str = "http://localhost:3000/integrations/zoom/callback"
+
     # ── Application ───────────────────────────────────────────
     NEXT_PUBLIC_API_URL: str = "http://localhost:8000"
     ALLOWED_ORIGINS: str = "http://localhost:3000,http://localhost:3333"
@@ -82,6 +100,18 @@ class Settings(BaseSettings):
         logger.info("Allowed origins    : %s", self.ALLOWED_ORIGINS)
         logger.info("Log level          : %s", self.LOG_LEVEL)
         logger.info("Max file size (MB) : %d", self.MAX_FILE_SIZE_MB)
+        if self.STRIPE_SECRET_KEY:
+            logger.info("Stripe API key     : %s…", self.STRIPE_SECRET_KEY[:8])
+        else:
+            logger.info("Stripe             : not configured")
+        if self.GOOGLE_CLIENT_ID:
+            logger.info("Google OAuth       : configured")
+        else:
+            logger.info("Google OAuth       : not configured")
+        if self.ZOOM_CLIENT_ID:
+            logger.info("Zoom OAuth         : configured")
+        else:
+            logger.info("Zoom OAuth         : not configured")
         logger.info("── All required keys present ──")
 
     model_config = SettingsConfigDict(

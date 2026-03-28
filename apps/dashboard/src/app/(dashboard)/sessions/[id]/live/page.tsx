@@ -31,11 +31,18 @@ interface Card {
   display_order: number;
 }
 
+interface PrompterResponse {
+  transition_sentence?: string | null;
+  key_reminders?: Array<{ point: string; source_topic: string }>;
+  structure_hint?: { type: string; message: string };
+}
+
 interface MatchResponse {
   cards: Card[];
   position: { heading?: string; chunk_index?: number } | string | null;
   verification?: Verification | null;
   suggestions?: Suggestion[];
+  prompter?: PrompterResponse;
 }
 
 type LiveState = "idle" | "recording" | "stopped";
@@ -80,6 +87,9 @@ export default function LiveSessionPage() {
   const [coveredSlides, setCoveredSlides] = useState<Set<number>>(new Set());
   const [qaOpen, setQaOpen] = useState(false);
   const [qaPendingCount, setQaPendingCount] = useState(0);
+  const [shownCardIds, setShownCardIds] = useState<string[]>([]);
+  const [dismissedCardIds, setDismissedCardIds] = useState<string[]>([]);
+  const [queuedCount, setQueuedCount] = useState(0);
   const prevPositionRef = useRef<string | null>(null);
 
   const [elapsed, setElapsed] = useState(0);
@@ -249,6 +259,39 @@ export default function LiveSessionPage() {
                 return combined;
               });
             }
+            // Convert prompter response into suggestion items
+            if (res.prompter) {
+              const prompterSuggestions: Suggestion[] = [];
+              if (res.prompter.transition_sentence) {
+                prompterSuggestions.push({
+                  type: "prompter_transition",
+                  title: "Transition",
+                  message: res.prompter.transition_sentence,
+                  priority: "medium",
+                });
+              }
+              if (res.prompter.key_reminders) {
+                for (const r of res.prompter.key_reminders) {
+                  prompterSuggestions.push({
+                    type: "prompter_reminder",
+                    title: `Remember: ${r.source_topic || "upcoming"}`,
+                    message: r.point,
+                    priority: "low",
+                  });
+                }
+              }
+              if (res.prompter.structure_hint && res.prompter.structure_hint.type !== "on_track") {
+                prompterSuggestions.push({
+                  type: "prompter_structure",
+                  title: res.prompter.structure_hint.type === "behind" ? "Pacing: Behind" : "Pacing: Ahead",
+                  message: res.prompter.structure_hint.message,
+                  priority: res.prompter.structure_hint.type === "behind" ? "high" : "low",
+                });
+              }
+              if (prompterSuggestions.length > 0) {
+                setSuggestions((prev) => [...prompterSuggestions, ...prev]);
+              }
+            }
           })
           .catch((matchErr) => {
             if (matchController.signal.aborted) return;
@@ -335,6 +378,47 @@ export default function LiveSessionPage() {
       setCurrentSlideIndex(index);
     }
   }
+
+  // Handle card dismiss from orchestration
+  const handleCardDismiss = useCallback((cardId: string) => {
+    setDismissedCardIds((prev) => [...prev, cardId]);
+    setActiveCards((prev) => prev.filter((c) => c.id !== cardId));
+  }, []);
+
+  // Track shown cards
+  useEffect(() => {
+    if (activeCards.length > 0) {
+      setShownCardIds((prev) => {
+        const newIds = activeCards.map((c) => c.id).filter((id) => !prev.includes(id));
+        return newIds.length > 0 ? [...prev, ...newIds] : prev;
+      });
+    }
+  }, [activeCards]);
+
+  // Fetch orchestrated card queue after each match
+  useEffect(() => {
+    if (liveState !== "recording" || activeCards.length === 0) return;
+
+    const controller = new AbortController();
+    post<{ active: Card[]; queued: Card[]; dismissed_count: number }>(
+      `/api/sessions/${id}/live/orchestrate`,
+      {
+        shown_card_ids: shownCardIds,
+        dismissed_card_ids: dismissedCardIds,
+        current_chunk_index: currentSlideIndex,
+        elapsed_seconds: elapsed,
+      },
+      controller.signal
+    )
+      .then((res) => {
+        if (controller.signal.aborted) return;
+        setQueuedCount(res.queued?.length || 0);
+      })
+      .catch(() => {});
+
+    return () => controller.abort();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [matchCount]);
 
   // Keyboard shortcuts for slide navigation
   useEffect(() => {
@@ -583,6 +667,8 @@ export default function LiveSessionPage() {
           <ActiveCards
             cards={activeCards}
             currentPosition={currentPosition}
+            onDismiss={handleCardDismiss}
+            queuedCount={queuedCount}
           />
         </div>
 

@@ -3,12 +3,13 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ReactNode } from "react";
-import { User, Building2, Users, Bell, Shield } from "lucide-react";
+import { User, Building2, Users, Bell, Shield, Plug } from "lucide-react";
 
 const tabs = [
   { href: "/settings", label: "Profile", icon: User, exact: true },
   { href: "/settings/organization", label: "Organization", icon: Building2, exact: false },
   { href: "/settings/members", label: "Members", icon: Users, exact: false },
+  { href: "/settings/integrations", label: "Integrations", icon: Plug, exact: false },
   { href: "/settings/notifications", label: "Notifications", icon: Bell, exact: false },
   { href: "/settings/security", label: "Security", icon: Shield, exact: false },
 ];

@@ -22,11 +22,13 @@ import {
   Upload,
   ClipboardList,
   BarChart3,
+  CloudDownload,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { get, post, del } from "@/lib/api";
 import SessionCard from "@/components/SessionCard";
+import GoogleDrivePicker from "@/components/GoogleDrivePicker";
 
 interface Session {
   id: string;
@@ -156,6 +158,7 @@ export default function SessionDetailPage() {
   const [copied, setCopied] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showDrivePicker, setShowDrivePicker] = useState(false);
 
   const abortRef = useRef<AbortController | null>(null);
   const pollIntervalRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -531,6 +534,13 @@ export default function SessionDetailPage() {
             <Upload size={32} className="mx-auto mb-3 text-gray-300" />
             <p className="text-sm text-gray-500">No documents uploaded yet.</p>
             <p className="text-xs text-gray-400 mt-1">Upload a PDF or PPTX to get AI-powered support cards.</p>
+            <button
+              onClick={() => setShowDrivePicker(true)}
+              className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            >
+              <CloudDownload size={14} />
+              Import from Google Drive
+            </button>
           </div>
         ) : (
           <ul className="space-y-2">
@@ -686,6 +696,18 @@ export default function SessionDetailPage() {
               ))}
           </div>
         </div>
+      )}
+
+      {/* Google Drive Picker Modal */}
+      {showDrivePicker && (
+        <GoogleDrivePicker
+          sessionId={id}
+          onClose={() => setShowDrivePicker(false)}
+          onImportComplete={() => {
+            setShowDrivePicker(false);
+            fetchDocuments();
+          }}
+        />
       )}
     </div>
   );

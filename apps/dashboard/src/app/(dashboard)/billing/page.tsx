@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Check,
   X,
@@ -10,7 +10,18 @@ import {
   Users,
   Building2,
   Star,
+  ExternalLink,
+  Loader2,
 } from "lucide-react";
+import { get, post } from "@/lib/api";
+
+interface SubscriptionStatus {
+  plan: string;
+  status: string;
+  seat_count: number;
+  current_period_end: string | null;
+  cancel_at_period_end: boolean;
+}
 
 /* ------------------------------------------------------------------ */
 /*  Data                                                               */
@@ -147,6 +158,45 @@ function Cell({ value }: { value: boolean | string }) {
 
 export default function BillingPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [subscription, setSubscription] = useState<SubscriptionStatus | null>(null);
+  const [loadingSub, setLoadingSub] = useState(true);
+  const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
+
+  useEffect(() => {
+    get<SubscriptionStatus>("/api/billing/subscription")
+      .then(setSubscription)
+      .catch(() => setSubscription({ plan: "free", status: "inactive", seat_count: 1, current_period_end: null, cancel_at_period_end: false }))
+      .finally(() => setLoadingSub(false));
+  }, []);
+
+  const handleUpgrade = useCallback(async (planId: string) => {
+    setCheckoutLoading(planId);
+    try {
+      const res = await post<{ url: string }>("/api/billing/checkout", {
+        plan: planId,
+        success_url: window.location.href,
+        cancel_url: window.location.href,
+      });
+      if (res.url) window.location.href = res.url;
+    } catch (err) {
+      console.error("Checkout failed:", err);
+    } finally {
+      setCheckoutLoading(null);
+    }
+  }, []);
+
+  const handleManageSubscription = useCallback(async () => {
+    try {
+      const res = await post<{ url: string }>("/api/billing/portal", {
+        return_url: window.location.href,
+      });
+      if (res.url) window.location.href = res.url;
+    } catch (err) {
+      console.error("Portal failed:", err);
+    }
+  }, []);
+
+  const currentPlan = subscription?.plan || "free";
 
   return (
     <div className="min-h-screen bg-gray-50/60">
@@ -214,19 +264,29 @@ export default function BillingPage() {
                 </ul>
 
                 <button
-                  disabled={plan.ctaDisabled}
+                  disabled={currentPlan === plan.id || checkoutLoading === plan.id}
+                  onClick={() => {
+                    if (currentPlan === plan.id) return;
+                    if (plan.id === "enterprise") {
+                      window.location.href = "mailto:sales@pretive.com?subject=Enterprise Plan";
+                      return;
+                    }
+                    handleUpgrade(plan.id);
+                  }}
                   className={`w-full rounded-xl py-2.5 text-sm font-semibold transition-colors ${
-                    plan.ctaDisabled
+                    currentPlan === plan.id
                       ? "border border-gray-300 text-gray-400 cursor-default"
                       : plan.featured
                       ? "bg-[#D94228] text-white hover:bg-[#c13a23]"
                       : "border border-gray-300 text-gray-700 hover:bg-gray-50"
                   }`}
                 >
-                  {plan.ctaDisabled && (
+                  {checkoutLoading === plan.id ? (
+                    <Loader2 size={14} className="mr-1.5 inline-block -mt-0.5 animate-spin" />
+                  ) : currentPlan === plan.id ? (
                     <Star size={14} className="mr-1.5 inline-block -mt-0.5 text-[#D94228]" />
-                  )}
-                  {plan.cta}
+                  ) : null}
+                  {currentPlan === plan.id ? "Current Plan" : plan.cta}
                 </button>
               </div>
             );
@@ -266,6 +326,30 @@ export default function BillingPage() {
             ))}
           </div>
         </div>
+
+        {/* ---- Manage Subscription ---- */}
+        {subscription && subscription.status === "active" && (
+          <div className="mt-6 flex items-center justify-between rounded-2xl border border-blue-100 bg-blue-50/50 px-6 py-4">
+            <div>
+              <p className="text-sm font-semibold text-gray-900">
+                Active Plan: {subscription.plan.charAt(0).toUpperCase() + subscription.plan.slice(1)}
+              </p>
+              {subscription.current_period_end && (
+                <p className="text-xs text-gray-500">
+                  {subscription.cancel_at_period_end ? "Cancels" : "Renews"} on{" "}
+                  {new Date(subscription.current_period_end).toLocaleDateString()}
+                </p>
+              )}
+            </div>
+            <button
+              onClick={handleManageSubscription}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            >
+              <ExternalLink size={14} />
+              Manage Subscription
+            </button>
+          </div>
+        )}
 
         {/* ---- Feature Comparison ---- */}
         <div className="mt-12 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">

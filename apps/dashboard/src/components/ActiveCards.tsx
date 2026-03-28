@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
+import { X, ChevronRight } from "lucide-react";
 import SessionCard from "@/components/SessionCard";
 
 interface CardContent {
@@ -15,11 +16,15 @@ interface Card {
   title: string;
   content: string | CardContent | null | undefined;
   display_order: number;
+  _score?: number;
+  _display_duration?: number;
 }
 
 interface ActiveCardsProps {
   cards: Card[];
   currentPosition: string | { heading?: string; [key: string]: unknown } | null;
+  onDismiss?: (cardId: string) => void;
+  queuedCount?: number;
 }
 
 function resolvePositionDisplay(
@@ -43,21 +48,30 @@ function resolvePositionDisplay(
 export default function ActiveCards({
   cards,
   currentPosition,
+  onDismiss,
+  queuedCount = 0,
 }: ActiveCardsProps) {
   const [animState, setAnimState] = useState<"entering" | "visible" | "exiting">("visible");
   const [displayCards, setDisplayCards] = useState<Card[]>(cards);
+  const [cardTimers, setCardTimers] = useState<Record<string, number>>({});
   const prevCardsRef = useRef<string>("");
+  const timerIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     const cardsKey = cards.map((c) => c.id).join(",");
     if (cardsKey === prevCardsRef.current) return;
 
-    // If we had previous cards, exit them first
     if (prevCardsRef.current !== "") {
       setAnimState("exiting");
       const exitTimer = setTimeout(() => {
         setDisplayCards(cards);
         setAnimState("entering");
+        // Initialize timers for new cards
+        const newTimers: Record<string, number> = {};
+        for (const card of cards) {
+          newTimers[card.id] = card._display_duration || 30;
+        }
+        setCardTimers(newTimers);
         const enterTimer = setTimeout(() => {
           setAnimState("visible");
         }, 50);
@@ -66,14 +80,60 @@ export default function ActiveCards({
       prevCardsRef.current = cardsKey;
       return () => clearTimeout(exitTimer);
     } else {
-      // First load — just enter
       setDisplayCards(cards);
+      const newTimers: Record<string, number> = {};
+      for (const card of cards) {
+        newTimers[card.id] = card._display_duration || 30;
+      }
+      setCardTimers(newTimers);
       setAnimState("entering");
       const timer = setTimeout(() => setAnimState("visible"), 50);
       prevCardsRef.current = cardsKey;
       return () => clearTimeout(timer);
     }
   }, [cards]);
+
+  // Countdown timers for auto-advance
+  useEffect(() => {
+    if (displayCards.length === 0) return;
+
+    timerIntervalRef.current = setInterval(() => {
+      setCardTimers((prev) => {
+        const next = { ...prev };
+        let changed = false;
+        for (const id of Object.keys(next)) {
+          if (next[id] > 0) {
+            next[id] -= 1;
+            changed = true;
+          }
+        }
+        return changed ? next : prev;
+      });
+    }, 1000);
+
+    return () => {
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current);
+      }
+    };
+  }, [displayCards]);
+
+  // Auto-dismiss expired cards
+  useEffect(() => {
+    for (const [cardId, remaining] of Object.entries(cardTimers)) {
+      if (remaining <= 0 && onDismiss) {
+        onDismiss(cardId);
+      }
+    }
+  }, [cardTimers, onDismiss]);
+
+  const handleDismiss = useCallback(
+    (cardId: string) => {
+      setDisplayCards((prev) => prev.filter((c) => c.id !== cardId));
+      if (onDismiss) onDismiss(cardId);
+    },
+    [onDismiss]
+  );
 
   const positionText = resolvePositionDisplay(currentPosition);
 
@@ -102,6 +162,12 @@ export default function ActiveCards({
             }}
           >
             {displayCards.length} card{displayCards.length !== 1 ? "s" : ""}
+          </span>
+        )}
+        {queuedCount > 0 && (
+          <span className="flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-600">
+            <ChevronRight size={12} />
+            {queuedCount} in queue
           </span>
         )}
       </div>
@@ -133,9 +199,37 @@ export default function ActiveCards({
           </div>
         ) : (
           <div className="space-y-3" style={animStyle}>
-            {displayCards.map((card) => (
-              <SessionCard key={card.id} card={card} />
-            ))}
+            {displayCards.map((card) => {
+              const remaining = cardTimers[card.id];
+              const duration = card._display_duration || 30;
+              const progress = remaining != null ? remaining / duration : 1;
+
+              return (
+                <div key={card.id} className="relative group">
+                  {/* Timer progress bar */}
+                  {remaining != null && remaining > 0 && (
+                    <div className="absolute top-0 left-0 right-0 h-0.5 rounded-t-lg overflow-hidden bg-gray-100">
+                      <div
+                        className="h-full transition-all duration-1000 ease-linear"
+                        style={{
+                          width: `${progress * 100}%`,
+                          backgroundColor: progress > 0.3 ? "#2563eb" : "#D94228",
+                        }}
+                      />
+                    </div>
+                  )}
+                  <SessionCard card={card} />
+                  {/* Dismiss button */}
+                  <button
+                    onClick={() => handleDismiss(card.id)}
+                    className="absolute right-2 top-2 rounded-full bg-white/80 p-1 text-gray-400 opacity-0 shadow-sm transition-opacity hover:bg-white hover:text-gray-600 group-hover:opacity-100"
+                    aria-label={`Dismiss card: ${card.title}`}
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>

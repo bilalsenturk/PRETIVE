@@ -14,6 +14,8 @@ from app.db.supabase import get_supabase
 from app.services.matching import find_matching_chunks, get_cards_for_position
 from app.services.suggestions import get_suggestions
 from app.services.verification import verify_claim
+from app.services.prompter import generate_prompter_guidance, clear_session_cache
+from app.services.orchestration import build_card_queue
 
 logger = logging.getLogger(__name__)
 
@@ -39,6 +41,7 @@ class MatchResponse(BaseModel):
     position: dict
     verification: dict = {}
     suggestions: list[dict] = []
+    prompter: dict = {}
 
 
 class LiveStatusResponse(BaseModel):
@@ -159,6 +162,7 @@ async def stop_live_session(session_id: str) -> LiveActionResponse:
         raise HTTPException(status_code=500, detail="Failed to update session status")
 
     _log_event(session_id, "live_stopped")
+    clear_session_cache(session_id)
     logger.info("Session %s completed", session_id)
 
     return LiveActionResponse(session_id=session_id, status="completed")
@@ -248,6 +252,70 @@ async def match_transcript(session_id: str, body: MatchRequest) -> MatchResponse
     except Exception as exc:
         logger.exception("Suggestions failed for session %s: %s", session_id, exc)
 
+    # Generate semantic prompter guidance (transition sentences, reminders, pacing)
+    prompter: dict = {}
+    try:
+        # Build topic coverage data from suggestions service data
+        supabase_p = get_supabase()
+        chunks_data = (
+            supabase_p.table("content_chunks")
+            .select("id, chunk_index, heading, content")
+            .eq("session_id", session_id)
+            .order("chunk_index")
+            .execute()
+        )
+        all_chunks = chunks_data.data or []
+
+        events_data = (
+            supabase_p.table("session_events")
+            .select("payload")
+            .eq("session_id", session_id)
+            .eq("event_type", "match")
+            .execute()
+        )
+        covered_ids = set()
+        for ev in (events_data.data or []):
+            p = ev.get("payload") or {}
+            for cid in p.get("matched_chunk_ids", []):
+                covered_ids.add(cid)
+
+        # Build topic lists
+        all_topics_ordered: list[str] = []
+        topic_set: set[str] = set()
+        covered_topics_list: list[str] = []
+        covered_topic_set: set[str] = set()
+        for ch in all_chunks:
+            h = ch.get("heading") or "Untitled"
+            if h not in topic_set:
+                all_topics_ordered.append(h)
+                topic_set.add(h)
+            if ch["id"] in covered_ids and h not in covered_topic_set:
+                covered_topics_list.append(h)
+                covered_topic_set.add(h)
+
+        uncovered_topics_list = [t for t in all_topics_ordered if t not in covered_topic_set]
+
+        # Find next uncovered topic and its chunks for context
+        current_heading = position.get("heading")
+        next_topic = uncovered_topics_list[0] if uncovered_topics_list else None
+        if next_topic == current_heading and len(uncovered_topics_list) > 1:
+            next_topic = uncovered_topics_list[1]
+
+        next_chunks = [c for c in all_chunks if c.get("heading") == next_topic][:3]
+
+        prompter = generate_prompter_guidance(
+            current_topic=current_heading,
+            next_topic=next_topic,
+            covered_topics=covered_topics_list,
+            uncovered_topics=uncovered_topics_list,
+            elapsed_seconds=int(elapsed),
+            total_topics=len(all_topics_ordered),
+            context_chunks=next_chunks,
+            session_id=session_id,
+        )
+    except Exception as exc:
+        logger.exception("Prompter failed for session %s: %s", session_id, exc)
+
     # Update session's current state for participant view
     try:
         supabase = get_supabase()
@@ -297,8 +365,9 @@ async def match_transcript(session_id: str, body: MatchRequest) -> MatchResponse
         })
 
     logger.info(
-        "Match result: session=%s, chunks=%d, cards=%d, verification=%s, suggestions=%d",
+        "Match result: session=%s, chunks=%d, cards=%d, verification=%s, suggestions=%d, prompter=%s",
         session_id, len(chunks), len(cards), verification.get("status"), len(suggestions),
+        bool(prompter.get("transition_sentence")),
     )
 
     return MatchResponse(
@@ -307,6 +376,7 @@ async def match_transcript(session_id: str, body: MatchRequest) -> MatchResponse
         position=position,
         verification=verification,
         suggestions=suggestions,
+        prompter=prompter,
     )
 
 
@@ -389,6 +459,41 @@ async def navigate_to_slide(session_id: str, body: SlideNavigateRequest):
     })
 
     return {"chunks": [chunk], "cards": cards, "position": position}
+
+
+class OrchestrateRequest(BaseModel):
+    shown_card_ids: list[str] = []
+    dismissed_card_ids: list[str] = []
+    current_chunk_index: int | None = None
+    elapsed_seconds: int = 0
+
+
+@router.post("/{session_id}/live/orchestrate")
+async def orchestrate_cards(session_id: str, body: OrchestrateRequest):
+    """Return a prioritized card queue for intelligent screen orchestration."""
+    _get_session_or_404(session_id)
+    supabase = get_supabase()
+
+    # Fetch all session cards
+    result = (
+        supabase.table("session_cards")
+        .select("*")
+        .eq("session_id", session_id)
+        .order("display_order")
+        .execute()
+    )
+    all_cards = result.data or []
+
+    queue = build_card_queue(
+        all_session_cards=all_cards,
+        active_card_ids=body.shown_card_ids[:3],
+        dismissed_card_ids=body.dismissed_card_ids,
+        current_chunk_index=body.current_chunk_index,
+        elapsed_seconds=body.elapsed_seconds,
+        shown_card_ids=body.shown_card_ids,
+    )
+
+    return queue
 
 
 @router.get("/{session_id}/live/status", response_model=LiveStatusResponse)

@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { useUser } from "@/lib/user-context";
 import { supabase } from "@/lib/supabase";
-import { Loader2, Check, Eye, EyeOff, AlertTriangle } from "lucide-react";
+import { Loader2, Check, Eye, EyeOff, AlertTriangle, Download, Shield } from "lucide-react";
+import { get } from "@/lib/api";
 
 export default function SecuritySettings() {
   const { user, loading: userLoading } = useUser();
@@ -20,6 +21,7 @@ export default function SecuritySettings() {
 
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   const handleChangePassword = async () => {
     setError(null);
@@ -167,6 +169,53 @@ export default function SecuritySettings() {
             {saving && <Loader2 size={16} className="animate-spin" />}
             Update Password
           </button>
+        </div>
+      </div>
+
+      {/* Data Privacy (GDPR) */}
+      <div className="rounded-2xl bg-white p-6 shadow-sm">
+        <div className="flex items-start gap-3 mb-4">
+          <Shield size={20} className="text-blue-500 mt-0.5 shrink-0" />
+          <div>
+            <h2 className="text-lg font-semibold text-gray-900">Data Privacy</h2>
+            <p className="text-sm text-gray-500 mt-1">
+              Manage your personal data. Under GDPR, you have the right to access, export, and delete your data.
+            </p>
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          <button
+            onClick={async () => {
+              setExporting(true);
+              try {
+                const data = await get("/api/me/export");
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `pretive-data-export-${new Date().toISOString().split("T")[0]}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+                setToast("Data exported successfully");
+                setTimeout(() => setToast(null), 3000);
+              } catch {
+                setError("Failed to export data");
+              } finally {
+                setExporting(false);
+              }
+            }}
+            disabled={exporting}
+            className="flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:opacity-50"
+          >
+            {exporting ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
+            Export My Data (JSON)
+          </button>
+
+          <div className="flex gap-3 text-xs text-gray-400">
+            <a href="/privacy" target="_blank" className="underline hover:text-gray-600">Privacy Policy</a>
+            <a href="/dpa" target="_blank" className="underline hover:text-gray-600">Data Processing Agreement</a>
+          </div>
         </div>
       </div>
 

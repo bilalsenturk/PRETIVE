@@ -344,3 +344,71 @@ ALTER TABLE session_questions ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Anyone can read session questions" ON session_questions FOR SELECT USING (true);
 CREATE POLICY "Anyone can insert questions" ON session_questions FOR INSERT WITH CHECK (true);
 CREATE POLICY "Anyone can update questions" ON session_questions FOR UPDATE USING (true);
+
+-- ============================================
+-- Subscriptions (Stripe integration)
+-- ============================================
+create table if not exists subscriptions (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references auth.users(id) on delete cascade not null unique,
+  stripe_customer_id text not null,
+  stripe_subscription_id text,
+  plan text not null default 'free'
+    check (plan in ('free', 'pro', 'team', 'enterprise')),
+  status text not null default 'inactive'
+    check (status in ('active', 'inactive', 'past_due', 'canceled', 'trialing')),
+  current_period_start timestamptz,
+  current_period_end timestamptz,
+  cancel_at_period_end boolean default false,
+  seat_count int default 1,
+  metadata jsonb default '{}',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create trigger subscriptions_updated_at
+  before update on subscriptions
+  for each row
+  execute function update_updated_at();
+
+create index if not exists idx_subscriptions_user_id on subscriptions(user_id);
+create index if not exists idx_subscriptions_stripe_customer on subscriptions(stripe_customer_id);
+create index if not exists idx_subscriptions_stripe_sub on subscriptions(stripe_subscription_id);
+
+alter table subscriptions enable row level security;
+
+create policy "Users manage own subscription"
+  on subscriptions for all
+  using (auth.uid() = user_id);
+
+-- ============================================
+-- User Integrations (OAuth tokens for Drive, Zoom, etc.)
+-- ============================================
+create table if not exists user_integrations (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references auth.users(id) on delete cascade not null,
+  provider text not null check (provider in ('google', 'zoom', 'microsoft')),
+  access_token text not null,
+  refresh_token text,
+  token_expires_at timestamptz,
+  scopes text,
+  provider_account_id text,
+  metadata jsonb default '{}',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique (user_id, provider)
+);
+
+create trigger user_integrations_updated_at
+  before update on user_integrations
+  for each row
+  execute function update_updated_at();
+
+create index if not exists idx_user_integrations_user_provider
+  on user_integrations(user_id, provider);
+
+alter table user_integrations enable row level security;
+
+create policy "Users manage own integrations"
+  on user_integrations for all
+  using (auth.uid() = user_id);

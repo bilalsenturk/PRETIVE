@@ -1,9 +1,9 @@
 "use client";
 
-import { SkipForward, ArrowRight, Clock, CheckCircle, X } from "lucide-react";
+import { SkipForward, ArrowRight, Clock, CheckCircle, X, MessageSquare, Lightbulb, Gauge } from "lucide-react";
 
 export interface Suggestion {
-  type: "skipped_topic" | "transition" | "time_warning" | "coverage";
+  type: "skipped_topic" | "transition" | "time_warning" | "coverage" | "prompter_transition" | "prompter_reminder" | "prompter_structure";
   title: string;
   message: string;
   priority: "low" | "medium" | "high";
@@ -19,6 +19,9 @@ const TYPE_CONFIG = {
   transition: { icon: ArrowRight, color: "#2563eb" },
   time_warning: { icon: Clock, color: "#D94228" },
   coverage: { icon: CheckCircle, color: "#16a34a" },
+  prompter_transition: { icon: MessageSquare, color: "#0d9488" },
+  prompter_reminder: { icon: Lightbulb, color: "#7c3aed" },
+  prompter_structure: { icon: Gauge, color: "#ca8a04" },
 } as const;
 
 const PRIORITY_BORDER = {
