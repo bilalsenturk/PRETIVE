@@ -321,7 +321,7 @@ export default function SessionDetailPage() {
   }
 
   function handleStartSession() {
-    router.push(`/sessions/${id}/live`);
+    router.push(`/sessions/${id}/control`);
   }
 
   async function handleDelete() {
