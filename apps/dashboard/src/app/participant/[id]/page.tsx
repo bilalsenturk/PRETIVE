@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useParams } from "next/navigation";
 import { get } from "@/lib/api";
+import DynamicSlide from "@/components/DynamicSlide";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -35,6 +36,15 @@ interface ParticipantCardsResponse {
     current_slide: number;
     total_slides: number;
   };
+  dynamic_slide?: {
+    current_topic_index: number;
+    total_topics: number;
+    topic: {
+      title: string;
+      items: Array<{ text: string; revealed: boolean }>;
+      status?: string;
+    };
+  } | null;
 }
 
 // ---------------------------------------------------------------------------
@@ -247,6 +257,7 @@ export default function ParticipantViewPage() {
     current_slide: number;
     total_slides: number;
   } | null>(null);
+  const [dynamicSlideData, setDynamicSlideData] = useState<ParticipantCardsResponse["dynamic_slide"]>(null);
 
   // Participant name
   const [participantName, setParticipantName] = useState(() =>
@@ -282,6 +293,9 @@ export default function ParticipantViewPage() {
         setCards(data.cards);
         if (data.slide_progress) {
           setSlideProgress(data.slide_progress);
+        }
+        if (data.dynamic_slide) {
+          setDynamicSlideData(data.dynamic_slide);
         }
         setError(null);
       } catch (err) {
@@ -525,7 +539,20 @@ export default function ParticipantViewPage() {
             <ReactionBar sessionId={sessionId} compact />
           </div>
 
-          {cards.length === 0 ? (
+          {/* Dynamic slide takes priority over cards */}
+          {dynamicSlideData?.topic ? (
+            <div className="rounded-2xl border border-gray-200 bg-white overflow-hidden">
+              <DynamicSlide
+                topic={{
+                  ...dynamicSlideData.topic,
+                  items: dynamicSlideData.topic.items.map(item => ({ ...item, revealed: true })),
+                }}
+                topicIndex={dynamicSlideData.current_topic_index}
+                totalTopics={dynamicSlideData.total_topics}
+                theme="light"
+              />
+            </div>
+          ) : cards.length === 0 ? (
             <div className="py-16 text-center">
               <p className="text-sm text-gray-500">
                 Loading cards...

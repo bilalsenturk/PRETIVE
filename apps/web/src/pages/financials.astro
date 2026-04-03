@@ -4,7 +4,7 @@ import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
 ---
 
-<BaseLayout title="PRETIVE — Financial Projections" description="PRETIVE financial projections, unit economics, and investment details for investors.">
+<BaseLayout title="PRETIVE — Financial Projections" description="PRETIVE financial projections, unit economics, and investment details for investors." noindex={true}>
 
   <Nav activePage="investors" />
 
@@ -38,18 +38,27 @@ import Footer from '../components/Footer.astro';
         <h2 class="serif" style="font-size: 32px; letter-spacing: -1px;">Pricing Model</h2>
       </div>
 
+      <p style="font-size: 13px; color: rgba(0,0,0,0.3); max-width: 560px; line-height: 1.6; margin-bottom: 32px; font-style: italic;">
+        Each plan includes a fair-use allowance of live session hours, document storage, and AI processing. Overages are billed per unit so customers pay proportionally for what they use &mdash; and our margins stay healthy as usage scales.
+      </p>
+
       <div class="pricing-grid">
         <!-- Pro -->
         <div class="paper" style="border-radius: 20px; padding: 32px; position: relative;">
           <span class="mono" style="font-size: 10px; color: rgba(0,0,0,0.25); text-transform: uppercase; letter-spacing: 1.5px;">Individual</span>
           <h3 class="serif" style="font-size: 28px; margin: 8px 0 4px;">Pro</h3>
-          <div style="display: flex; align-items: baseline; gap: 4px; margin-bottom: 16px;">
+          <div style="display: flex; align-items: baseline; gap: 4px; margin-bottom: 12px;">
             <span style="font-size: 36px; font-weight: 800; letter-spacing: -1px;">&euro;19</span>
             <span style="font-size: 14px; color: rgba(0,0,0,0.3);">/mo</span>
           </div>
-          <p style="font-size: 14px; color: rgba(0,0,0,0.4); line-height: 1.6;">
+          <p style="font-size: 14px; color: rgba(0,0,0,0.4); line-height: 1.6; margin-bottom: 16px;">
             Independent trainers, expert speakers, and webinar producers who need an AI copilot for their live sessions.
           </p>
+          <div style="border-top: 1px solid rgba(0,0,0,0.06); padding-top: 12px; display: flex; flex-direction: column; gap: 6px;">
+            <span style="font-size: 12px; color: rgba(0,0,0,0.35);">&#10003; 10 live hours / mo</span>
+            <span style="font-size: 12px; color: rgba(0,0,0,0.35);">&#10003; 2 GB document storage</span>
+            <span style="font-size: 12px; color: rgba(0,0,0,0.35);">&#10003; 50 AI card generations / session</span>
+          </div>
         </div>
 
         <!-- Team -->
@@ -57,27 +66,59 @@ import Footer from '../components/Footer.astro';
           <div style="position: absolute; top: -10px; right: 20px; background: var(--red); color: white; font-size: 10px; font-weight: 700; padding: 4px 12px; border-radius: 20px; letter-spacing: 0.5px;">MOST POPULAR</div>
           <span class="mono" style="font-size: 10px; color: rgba(0,0,0,0.25); text-transform: uppercase; letter-spacing: 1.5px;">Collaborative</span>
           <h3 class="serif" style="font-size: 28px; margin: 8px 0 4px;">Team</h3>
-          <div style="display: flex; align-items: baseline; gap: 4px; margin-bottom: 16px;">
+          <div style="display: flex; align-items: baseline; gap: 4px; margin-bottom: 12px;">
             <span style="font-size: 36px; font-weight: 800; letter-spacing: -1px;">&euro;24</span>
             <span style="font-size: 14px; color: rgba(0,0,0,0.3);">/seat/mo</span>
           </div>
-          <p style="font-size: 14px; color: rgba(0,0,0,0.4); line-height: 1.6;">
+          <p style="font-size: 14px; color: rgba(0,0,0,0.4); line-height: 1.6; margin-bottom: 16px;">
             Academies, institutions, bootcamps, and small teams collaborating on live educational content.
           </p>
+          <div style="border-top: 1px solid rgba(0,0,0,0.06); padding-top: 12px; display: flex; flex-direction: column; gap: 6px;">
+            <span style="font-size: 12px; color: rgba(0,0,0,0.35);">&#10003; 20 live hours / seat / mo</span>
+            <span style="font-size: 12px; color: rgba(0,0,0,0.35);">&#10003; 10 GB shared storage</span>
+            <span style="font-size: 12px; color: rgba(0,0,0,0.35);">&#10003; 100 AI card generations / session</span>
+            <span style="font-size: 12px; color: rgba(0,0,0,0.35);">&#10003; Team analytics dashboard</span>
+          </div>
         </div>
 
         <!-- Enterprise -->
         <div class="paper" style="border-radius: 20px; padding: 32px;">
           <span class="mono" style="font-size: 10px; color: rgba(0,0,0,0.25); text-transform: uppercase; letter-spacing: 1.5px;">Custom</span>
           <h3 class="serif" style="font-size: 28px; margin: 8px 0 4px;">Enterprise</h3>
-          <div style="display: flex; align-items: baseline; gap: 4px; margin-bottom: 16px;">
+          <div style="display: flex; align-items: baseline; gap: 4px; margin-bottom: 12px;">
             <span style="font-size: 36px; font-weight: 800; letter-spacing: -1px;">&euro;45+</span>
             <span style="font-size: 14px; color: rgba(0,0,0,0.3);">/seat/mo</span>
           </div>
-          <p style="font-size: 14px; color: rgba(0,0,0,0.4); line-height: 1.6;">
+          <p style="font-size: 14px; color: rgba(0,0,0,0.4); line-height: 1.6; margin-bottom: 16px;">
             Corporate L&amp;D departments, large academies, and organizations requiring dedicated support and custom integrations.
           </p>
+          <div style="border-top: 1px solid rgba(0,0,0,0.06); padding-top: 12px; display: flex; flex-direction: column; gap: 6px;">
+            <span style="font-size: 12px; color: rgba(0,0,0,0.35);">&#10003; Unlimited live hours</span>
+            <span style="font-size: 12px; color: rgba(0,0,0,0.35);">&#10003; Unlimited storage</span>
+            <span style="font-size: 12px; color: rgba(0,0,0,0.35);">&#10003; Unlimited AI generations</span>
+            <span style="font-size: 12px; color: rgba(0,0,0,0.35);">&#10003; SSO, audit log, dedicated support</span>
+          </div>
         </div>
+      </div>
+
+      <!-- Overage pricing -->
+      <div class="paper" style="border-radius: 16px; padding: 24px 28px; margin-top: 20px;">
+        <p class="mono" style="font-size: 10px; color: var(--red); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px;">Fair-Use Overages (Pro &amp; Team)</p>
+        <div style="display: flex; gap: 32px; flex-wrap: wrap;">
+          <div>
+            <span style="font-size: 13px; color: rgba(0,0,0,0.5);">Extra live hours</span>
+            <span class="mono" style="display: block; font-size: 14px; font-weight: 600; margin-top: 2px;">&euro;0.90 / hour</span>
+          </div>
+          <div>
+            <span style="font-size: 13px; color: rgba(0,0,0,0.5);">Extra storage</span>
+            <span class="mono" style="display: block; font-size: 14px; font-weight: 600; margin-top: 2px;">&euro;2.00 / GB / mo</span>
+          </div>
+          <div>
+            <span style="font-size: 13px; color: rgba(0,0,0,0.5);">Extra AI generations</span>
+            <span class="mono" style="display: block; font-size: 14px; font-weight: 600; margin-top: 2px;">&euro;0.03 / card</span>
+          </div>
+        </div>
+        <p style="font-size: 12px; color: rgba(0,0,0,0.25); margin-top: 12px;">Overage revenue is accretive &mdash; marginal cost is well below overage price at scale.</p>
       </div>
     </section>
 
@@ -144,6 +185,97 @@ import Footer from '../components/Footer.astro';
           </tbody>
         </table>
       </div>
+    </section>
+
+    <!-- Section 2b: Per-Session COGS -->
+    <section class="reveal" style="margin-bottom: 72px;">
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+        <span class="mono" style="font-size: 11px; color: rgba(0,0,0,0.25); font-weight: 600;">02b</span>
+        <h2 class="serif" style="font-size: 28px; letter-spacing: -1px;">Per-Session Infrastructure Cost</h2>
+      </div>
+      <p style="font-size: 13px; color: rgba(0,0,0,0.35); margin-bottom: 32px; margin-left: 36px; max-width: 520px; line-height: 1.6;">
+        A 45-minute live session with a 30-page document generates the following variable costs. These are the real unit economics behind each copilot session.
+      </p>
+
+      <div class="paper" style="border-radius: 20px; padding: 0; overflow: hidden;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width: 30%;">Cost Component</th>
+              <th style="width: 25%;">Driver</th>
+              <th style="width: 20%;">Unit Rate</th>
+              <th style="width: 25%;">Per-Session Cost</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="row-label">Speech-to-Text (Deepgram)</td>
+              <td>45 min live audio</td>
+              <td>~&euro;0.004/min</td>
+              <td>&euro;0.18</td>
+            </tr>
+            <tr>
+              <td class="row-label">Embedding generation</td>
+              <td>~120 chunks &times; query embeds</td>
+              <td>~&euro;0.02/1K tokens</td>
+              <td>&euro;0.04</td>
+            </tr>
+            <tr>
+              <td class="row-label">LLM inference (cards, prompter, suggestions)</td>
+              <td>~15&ndash;25 calls / session</td>
+              <td>~&euro;0.03&ndash;0.06/call</td>
+              <td>&euro;0.60&ndash;1.20</td>
+            </tr>
+            <tr>
+              <td class="row-label">Vector search (pgvector)</td>
+              <td>~80&ndash;120 queries</td>
+              <td>Included in DB</td>
+              <td>&euro;0.01</td>
+            </tr>
+            <tr>
+              <td class="row-label">Document storage (Supabase)</td>
+              <td>30-page PDF (~5 MB)</td>
+              <td>&euro;0.02/GB/mo</td>
+              <td>&euro;0.001</td>
+            </tr>
+            <tr>
+              <td class="row-label">Compute &amp; orchestration</td>
+              <td>Real-time pipeline uptime</td>
+              <td>Estimated</td>
+              <td>&euro;0.10</td>
+            </tr>
+            <tr class="row-highlight">
+              <td class="row-label" style="font-weight: 700;">Total Variable COGS / Session</td>
+              <td></td>
+              <td></td>
+              <td style="font-weight: 700;">&euro;0.93&ndash;1.53</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Margin callout -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-top: 20px;">
+        <div class="paper" style="border-radius: 14px; padding: 20px 24px; text-align: center;">
+          <p class="mono" style="font-size: 10px; color: rgba(0,0,0,0.3); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;">Pro (8 sessions/mo)</p>
+          <p class="serif" style="font-size: 28px; color: var(--green); letter-spacing: -1px;">&sim;36%</p>
+          <p style="font-size: 11px; color: rgba(0,0,0,0.3); margin-top: 4px;">Variable-cost margin</p>
+        </div>
+        <div class="paper" style="border-radius: 14px; padding: 20px 24px; text-align: center;">
+          <p class="mono" style="font-size: 10px; color: rgba(0,0,0,0.3); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;">Team (12 sessions/seat/mo)</p>
+          <p class="serif" style="font-size: 28px; color: var(--green); letter-spacing: -1px;">&sim;50%</p>
+          <p style="font-size: 11px; color: rgba(0,0,0,0.3); margin-top: 4px;">Variable-cost margin</p>
+        </div>
+        <div class="paper" style="border-radius: 14px; padding: 20px 24px; text-align: center;">
+          <p class="mono" style="font-size: 10px; color: rgba(0,0,0,0.3); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;">Enterprise (20 sessions/seat/mo)</p>
+          <p class="serif" style="font-size: 28px; color: var(--green); letter-spacing: -1px;">&sim;32%</p>
+          <p style="font-size: 11px; color: rgba(0,0,0,0.3); margin-top: 4px;">Variable-cost margin</p>
+        </div>
+      </div>
+
+      <p style="font-size: 12px; color: rgba(0,0,0,0.25); margin-top: 12px; font-style: italic; padding: 0 8px;">
+        LLM inference is the dominant cost driver. Margins improve as we optimize prompt caching, batching, and migrate to smaller fine-tuned models for routine tasks (card generation, transition prompts).
+      </p>
     </section>
 
     <!-- Section 3: Three-Year Revenue Projection -->
@@ -279,9 +411,18 @@ import Footer from '../components/Footer.astro';
         </table>
       </div>
 
-      <div style="margin-top: 20px; display: flex; align-items: center; gap: 12px; padding: 0 8px;">
-        <div style="width: 10px; height: 10px; border-radius: 50%; background: var(--green); flex-shrink: 0;"></div>
-        <p class="mono" style="font-size: 13px; color: rgba(0,0,0,0.4);">Break-even projected around <strong style="color: var(--ink);">Month 34&ndash;36</strong></p>
+      <div style="margin-top: 20px; display: flex; flex-direction: column; gap: 10px; padding: 0 8px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="width: 10px; height: 10px; border-radius: 50%; background: var(--green); flex-shrink: 0;"></div>
+          <p class="mono" style="font-size: 13px; color: rgba(0,0,0,0.4);">Monthly cash-flow positive projected around <strong style="color: var(--ink);">Month 30&ndash;32</strong></p>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="width: 10px; height: 10px; border-radius: 50%; background: var(--blue); flex-shrink: 0;"></div>
+          <p class="mono" style="font-size: 13px; color: rgba(0,0,0,0.4);">Cumulative break-even by <strong style="color: var(--ink);">Month 38&ndash;40</strong></p>
+        </div>
+        <p style="font-size: 12px; color: rgba(0,0,0,0.25); font-style: italic; margin-top: 4px;">
+          Year 3 net position reflects the cumulative investment phase. Monthly revenue exceeds monthly cost from ~Month 30, with full payback by Month 38&ndash;40 at base-case growth.
+        </p>
       </div>
     </section>
 

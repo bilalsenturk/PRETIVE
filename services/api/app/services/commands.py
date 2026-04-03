@@ -56,6 +56,14 @@ _COMMAND_PATTERNS = [
         ],
     },
     {
+        "type": "next_item",
+        "patterns": [
+            r"(sonraki|sıradaki)\s*(madde|nokta|item|point)",
+            r"(next\s*item|next\s*point|next\s*bullet)",
+            r"devam\s*(et|edelim)",
+        ],
+    },
+    {
         "type": "next_topic",
         "patterns": [
             r"(sonraki|sıradaki)\s*(konu|bölüm|slide)",
@@ -227,8 +235,27 @@ def execute_command(
     if not is_llm_available():
         return {"content_type": "summary", "content": {"summary": "LLM not available"}, "title": "Error"}
 
+    # Handle next_item via slides service (no LLM needed)
+    if command_type == "next_item":
+        from app.services.slides import advance_slide
+        try:
+            slides = advance_slide(session_id, "next_item")
+            current_idx = slides.get("current_topic_index", 0)
+            topics = slides.get("topics", [])
+            title = topics[current_idx]["title"] if current_idx < len(topics) else "Item advanced"
+            return {"content_type": "slide_advance", "content": slides, "title": title}
+        except Exception as exc:
+            logger.exception("next_item failed: %s", exc)
+            return {"content_type": "summary", "content": {"summary": "Could not advance item"}, "title": "Error"}
+
     # Handle next_topic separately (no LLM needed)
     if command_type == "next_topic":
+        # Also advance dynamic slides
+        from app.services.slides import advance_slide
+        try:
+            advance_slide(session_id, "next_topic")
+        except Exception:
+            pass  # Non-fatal — original next_topic logic continues
         return _handle_next_topic(session_id, current_topic)
 
     prompt_template = _PROMPTS.get(command_type)

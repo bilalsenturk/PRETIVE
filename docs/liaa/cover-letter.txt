@@ -1,0 +1,38 @@
+Cover Letter
+============
+
+Dear Reviewer,
+
+I am applying with PRETIVE, a real-time AI copilot designed to support live
+teaching and presentation delivery.
+
+The project is built on years of hands-on experience in online education. Since
+2012, our team has operated one of Turkey's largest live education platforms,
+serving over 300,000 learners across thousands of live sessions. PRETIVE
+addresses a clear and recurring problem we experienced firsthand: managing live
+delivery effectively while maintaining content quality.
+
+Unlike traditional tools that focus on content creation (before the session) or
+meeting summarization (after the session), PRETIVE operates during live sessions
+and provides contextual support in real time — transition guidance, timing
+suggestions, context cards, and Q&A orchestration.
+
+We have developed a functional MVP and are currently running controlled pilot
+sessions with early instructors. The core real-time delivery flow has been
+validated through 20+ live sessions.
+
+The product is designed as a globally scalable SaaS platform with a clear
+subscription-based business model. It works exclusively on user-provided
+content, does not perform biometric or emotion detection, and is designed with
+EU AI Act compliance in mind.
+
+The goal is to build a scalable software product with global reach, starting
+with online education and expanding into broader professional communication use
+cases.
+
+I believe PRETIVE fits the definition of an innovative and scalable startup and
+has strong potential for growth in the rapidly expanding EdTech and AI-assisted
+delivery market.
+
+Sincerely,
+[Name]

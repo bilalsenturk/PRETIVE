@@ -1,0 +1,119 @@
+PRETIVE — Startup Summary
+==========================
+
+PRETIVE is a real-time AI copilot designed specifically for live online
+instructors and educators.
+
+The product solves a fundamental problem in live teaching: managing content,
+timing, structure, and audience interaction simultaneously.
+
+Unlike presentation tools or meeting assistants, PRETIVE operates during the
+session and supports delivery in real time.
+
+
+Product
+-------
+
+PRETIVE analyzes speech in real time, matches it with structured content, and
+provides contextual support such as:
+
+  - Transition guidance
+  - Timing suggestions
+  - Context cards (summaries, comparisons, key ideas)
+  - Q&A orchestration
+
+The system works only on user-provided and approved content, ensuring controlled
+and reliable output. All AI-generated content is clearly labeled.
+
+
+Innovation
+----------
+
+The core innovation is a real-time pipeline:
+
+  speech -> meaning -> decision -> screen
+
+This enables dynamic delivery support instead of static content generation.
+
+PRETIVE does not generate content blindly. It works on structured content the
+instructor provides and real-time context from their speech. No uncontrolled
+generation.
+
+
+Market
+------
+
+Initial focus:
+  - Online instructors and course creators
+  - Webinar creators and producers
+  - Corporate training professionals
+  - Bootcamp instructors
+
+The product expands later into broader professional communication use cases.
+
+
+Current Status
+--------------
+
+PRETIVE has a functional MVP and is currently in private beta.
+
+  - 20+ live sessions tested with real instructors
+  - Early pilot users onboarded
+  - Real-time delivery flow validated
+  - Core system built and working
+  - Feedback loop in progress
+
+We are currently working with a limited number of users to refine the
+experience before broader release.
+
+
+Origin
+------
+
+PRETIVE is built on top of years of real-world live education experience.
+The founding team operated IIENSTITU, one of Turkey's largest online education
+platforms, since 2012. Over 300,000 learners participated in live sessions.
+
+Every feature in PRETIVE maps directly to a real operational pain point
+experienced during those years of live teaching.
+
+
+Business Model
+--------------
+
+SaaS subscription with fair-usage model:
+
+  - Pro:        EUR 19/month (individual instructors)
+  - Team:       EUR 24/seat/month (academies, bootcamps, small teams)
+  - Enterprise: EUR 45+/seat/month (corporate L&D, large organizations)
+
+Each plan includes a fair-use allowance of live session hours, document storage,
+and AI processing. Overages are billed per unit.
+
+
+Responsible AI
+--------------
+
+  - Works exclusively on user-provided content
+  - No biometric data processing or emotion detection
+  - Human-in-the-loop: all AI suggestions are advisory, instructor retains
+    full control
+  - Transparent AI labeling on all generated content
+  - Designed with EU AI Act compliance in mind
+
+
+Scalability
+-----------
+
+PRETIVE is a globally scalable software product with recurring revenue
+potential. The technology stack is built for multi-tenant SaaS from day one.
+No per-customer customization required.
+
+
+Conclusion
+----------
+
+PRETIVE is not a content generation tool.
+
+It is a real-time delivery intelligence system designed to improve how knowledge
+is presented and understood — during the live moment of teaching.

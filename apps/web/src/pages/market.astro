@@ -4,7 +4,7 @@ import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
 ---
 
-<BaseLayout title="PRETIVE — Market Analysis" description="PRETIVE market opportunity: EdTech market size, target segments, TAM/SAM/SOM, and competitive landscape.">
+<BaseLayout title="PRETIVE — Market Analysis" description="PRETIVE market opportunity: EdTech market size, target segments, TAM/SAM/SOM, and competitive landscape." noindex={true}>
 
   <Nav activePage="investors" />
 
@@ -198,6 +198,81 @@ import Footer from '../components/Footer.astro';
         </tbody>
       </table>
     </div>
+
+    <p style="font-size: 12px; color: rgba(0,0,0,0.25); margin-top: 12px; font-style: italic; padding: 0 8px;">
+      SOM represents the 5-year addressable opportunity at full product maturity. Our 3-year financial projections target the initial beachhead segment below.
+    </p>
+  </section>
+
+  <!-- ============================== -->
+  <!-- BEACHHEAD MARKET               -->
+  <!-- ============================== -->
+  <section style="padding: 0 24px 100px; max-width: 1200px; margin: 0 auto;">
+    <div class="reveal">
+      <p class="section-label">Beachhead Market</p>
+      <h2 class="serif" style="font-size: clamp(1.8rem, 4vw, 2.8rem); line-height: 1.1; letter-spacing: -1px; margin-bottom: 12px;">
+        Where we start &mdash; and why
+      </h2>
+      <p style="font-size: 15px; color: rgba(0,0,0,0.4); max-width: 560px; line-height: 1.7; margin-bottom: 48px; font-weight: 300;">
+        Rather than chasing the full TAM, we focus on three segments where live delivery pain is sharpest, sessions are frequent, and willingness to pay is proven. This is the initial wedge.
+      </p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;" class="reveal" id="beachhead-grid">
+      <!-- Segment 1 -->
+      <div class="paper" style="border-radius: 20px; padding: 32px 28px;">
+        <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(217,66,40,0.08); display: flex; align-items: center; justify-content: center; margin-bottom: 16px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2" stroke-linecap="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        </div>
+        <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 6px; letter-spacing: -0.3px;">Online Training Providers &amp; Bootcamps</h3>
+        <p style="font-size: 13px; color: rgba(0,0,0,0.4); line-height: 1.6; margin-bottom: 16px;">
+          High session frequency (5&ndash;20 live sessions/week per instructor), structured curricula, and direct revenue tied to delivery quality.
+        </p>
+        <div style="border-top: 1px solid rgba(0,0,0,0.05); padding-top: 12px;">
+          <span class="mono" style="font-size: 11px; color: rgba(0,0,0,0.25);">Est. addressable:</span>
+          <span class="mono" style="font-size: 13px; font-weight: 600; margin-left: 4px;">~45K instructors (EU + US)</span>
+        </div>
+      </div>
+
+      <!-- Segment 2 -->
+      <div class="paper" style="border-radius: 20px; padding: 32px 28px;">
+        <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(45,91,255,0.08); display: flex; align-items: center; justify-content: center; margin-bottom: 16px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        </div>
+        <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 6px; letter-spacing: -0.3px;">Webinar-Led B2B Teams</h3>
+        <p style="font-size: 13px; color: rgba(0,0,0,0.4); line-height: 1.6; margin-bottom: 16px;">
+          Pre-sales demos, customer onboarding, and product webinars where delivery quality directly impacts pipeline and retention metrics.
+        </p>
+        <div style="border-top: 1px solid rgba(0,0,0,0.05); padding-top: 12px;">
+          <span class="mono" style="font-size: 11px; color: rgba(0,0,0,0.25);">Est. addressable:</span>
+          <span class="mono" style="font-size: 13px; font-weight: 600; margin-left: 4px;">~30K teams (EU + US)</span>
+        </div>
+      </div>
+
+      <!-- Segment 3 -->
+      <div class="paper" style="border-radius: 20px; padding: 32px 28px;">
+        <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(42,125,79,0.08); display: flex; align-items: center; justify-content: center; margin-bottom: 16px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 6px; letter-spacing: -0.3px;">Corporate L&amp;D Trainers</h3>
+        <p style="font-size: 13px; color: rgba(0,0,0,0.4); line-height: 1.6; margin-bottom: 16px;">
+          Internal enablement, compliance training, and onboarding sessions with strict time and content requirements. Budget already allocated.
+        </p>
+        <div style="border-top: 1px solid rgba(0,0,0,0.05); padding-top: 12px;">
+          <span class="mono" style="font-size: 11px; color: rgba(0,0,0,0.25);">Est. addressable:</span>
+          <span class="mono" style="font-size: 13px; font-weight: 600; margin-left: 4px;">~80K trainers (EU + US)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Beachhead total -->
+    <div class="reveal" style="margin-top: 24px;">
+      <div style="padding: 20px 28px; border-left: 3px solid var(--red); background: rgba(217,66,40,0.03); border-radius: 0 12px 12px 0;">
+        <p style="font-size: 14px; color: rgba(0,0,0,0.55); line-height: 1.7; margin: 0;">
+          <strong style="color: var(--ink);">Beachhead total: ~155K potential users.</strong> At ~1% penetration over 36 months, this yields ~1,500&ndash;1,800 paying accounts behind our base-case revenue projection &mdash; a conservative starting point with compounding room to expand as we prove ROI.
+        </p>
+      </div>
+    </div>
   </section>
 
   <!-- ============================== -->
@@ -263,8 +338,11 @@ import Footer from '../components/Footer.astro';
       <h2 class="serif" style="font-size: clamp(1.8rem, 4vw, 2.8rem); line-height: 1.1; letter-spacing: -1px; margin-bottom: 12px;">
         What exists &mdash; and what&rsquo;s missing
       </h2>
-      <p style="font-size: 15px; color: rgba(0,0,0,0.4); max-width: 560px; line-height: 1.7; margin-bottom: 48px; font-weight: 300;">
-        Several tools touch parts of the problem. None of them address the full live-delivery experience the way PRETIVE does.
+      <p style="font-size: 15px; color: rgba(0,0,0,0.4); max-width: 560px; line-height: 1.7; margin-bottom: 16px; font-weight: 300;">
+        Every major platform now ships some form of AI meeting assistance. The critical question is no longer <em>&ldquo;who has AI?&rdquo;</em> but <em>&ldquo;where does the intelligence sit?&rdquo;</em> Existing tools focus on two ends of the timeline: content <strong>creation</strong> (before the talk) and meeting <strong>summarization</strong> (after the talk). PRETIVE occupies the gap in between &mdash; the live execution layer.
+      </p>
+      <p style="font-size: 13px; color: rgba(0,0,0,0.25); max-width: 560px; line-height: 1.6; margin-bottom: 48px; font-weight: 400; font-style: italic;">
+        PRETIVE&rsquo;s core differentiator: <strong>document-grounded, narrative-aware, live delivery orchestration.</strong> Every suggestion is anchored to the presenter&rsquo;s own source material and the real-time position within the narrative graph &mdash; not generic LLM output.
       </p>
     </div>
 
@@ -272,44 +350,60 @@ import Footer from '../components/Footer.astro';
       <table>
         <thead>
           <tr>
-            <th style="padding-left: 24px; width: 18%;">Competitor</th>
-            <th style="width: 38%;">What They Do</th>
-            <th style="width: 44%;">What They Miss</th>
+            <th style="padding-left: 24px; width: 18%;">Player</th>
+            <th style="width: 30%;">2026 AI Capabilities</th>
+            <th style="width: 18%;">Focus</th>
+            <th style="width: 34%;">What&rsquo;s Still Missing</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td style="padding-left: 24px; font-weight: 600; color: var(--ink);">Microsoft Copilot</td>
-            <td>Slide creation, Speaker Coach</td>
-            <td><span style="color: var(--red);">&#10005;</span> No live screen enrichment, no participant agent, no fact-check</td>
+            <td style="padding-left: 24px; font-weight: 600; color: var(--ink);">Microsoft Copilot + Speaker Coach</td>
+            <td>AI slide generation, real-time pace/filler-word coaching in PowerPoint &amp; Teams, post-meeting recap</td>
+            <td><span style="font-size: 11px; padding: 3px 8px; background: rgba(0,0,0,0.04); border-radius: 6px;">Creation + Post</span></td>
+            <td><span style="color: var(--red);">&#10005;</span> Coaching is generic (not grounded in <em>your</em> documents). No narrative graph, no live content injection, no participant-side agent</td>
           </tr>
           <tr>
-            <td style="padding-left: 24px; font-weight: 600; color: var(--ink);">Canva</td>
-            <td>Visual presentations, Canva Live</td>
-            <td><span style="color: var(--red);">&#10005;</span> No semantic flow tracking, no background agent</td>
+            <td style="padding-left: 24px; font-weight: 600; color: var(--ink);">Canva AI</td>
+            <td>Full AI presentation generation, Magic Design, Canva Live audience Q&amp;A</td>
+            <td><span style="font-size: 11px; padding: 3px 8px; background: rgba(0,0,0,0.04); border-radius: 6px;">Creation + Q&amp;A</span></td>
+            <td><span style="color: var(--red);">&#10005;</span> AI stops when you start talking. No speech tracking, no semantic flow awareness, no mid-session content adaptation</td>
           </tr>
           <tr>
-            <td style="padding-left: 24px; font-weight: 600; color: var(--ink);">PromptSmart</td>
-            <td>Voice-synced teleprompter</td>
-            <td><span style="color: var(--red);">&#10005;</span> Prompter only &mdash; no new content generation, no quiz, no participant interaction</td>
+            <td style="padding-left: 24px; font-weight: 600; color: var(--ink);">Zoom AI Companion</td>
+            <td>In-meeting Q&amp;A, real-time summary, smart recording chapters, post-meeting action items</td>
+            <td><span style="font-size: 11px; padding: 3px 8px; background: rgba(0,0,0,0.04); border-radius: 6px;">Meeting Assist</span></td>
+            <td><span style="color: var(--red);">&#10005;</span> Optimized for <em>meetings</em>, not structured presentations. No document grounding, no narrative position tracking, no presenter-side guidance</td>
+          </tr>
+          <tr>
+            <td style="padding-left: 24px; font-weight: 600; color: var(--ink);">Otter Meeting Agent</td>
+            <td>Live transcription, auto-summary, in-meeting Q&amp;A, action-item extraction, Slack/CRM sync</td>
+            <td><span style="font-size: 11px; padding: 3px 8px; background: rgba(0,0,0,0.04); border-radius: 6px;">Capture + Post</span></td>
+            <td><span style="color: var(--red);">&#10005;</span> Records and summarizes &mdash; does not guide. No source-document verification, no pacing control, no live content generation for the presenter</td>
           </tr>
           <tr>
             <td style="padding-left: 24px; font-weight: 600; color: var(--ink);">Gamma</td>
-            <td>Programmatic presentation creation</td>
-            <td><span style="color: var(--red);">&#10005;</span> No live delivery orchestration, no style learning</td>
-          </tr>
-          <tr>
-            <td style="padding-left: 24px; font-weight: 600; color: var(--ink);">Otter</td>
-            <td>Transcription, meeting agent</td>
-            <td><span style="color: var(--red);">&#10005;</span> No education-focused narration management, no participant side</td>
+            <td>AI-first presentation builder, auto-layout, web-native decks</td>
+            <td><span style="font-size: 11px; padding: 3px 8px; background: rgba(0,0,0,0.04); border-radius: 6px;">Creation</span></td>
+            <td><span style="color: var(--red);">&#10005;</span> Ends at &ldquo;publish.&rdquo; No live delivery layer, no speech-to-content matching, no post-session analytics</td>
           </tr>
           <tr>
             <td style="padding-left: 24px; font-weight: 600; color: var(--ink);">Mentimeter / Slido</td>
-            <td>Surveys and Q&amp;A</td>
-            <td><span style="color: var(--red);">&#10005;</span> Interaction only &mdash; no narration management, no content enrichment</td>
+            <td>Live polls, Q&amp;A, quizzes, word clouds, audience reactions</td>
+            <td><span style="font-size: 11px; padding: 3px 8px; background: rgba(0,0,0,0.04); border-radius: 6px;">Interaction</span></td>
+            <td><span style="color: var(--red);">&#10005;</span> Audience tool only &mdash; presenter gets no AI guidance, no narrative management, no content enrichment during delivery</td>
           </tr>
         </tbody>
       </table>
+    </div>
+
+    <!-- Positioning note -->
+    <div class="reveal" style="margin-top: 32px; max-width: 720px;">
+      <div style="padding: 24px 28px; border-left: 3px solid var(--red); background: rgba(217,66,40,0.03); border-radius: 0 12px 12px 0;">
+        <p style="font-size: 14px; color: rgba(0,0,0,0.55); line-height: 1.7; margin: 0;">
+          <strong style="color: var(--ink);">The pattern:</strong> Every competitor listed above operates either <em>before</em> the talk (creation) or <em>after</em> the talk (summary/capture). PRETIVE is the only product architected for the <strong>during</strong> &mdash; grounding every real-time suggestion in the presenter&rsquo;s own uploaded documents, tracking position within a narrative graph built from those documents, and adapting content surfaces to the live speech stream.
+        </p>
+      </div>
     </div>
   </section>
 
@@ -328,7 +422,7 @@ import Footer from '../components/Footer.astro';
       <div class="paper reveal" style="border-radius: 16px; padding: 28px 32px; display: flex; align-items: flex-start; gap: 16px;">
         <span style="flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 8px; background: rgba(217,66,40,0.08); color: var(--red); font-size: 14px; font-weight: 700;">1</span>
         <p style="font-size: 15px; color: rgba(0,0,0,0.55); line-height: 1.6;">
-          <span style="font-weight: 600; color: var(--ink);">Big players focus elsewhere.</span> Microsoft, Canva, and others concentrate on content creation and general meeting assistance &mdash; not live delivery.
+          <span style="font-weight: 600; color: var(--ink);">Big players bracket the talk, not the delivery.</span> Microsoft, Canva, Zoom, and Otter now all ship AI &mdash; but their intelligence is concentrated on content creation (before) and meeting capture (after). The live execution layer remains unoccupied.
         </p>
       </div>
       <div class="paper reveal" style="border-radius: 16px; padding: 28px 32px; display: flex; align-items: flex-start; gap: 16px;">
@@ -352,7 +446,7 @@ import Footer from '../components/Footer.astro';
       <div class="paper reveal" style="border-radius: 16px; padding: 28px 32px; display: flex; align-items: flex-start; gap: 16px;">
         <span style="flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 8px; background: rgba(217,66,40,0.08); color: var(--red); font-size: 14px; font-weight: 700;">5</span>
         <p style="font-size: 15px; color: rgba(0,0,0,0.55); line-height: 1.6;">
-          <span style="font-weight: 600; color: var(--ink);">Additive, not replacement.</span> PRETIVE works on top of existing tools like Zoom, Google Meet, and PowerPoint &mdash; lowering adoption friction dramatically.
+          <span style="font-weight: 600; color: var(--ink);">Additive, not replacement.</span> PRETIVE plugs into native meeting surfaces &mdash; Zoom in-meeting panels, Google Meet side panels, Teams meeting stages &mdash; and falls back to a standalone companion app when needed. No screen-sharing or plugins required.
         </p>
       </div>
     </div>
@@ -384,6 +478,8 @@ import Footer from '../components/Footer.astro';
     document.querySelectorAll('.stat-grid').forEach(g => {
       g.style.gridTemplateColumns = w < 768 ? '1fr' : 'repeat(3, 1fr)';
     });
+    const bh = document.getElementById('beachhead-grid');
+    if (bh) bh.style.gridTemplateColumns = w < 768 ? '1fr' : 'repeat(3, 1fr)';
   }
   fixGrids();
   window.addEventListener('resize', fixGrids);

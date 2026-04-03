@@ -345,6 +345,15 @@ async def match_transcript(session_id: str, body: MatchRequest) -> MatchResponse
     except Exception as exc:
         logger.exception("Failed to update session metadata for %s: %s", session_id, exc)
 
+    # Update dynamic slide position based on matched chunks
+    try:
+        from app.services.slides import update_slide_position
+        chunk_ids_matched = [c["id"] for c in chunks if "id" in c]
+        if chunk_ids_matched:
+            update_slide_position(session_id, chunk_ids_matched)
+    except Exception as exc:
+        logger.exception("Slide position update failed for %s: %s", session_id, exc)
+
     # Log event with match details
     _log_event(session_id, "match", {
         "text_length": len(text),

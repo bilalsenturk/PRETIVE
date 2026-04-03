@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, CheckCircle, Mail } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
 export default function SignupPage() {
@@ -16,6 +16,8 @@ export default function SignupPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [acceptedAI, setAcceptedAI] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -36,17 +38,24 @@ export default function SignupPage() {
       return;
     }
 
-    if (!acceptedTerms) {
-      setError("Please accept the Privacy Policy to continue.");
+    if (!acceptedTerms || !acceptedAI) {
+      setError("Please accept both the Privacy Policy and AI processing consent to continue.");
       return;
     }
 
     setLoading(true);
 
     try {
-      const { error: authError } = await supabase.auth.signUp({
+      const { data, error: authError } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+          data: {
+            accepted_terms_at: new Date().toISOString(),
+            accepted_ai_consent_at: new Date().toISOString(),
+          },
+        },
       });
 
       if (authError) {
@@ -58,12 +67,92 @@ export default function SignupPage() {
         return;
       }
 
-      router.push("/sessions");
+      // Check if email confirmation is required
+      if (data.user && !data.session) {
+        // Email confirmation required — show success state
+        setEmailSent(true);
+      } else if (data.session) {
+        // No confirmation needed — direct login
+        router.push("/sessions");
+      }
     } catch {
       setError("An unexpected error occurred. Please try again.");
     } finally {
       setLoading(false);
     }
+  }
+
+  // Email sent success state
+  if (emailSent) {
+    return (
+      <div
+        className="flex min-h-screen items-center justify-center px-4"
+        style={{ backgroundColor: "var(--bg)" }}
+      >
+        <div
+          className="w-full max-w-md rounded-2xl p-8 shadow-sm text-center"
+          style={{ backgroundColor: "var(--paper)" }}
+        >
+          <div
+            className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl"
+            style={{ backgroundColor: "rgba(42, 125, 79, 0.1)" }}
+          >
+            <Mail size={28} style={{ color: "#2A7D4F" }} />
+          </div>
+
+          <h1 className="text-xl font-bold" style={{ color: "var(--ink)" }}>
+            Check your email
+          </h1>
+
+          <p className="mt-3 text-sm text-gray-500 leading-relaxed">
+            We sent a verification link to
+          </p>
+          <p className="mt-1 text-sm font-semibold" style={{ color: "var(--ink)" }}>
+            {email}
+          </p>
+
+          <div
+            className="mt-6 rounded-xl p-4 text-left"
+            style={{ backgroundColor: "rgba(42, 125, 79, 0.04)", border: "1px solid rgba(42, 125, 79, 0.1)" }}
+          >
+            <div className="flex items-start gap-3">
+              <CheckCircle size={18} className="mt-0.5 flex-shrink-0" style={{ color: "#2A7D4F" }} />
+              <div>
+                <p className="text-sm font-medium" style={{ color: "var(--ink)" }}>
+                  What happens next
+                </p>
+                <ol className="mt-2 space-y-1.5 text-xs text-gray-500 list-decimal list-inside">
+                  <li>Open the email from PRETIVE</li>
+                  <li>Click the confirmation link</li>
+                  <li>You will be redirected to your dashboard</li>
+                </ol>
+              </div>
+            </div>
+          </div>
+
+          <p className="mt-5 text-xs text-gray-400">
+            Did not receive the email? Check your spam folder or{" "}
+            <button
+              onClick={() => setEmailSent(false)}
+              className="font-medium underline"
+              style={{ color: "var(--red)" }}
+            >
+              try again
+            </button>
+          </p>
+
+          <div className="mt-6 pt-4 border-t border-gray-100">
+            <Link
+              href="/login"
+              className="text-sm font-medium transition-colors hover:opacity-80"
+              style={{ color: "var(--red)" }}
+            >
+              Back to sign in
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -81,7 +170,7 @@ export default function SignupPage() {
             Create your account
           </h1>
           <p className="mt-1 text-sm text-gray-500">
-            Get started with Pretive
+            Start using PRETIVE for live teaching
           </p>
         </div>
 
@@ -98,7 +187,7 @@ export default function SignupPage() {
               className="mb-1 block text-sm font-medium"
               style={{ color: "var(--ink)" }}
             >
-              Email
+              Work email
             </label>
             <input
               id="email"
@@ -106,7 +195,7 @@ export default function SignupPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              placeholder="you@example.com"
+              placeholder="you@institution.com"
               className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none transition-colors focus:border-gray-400"
               style={{ backgroundColor: "var(--paper)" }}
             />
@@ -148,7 +237,7 @@ export default function SignupPage() {
               className="mb-1 block text-sm font-medium"
               style={{ color: "var(--ink)" }}
             >
-              Confirm Password
+              Confirm password
             </label>
             <div className="relative">
               <input
@@ -172,25 +261,43 @@ export default function SignupPage() {
             </div>
           </div>
 
-          <label className="flex items-start gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={acceptedTerms}
-              onChange={(e) => setAcceptedTerms(e.target.checked)}
-              className="mt-0.5 h-4 w-4 rounded border-gray-300 accent-[#D94228]"
-            />
-            <span className="text-xs text-gray-500">
-              I agree to the{" "}
-              <a href="/privacy" target="_blank" className="font-medium underline" style={{ color: "var(--red)" }}>
-                Privacy Policy
-              </a>{" "}
-              and consent to my data being processed by AI for content matching and session assistance.
-            </span>
-          </label>
+          {/* GDPR-compliant separate consents */}
+          <div className="space-y-3 pt-1">
+            <label className="flex items-start gap-2.5 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={acceptedTerms}
+                onChange={(e) => setAcceptedTerms(e.target.checked)}
+                className="mt-0.5 h-4 w-4 rounded border-gray-300 accent-[#D94228]"
+              />
+              <span className="text-xs text-gray-500 leading-relaxed">
+                I have read and agree to the{" "}
+                <a href="/privacy" target="_blank" rel="noopener noreferrer" className="font-medium underline" style={{ color: "var(--red)" }}>
+                  Privacy Policy
+                </a>{" "}
+                and{" "}
+                <a href="/dpa" target="_blank" rel="noopener noreferrer" className="font-medium underline" style={{ color: "var(--red)" }}>
+                  Data Processing Agreement
+                </a>.
+              </span>
+            </label>
+
+            <label className="flex items-start gap-2.5 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={acceptedAI}
+                onChange={(e) => setAcceptedAI(e.target.checked)}
+                className="mt-0.5 h-4 w-4 rounded border-gray-300 accent-[#D94228]"
+              />
+              <span className="text-xs text-gray-500 leading-relaxed">
+                I consent to my uploaded content and session transcripts being processed by AI for real-time content matching and delivery assistance. I can withdraw this consent at any time via Settings.
+              </span>
+            </label>
+          </div>
 
           <button
             type="submit"
-            disabled={loading || !acceptedTerms}
+            disabled={loading || !acceptedTerms || !acceptedAI}
             className="w-full rounded-lg px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-60"
             style={{ backgroundColor: "var(--red)" }}
           >
@@ -207,6 +314,10 @@ export default function SignupPage() {
           >
             Sign in
           </Link>
+        </p>
+
+        <p className="mt-4 text-center text-[10px] text-gray-300">
+          PRETIVE B.V. (in formation) &middot; EU-based &middot; GDPR compliant
         </p>
       </div>
     </div>

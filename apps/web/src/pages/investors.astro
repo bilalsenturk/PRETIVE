@@ -4,296 +4,65 @@ import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
 ---
 
-<BaseLayout title="PRETIVE — Investor Hub" description="PRETIVE investor hub. Pre-seed round information, market analysis, financial projections, and team." noindex={true}>
+<BaseLayout title="PRETIVE — For Investors" description="Investor inquiries for PRETIVE, the real-time AI copilot for live online instructors." noindex={true}>
 
-  <!-- Side Progress -->
-  <div class="progress-track" id="progress">
-    <div class="progress-dot active" data-section="0" title="Overview"></div>
-    <div class="progress-dot" data-section="1" title="Hub"></div>
-    <div class="progress-dot" data-section="2" title="Why"></div>
-    <div class="progress-dot" data-section="3" title="Contact"></div>
-  </div>
+  <Nav activePage="investors" />
 
-  <!-- Confidential Banner -->
-  <div style="position: fixed; top: 0; left: 0; right: 0; z-index: 101; background: var(--ink); padding: 6px 24px; text-align: center;">
-    <span class="mono" style="font-size: 10px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 2px;">Confidential &mdash; March 2026 &middot; v2.2</span>
-  </div>
+  <section style="min-height: 80vh; display: flex; align-items: center; justify-content: center; padding: 120px 24px 80px;">
+    <div style="max-width: 600px; text-align: center;">
 
-  <Nav activePage="investors" topOffset="28px" />
-
-  <!-- ============================== -->
-  <!-- HERO — DARK SECTION            -->
-  <!-- ============================== -->
-  <section data-index="0" style="background: var(--ink); padding-top: 132px; padding-bottom: 80px; position: relative; overflow: hidden;">
-    <!-- Subtle grid decoration -->
-    <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-image: radial-gradient(rgba(255,255,255,0.03) 1px, transparent 1px); background-size: 32px 32px; pointer-events: none;"></div>
-
-    <div style="max-width: 1200px; margin: 0 auto; padding: 0 24px; position: relative;">
-      <!-- Stamp -->
-      <div class="stamp reveal" style="border-color: var(--red); color: var(--red); margin-bottom: 40px;">
-        <span style="width: 6px; height: 6px; border-radius: 50%; background: var(--red); display: inline-block;"></span>
-        Pre-seed round
+      <!-- Logo -->
+      <div class="reveal" style="margin-bottom: 32px;">
+        <div style="display: inline-flex; align-items: center; justify-content: center; width: 56px; height: 56px; border-radius: 16px; background: var(--red);">
+          <span style="color: white; font-size: 24px; font-weight: 800;">P</span>
+        </div>
       </div>
 
       <!-- Headline -->
-      <h1 class="serif reveal" style="font-size: clamp(2.8rem, 7vw, 5.5rem); line-height: 1; letter-spacing: -2px; margin-bottom: 28px; color: white; max-width: 800px;">
-        The AI layer for<br>
-        <span class="scribble" style="font-style: italic;">live education</span><br>
-        delivery.
+      <h1 class="serif reveal" style="font-size: clamp(2rem, 5vw, 3.5rem); line-height: 1.1; letter-spacing: -1.5px; margin-bottom: 20px;">
+        Investor Relations
       </h1>
 
-      <!-- Subtext -->
-      <p class="reveal" style="font-size: 17px; color: rgba(255,255,255,0.4); max-width: 600px; line-height: 1.8; margin-bottom: 44px; font-weight: 300;">
-        PRETIVE is building the real-time narration intelligence platform for education and training. Born from 300,000+ live sessions at IIENSTITU, we're turning deep field knowledge into a scalable AI product.
+      <p class="reveal" style="font-size: 16px; color: rgba(0,0,0,0.4); max-width: 440px; margin: 0 auto 40px; line-height: 1.7; font-weight: 300;">
+        PRETIVE is a real-time AI copilot for live online instructors. We are currently in early access and exploring strategic partnerships.
       </p>
 
-      <!-- Annotation -->
-      <div class="annotation hide-mobile" style="top: 60px; right: 80px; transform: rotate(-6deg);">
-        <svg width="60" height="40" viewBox="0 0 60 40" fill="none"><path d="M55 5 Q30 0 10 30" stroke="#D94228" stroke-width="1.5" fill="none" stroke-dasharray="3 3"/><path d="M10 30 L6 24 M10 30 L16 27" stroke="#D94228" stroke-width="1.5"/></svg>
-        <span style="display: block; margin-top: -4px;">the market is<br>wide open</span>
+      <!-- What we share privately -->
+      <div class="reveal paper" style="border-radius: 20px; padding: 32px; text-align: left; margin-bottom: 32px;">
+        <p class="mono" style="font-size: 10px; color: var(--red); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 16px;">Available upon request</p>
+        <ul style="list-style: none; display: flex; flex-direction: column; gap: 12px;">
+          <li style="display: flex; align-items: center; gap: 10px; font-size: 14px; color: rgba(0,0,0,0.55);">
+            <span style="width: 6px; height: 6px; border-radius: 50%; background: var(--red); flex-shrink: 0;"></span>
+            Pitch deck and business plan
+          </li>
+          <li style="display: flex; align-items: center; gap: 10px; font-size: 14px; color: rgba(0,0,0,0.55);">
+            <span style="width: 6px; height: 6px; border-radius: 50%; background: var(--red); flex-shrink: 0;"></span>
+            Market analysis and financial projections
+          </li>
+          <li style="display: flex; align-items: center; gap: 10px; font-size: 14px; color: rgba(0,0,0,0.55);">
+            <span style="width: 6px; height: 6px; border-radius: 50%; background: var(--red); flex-shrink: 0;"></span>
+            Product roadmap and technical architecture
+          </li>
+          <li style="display: flex; align-items: center; gap: 10px; font-size: 14px; color: rgba(0,0,0,0.55);">
+            <span style="width: 6px; height: 6px; border-radius: 50%; background: var(--red); flex-shrink: 0;"></span>
+            Live product demonstration
+          </li>
+        </ul>
       </div>
 
-      <!-- CTA Buttons -->
-      <div class="reveal" style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-bottom: 64px;">
-        <a href="#" class="hoverable" style="display: inline-flex; align-items: center; gap: 10px; padding: 16px 32px; background: var(--red); color: white; font-size: 14px; font-weight: 600; border-radius: 50px; transition: all 0.3s;">
-          Download deck
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
-        </a>
-        <a href="mailto:investors@pretive.com" class="hoverable" style="display: inline-flex; align-items: center; gap: 10px; padding: 16px 32px; border: 1px solid rgba(255,255,255,0.2); color: white; font-size: 14px; font-weight: 500; border-radius: 50px; transition: all 0.3s;">
-          Request a meeting
+      <!-- CTA -->
+      <div class="reveal" style="display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
+        <a href="mailto:investors@pretive.com" class="hoverable" style="display: inline-flex; align-items: center; gap: 10px; padding: 16px 32px; background: var(--ink); color: white; font-size: 14px; font-weight: 600; border-radius: 50px; transition: all 0.3s; text-decoration: none;">
+          Contact us
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </a>
       </div>
 
-      <!-- Key Stats Row -->
-      <div class="reveal" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: rgba(255,255,255,0.06); border-radius: 20px; overflow: hidden;" id="stats-grid">
-        <div style="padding: 32px; background: rgba(255,255,255,0.03); text-align: center;">
-          <p class="serif" style="font-size: clamp(1.8rem, 3.5vw, 2.8rem); color: white; letter-spacing: -1px; line-height: 1;">&euro;350K</p>
-          <p class="mono" style="font-size: 10px; color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 2px; margin-top: 8px;">Pre-seed</p>
-        </div>
-        <div style="padding: 32px; background: rgba(255,255,255,0.03); text-align: center;">
-          <p class="serif" style="font-size: clamp(1.8rem, 3.5vw, 2.8rem); color: white; letter-spacing: -1px; line-height: 1;">$348B</p>
-          <p class="mono" style="font-size: 10px; color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 2px; margin-top: 8px;">Market 2030</p>
-        </div>
-        <div style="padding: 32px; background: rgba(255,255,255,0.03); text-align: center;">
-          <p class="serif" style="font-size: clamp(1.8rem, 3.5vw, 2.8rem); color: white; letter-spacing: -1px; line-height: 1;">13.3%</p>
-          <p class="mono" style="font-size: 10px; color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 2px; margin-top: 8px;">CAGR</p>
-        </div>
-        <div style="padding: 32px; background: rgba(255,255,255,0.03); text-align: center;">
-          <p class="serif" style="font-size: clamp(1.8rem, 3.5vw, 2.8rem); color: white; letter-spacing: -1px; line-height: 1;">&euro;8.85M</p>
-          <p class="mono" style="font-size: 10px; color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 2px; margin-top: 8px;">Target ARR</p>
-        </div>
-      </div>
+      <p class="mono reveal" style="font-size: 10px; color: rgba(0,0,0,0.15); margin-top: 20px; text-transform: uppercase; letter-spacing: 1px;">investors@pretive.com</p>
+
     </div>
   </section>
 
-  <!-- ============================== -->
-  <!-- HUB GRID                       -->
-  <!-- ============================== -->
-  <section data-index="1" style="padding: 100px 0; position: relative;">
-    <div style="max-width: 1200px; margin: 0 auto; padding: 0 24px;">
-      <div style="text-align: center; margin-bottom: 64px;">
-        <span class="mono reveal" style="font-size: 11px; color: var(--red); text-transform: uppercase; letter-spacing: 2px; display: block; margin-bottom: 16px;">Investor materials</span>
-        <h2 class="serif reveal" style="font-size: clamp(2rem, 5vw, 3.5rem); line-height: 1.05; letter-spacing: -2px; margin-bottom: 16px;">
-          Everything you need,<br>in one place.
-        </h2>
-        <p class="reveal" style="font-size: 16px; color: rgba(0,0,0,0.35); max-width: 440px; margin: 0 auto; line-height: 1.7; font-weight: 300;">
-          Dive into the details. Each section is designed to give you a clear, honest picture of where we are and where we're headed.
-        </p>
-      </div>
-
-      <!-- 2x2 Grid -->
-      <div class="reveal" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;" id="hub-grid">
-
-        <!-- Card 01: Market Opportunity -->
-        <a href="/market" class="paper hoverable" style="padding: 40px; border-radius: 20px; display: block; transition: all 0.3s; position: relative; overflow: hidden;">
-          <span class="mono" style="font-size: 48px; font-weight: 600; color: rgba(0,0,0,0.04); position: absolute; top: 16px; right: 24px; line-height: 1;">01</span>
-          <span class="mono" style="font-size: 10px; color: var(--red); text-transform: uppercase; letter-spacing: 2px; display: block; margin-bottom: 16px;">Market Opportunity</span>
-          <h3 class="serif" style="font-size: 28px; letter-spacing: -1px; margin-bottom: 12px; line-height: 1.15;">$348B EdTech market</h3>
-          <p style="font-size: 14px; color: rgba(0,0,0,0.35); line-height: 1.7; margin-bottom: 24px; font-weight: 300;">TAM/SAM/SOM analysis, competitive landscape, and why the timing is right for a narration intelligence layer in education.</p>
-          <span style="font-size: 13px; font-weight: 600; color: var(--red); display: inline-flex; align-items: center; gap: 6px;">
-            Explore
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-          </span>
-        </a>
-
-        <!-- Card 02: Financial Projections -->
-        <a href="/financials" class="paper hoverable" style="padding: 40px; border-radius: 20px; display: block; transition: all 0.3s; position: relative; overflow: hidden;">
-          <span class="mono" style="font-size: 48px; font-weight: 600; color: rgba(0,0,0,0.04); position: absolute; top: 16px; right: 24px; line-height: 1;">02</span>
-          <span class="mono" style="font-size: 10px; color: var(--red); text-transform: uppercase; letter-spacing: 2px; display: block; margin-bottom: 16px;">Financial Projections</span>
-          <h3 class="serif" style="font-size: 28px; letter-spacing: -1px; margin-bottom: 12px; line-height: 1.15;">3-year revenue model</h3>
-          <p style="font-size: 14px; color: rgba(0,0,0,0.35); line-height: 1.7; margin-bottom: 24px; font-weight: 300;">Unit economics, burn rate, funding allocation, and a transparent path to profitability with clear milestones along the way.</p>
-          <span style="font-size: 13px; font-weight: 600; color: var(--red); display: inline-flex; align-items: center; gap: 6px;">
-            Explore
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-          </span>
-        </a>
-
-        <!-- Card 03: Product Roadmap -->
-        <a href="/roadmap" class="paper hoverable" style="padding: 40px; border-radius: 20px; display: block; transition: all 0.3s; position: relative; overflow: hidden;">
-          <span class="mono" style="font-size: 48px; font-weight: 600; color: rgba(0,0,0,0.04); position: absolute; top: 16px; right: 24px; line-height: 1;">03</span>
-          <span class="mono" style="font-size: 10px; color: var(--red); text-transform: uppercase; letter-spacing: 2px; display: block; margin-bottom: 16px;">Product Roadmap</span>
-          <h3 class="serif" style="font-size: 28px; letter-spacing: -1px; margin-bottom: 12px; line-height: 1.15;">5-phase plan to platform</h3>
-          <p style="font-size: 14px; color: rgba(0,0,0,0.35); line-height: 1.7; margin-bottom: 24px; font-weight: 300;">From MVP to full platform in five distinct phases, each with measurable KPIs and clear go/no-go criteria.</p>
-          <span style="font-size: 13px; font-weight: 600; color: var(--red); display: inline-flex; align-items: center; gap: 6px;">
-            Explore
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-          </span>
-        </a>
-
-        <!-- Card 04: Team -->
-        <a href="/team" class="paper hoverable" style="padding: 40px; border-radius: 20px; display: block; transition: all 0.3s; position: relative; overflow: hidden;">
-          <span class="mono" style="font-size: 48px; font-weight: 600; color: rgba(0,0,0,0.04); position: absolute; top: 16px; right: 24px; line-height: 1;">04</span>
-          <span class="mono" style="font-size: 10px; color: var(--red); text-transform: uppercase; letter-spacing: 2px; display: block; margin-bottom: 16px;">Team</span>
-          <h3 class="serif" style="font-size: 28px; letter-spacing: -1px; margin-bottom: 12px; line-height: 1.15;">The people behind PRETIVE</h3>
-          <p style="font-size: 14px; color: rgba(0,0,0,0.35); line-height: 1.7; margin-bottom: 24px; font-weight: 300;">Founding team backgrounds, hiring plan for the next 18 months, and advisory board with deep domain expertise.</p>
-          <span style="font-size: 13px; font-weight: 600; color: var(--red); display: inline-flex; align-items: center; gap: 6px;">
-            Explore
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-          </span>
-        </a>
-
-      </div>
-
-      <!-- Sticky note decoration -->
-      <div class="sticky hide-mobile" style="position: absolute; top: 80px; right: -20px; transform: rotate(3deg); width: 200px; z-index: 2; font-size: 16px;">
-        All numbers are current as of March 2026. Updated monthly.
-      </div>
-    </div>
-  </section>
-
-  <!-- ============================== -->
-  <!-- WHY PRETIVE                    -->
-  <!-- ============================== -->
-  <section data-index="2" style="padding: 100px 0; background: var(--paper); position: relative;">
-    <div style="max-width: 1200px; margin: 0 auto; padding: 0 24px;">
-      <div style="text-align: center; margin-bottom: 64px;">
-        <span class="mono reveal" style="font-size: 11px; color: var(--red); text-transform: uppercase; letter-spacing: 2px; display: block; margin-bottom: 16px;">Why PRETIVE</span>
-        <h2 class="serif reveal" style="font-size: clamp(2rem, 5vw, 3.5rem); line-height: 1.05; letter-spacing: -2px;">
-          Not just another<br><span class="highlight">EdTech pitch.</span>
-        </h2>
-      </div>
-
-      <div class="reveal" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;" id="why-grid">
-
-        <!-- Point 1 -->
-        <div style="padding: 36px; border-radius: 20px; border: 1px solid rgba(0,0,0,0.06); position: relative;">
-          <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(217,66,40,0.08); display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2" stroke-linecap="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-          </div>
-          <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.3px;">Deep field knowledge</h3>
-          <p style="font-size: 14px; color: rgba(0,0,0,0.35); line-height: 1.7; font-weight: 300;">300,000+ live sessions delivered since 2012 at IIENSTITU. We didn't study the problem from the outside — we lived it, every single day, for over a decade.</p>
-        </div>
-
-        <!-- Point 2 -->
-        <div style="padding: 36px; border-radius: 20px; border: 1px solid rgba(0,0,0,0.06); position: relative;">
-          <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(217,66,40,0.08); display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-          </div>
-          <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.3px;">Two-sided moat</h3>
-          <p style="font-size: 14px; color: rgba(0,0,0,0.35); line-height: 1.7; font-weight: 300;">A teacher copilot on one side, a participant assistant on the other. Each side strengthens the other, creating compounding network effects that are hard to replicate.</p>
-        </div>
-
-        <!-- Point 3 -->
-        <div style="padding: 36px; border-radius: 20px; border: 1px solid rgba(0,0,0,0.06); position: relative;">
-          <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(217,66,40,0.08); display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-          </div>
-          <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.3px;">Proven problem</h3>
-          <p style="font-size: 14px; color: rgba(0,0,0,0.35); line-height: 1.7; font-weight: 300;">This isn't theory. Every feature on our roadmap maps directly to an operational pain point we've experienced firsthand. We're solving our own problems first — and they're universal.</p>
-        </div>
-
-        <!-- Point 4 -->
-        <div style="padding: 36px; border-radius: 20px; border: 1px solid rgba(0,0,0,0.06); position: relative;">
-          <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(217,66,40,0.08); display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-          </div>
-          <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.3px;">Scalable SaaS</h3>
-          <p style="font-size: 14px; color: rgba(0,0,0,0.35); line-height: 1.7; font-weight: 300;">Technology-first, multi-tenant architecture built for global scale from day one. No per-customer customization — one product that serves every live educator, everywhere.</p>
-        </div>
-
-      </div>
-
-      <!-- Handwritten annotation -->
-      <div class="annotation hide-mobile" style="bottom: 60px; left: 40px; transform: rotate(-4deg);">
-        <svg width="50" height="35" viewBox="0 0 50 35" fill="none"><path d="M5 30 Q20 35 40 5" stroke="#D94228" stroke-width="1.5" fill="none" stroke-dasharray="3 3"/><path d="M40 5 L34 7 M40 5 L38 12" stroke="#D94228" stroke-width="1.5"/></svg>
-        <span style="display: block; margin-top: 2px;">this is the moat ^</span>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============================== -->
-  <!-- CTA: LET'S TALK               -->
-  <!-- ============================== -->
-  <section data-index="3" style="padding: 120px 0; position: relative;">
-    <div style="max-width: 700px; margin: 0 auto; padding: 0 24px; text-align: center; position: relative;">
-
-      <!-- Sticky note decoration -->
-      <div class="sticky hide-mobile" style="position: absolute; top: -50px; left: -100px; transform: rotate(-5deg); font-size: 16px; width: 180px; z-index: 2;">
-        We respond to every investor inquiry within 24 hours.
-      </div>
-
-      <div class="stamp reveal" style="margin-bottom: 32px; display: inline-flex;">
-        <span style="width: 6px; height: 6px; border-radius: 50%; background: var(--red); display: inline-block;"></span>
-        Open to conversations
-      </div>
-
-      <h2 class="serif reveal" style="font-size: clamp(2.5rem, 6vw, 4.5rem); line-height: 1; letter-spacing: -2px; margin-bottom: 20px;">
-        Let's talk<br>about the<br>
-        <span class="scribble serif" style="font-style: italic; color: var(--red);">future.</span>
-      </h2>
-
-      <p class="reveal" style="font-size: 16px; color: rgba(0,0,0,0.35); max-width: 420px; margin: 0 auto 36px; line-height: 1.7; font-weight: 300;">
-        Whether you have questions about the model, the market, or the team — we'd love to walk you through it.
-      </p>
-
-      <div class="reveal" style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
-        <a href="mailto:investors@pretive.com" class="hoverable" style="display: inline-flex; align-items: center; gap: 10px; padding: 16px 32px; background: var(--ink); color: white; font-size: 14px; font-weight: 600; border-radius: 50px; transition: all 0.3s;">
-          Request a meeting
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </a>
-        <a href="#" class="hoverable" style="display: inline-flex; align-items: center; gap: 10px; padding: 16px 32px; border: 1px solid rgba(0,0,0,0.12); color: rgba(0,0,0,0.5); font-size: 14px; font-weight: 500; border-radius: 50px; transition: all 0.3s;">
-          Download deck
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
-        </a>
-      </div>
-
-      <p class="mono reveal" style="font-size: 10px; color: rgba(0,0,0,0.15); margin-top: 24px; text-transform: uppercase; letter-spacing: 1px;">investors@pretive.com</p>
-    </div>
-  </section>
-
-  <Footer showInvestorLinks={true} />
+  <Footer />
 
 </BaseLayout>
-
-<script>
-  // Progress dots
-  const sections = document.querySelectorAll('[data-index]');
-  const dots = document.querySelectorAll('.progress-dot');
-  const progressObs = new IntersectionObserver((entries) => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        const idx = e.target.dataset.index;
-        dots.forEach(d => d.classList.toggle('active', d.dataset.section === idx));
-      }
-    });
-  }, { threshold: 0.4 });
-  sections.forEach(s => progressObs.observe(s));
-  dots.forEach(d => d.addEventListener('click', () => {
-    const s = document.querySelector(`[data-index="${d.dataset.section}"]`);
-    if (s) s.scrollIntoView({ behavior: 'smooth' });
-  }));
-
-  // Responsive grid fixes
-  function fixGrids() {
-    const w = window.innerWidth;
-    const hubGrid = document.getElementById('hub-grid');
-    const whyGrid = document.getElementById('why-grid');
-    const statsGrid = document.getElementById('stats-grid');
-    if (hubGrid) hubGrid.style.gridTemplateColumns = w < 768 ? '1fr' : 'repeat(2, 1fr)';
-    if (whyGrid) whyGrid.style.gridTemplateColumns = w < 768 ? '1fr' : 'repeat(2, 1fr)';
-    if (statsGrid) statsGrid.style.gridTemplateColumns = w < 768 ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)';
-  }
-  fixGrids();
-  window.addEventListener('resize', fixGrids);
-</script>

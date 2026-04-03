@@ -4,7 +4,27 @@ import { useEffect, useState, useRef } from "react";
 import { useParams } from "next/navigation";
 import { get } from "@/lib/api";
 import DynamicContent from "@/components/DynamicContent";
+import DynamicSlide from "@/components/DynamicSlide";
 import SessionCard from "@/components/SessionCard";
+
+interface SlideItem {
+  text: string;
+  revealed: boolean;
+  chunk_ids?: string[];
+}
+
+interface DynamicSlideData {
+  current_topic_index: number;
+  current_item_index: number;
+  total_topics: number;
+  topic: {
+    id?: string;
+    title: string;
+    items: SlideItem[];
+    status?: string;
+  };
+  all_topics?: Array<{ id: string; title: string; status: string; item_count: number }>;
+}
 
 interface DisplayData {
   display_content: {
@@ -19,6 +39,7 @@ interface DisplayData {
   live_summary: string | null;
   theme: "dark" | "light";
   status: string;
+  dynamic_slide: DynamicSlideData | null;
 }
 
 interface Card {
@@ -90,23 +111,57 @@ export default function PresenterDisplayPage() {
   const cardBg = isDark ? "#1e293b" : "#ffffff";
   const borderColor = isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)";
 
-  // Waiting state
+  // Waiting state — show briefing if dynamic slides exist
   if (!display || display.status !== "live") {
+    const briefingTopics = display?.dynamic_slide?.all_topics;
     return (
       <div
         className="flex h-screen items-center justify-center"
         style={{ backgroundColor: bg }}
       >
-        <div className="text-center">
+        <div className="text-center" style={{ maxWidth: "600px" }}>
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl" style={{ backgroundColor: "#D94228" }}>
             <span className="text-2xl font-black text-white">P</span>
           </div>
           <p className="text-lg font-semibold" style={{ color: textColor }}>
             PRETIVE
           </p>
-          <p className="mt-2 text-sm" style={{ color: subtextColor }}>
-            Waiting for session to start...
-          </p>
+          {briefingTopics && briefingTopics.length > 0 ? (
+            <div className="mt-6">
+              <p className="mb-4 text-xs font-medium uppercase tracking-widest" style={{ color: "#D94228" }}>
+                Session Outline
+              </p>
+              <div className="space-y-2 text-left">
+                {briefingTopics.map((t, i) => (
+                  <div
+                    key={t.id || i}
+                    className="flex items-center gap-3 rounded-lg px-4 py-2.5"
+                    style={{ backgroundColor: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)" }}
+                  >
+                    <span
+                      className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded text-xs font-bold text-white"
+                      style={{ backgroundColor: "#D94228" }}
+                    >
+                      {i + 1}
+                    </span>
+                    <span className="text-sm font-medium" style={{ color: textColor }}>
+                      {t.title}
+                    </span>
+                    <span className="ml-auto text-xs" style={{ color: subtextColor }}>
+                      {t.item_count} items
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <p className="mt-4 text-xs" style={{ color: subtextColor }}>
+                Session will begin when the presenter starts speaking.
+              </p>
+            </div>
+          ) : (
+            <p className="mt-2 text-sm" style={{ color: subtextColor }}>
+              Waiting for session to start...
+            </p>
+          )}
         </div>
       </div>
     );
@@ -124,6 +179,7 @@ export default function PresenterDisplayPage() {
             animating ? "scale-95 opacity-0" : "scale-100 opacity-100"
           }`}
         >
+          {/* Priority: display_content (voice command) > dynamic_slide > cards > heading */}
           {display.display_content ? (
             <div>
               <h2
@@ -144,6 +200,13 @@ export default function PresenterDisplayPage() {
                 />
               </div>
             </div>
+          ) : display.dynamic_slide?.topic ? (
+            <DynamicSlide
+              topic={display.dynamic_slide.topic}
+              topicIndex={display.dynamic_slide.current_topic_index}
+              totalTopics={display.dynamic_slide.total_topics}
+              theme={theme}
+            />
           ) : cards.length > 0 ? (
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               {cards.slice(0, 4).map((card) => (

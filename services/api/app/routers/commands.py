@@ -74,6 +74,31 @@ async def run_command(session_id: str, body: CommandRequest):
     return result
 
 
+class SlideAdvanceRequest(BaseModel):
+    action: str  # "next_item" | "next_topic" | "goto_topic"
+    topic_index: int | None = None
+
+
+@router.post("/{session_id}/live/slide-advance")
+async def slide_advance(session_id: str, body: SlideAdvanceRequest):
+    """Manually advance the dynamic slide state."""
+    from app.services.slides import advance_slide
+
+    if body.action not in ("next_item", "next_topic", "goto_topic"):
+        raise HTTPException(status_code=400, detail="Invalid action. Use: next_item, next_topic, goto_topic")
+
+    try:
+        result = advance_slide(session_id, body.action, body.topic_index)
+        if isinstance(result, dict) and "error" in result:
+            raise HTTPException(status_code=400, detail=result["error"])
+        return {"status": "ok", "dynamic_slides": result}
+    except HTTPException:
+        raise
+    except Exception as exc:
+        logger.exception("Slide advance failed for %s: %s", session_id, exc)
+        raise HTTPException(status_code=500, detail="Failed to advance slide")
+
+
 class DetectRequest(BaseModel):
     text: str
 
@@ -170,6 +195,37 @@ async def get_display(session_id: str):
             .execute()
         )
 
+        # Extract dynamic slides — always include all_topics (briefing), current topic when live/ready
+        dynamic_slides = metadata.get("dynamic_slides")
+        dynamic_slide_view = None
+        if dynamic_slides and dynamic_slides.get("topics"):
+            topics = dynamic_slides["topics"]
+            idx = dynamic_slides.get("current_topic_index", 0)
+            session_status = session_result.data.get("status", "draft")
+
+            all_topics = [
+                {"id": t.get("id"), "title": t.get("title"), "status": t.get("status"), "item_count": len(t.get("items", []))}
+                for t in topics
+            ]
+
+            current_topic = None
+            if idx < len(topics) and session_status in ("live", "ready"):
+                topic = topics[idx]
+                current_topic = {
+                    "id": topic.get("id"),
+                    "title": topic.get("title"),
+                    "items": topic.get("items", []),
+                    "status": topic.get("status"),
+                }
+
+            dynamic_slide_view = {
+                "current_topic_index": idx,
+                "current_item_index": dynamic_slides.get("current_item_index", -1),
+                "total_topics": len(topics),
+                "topic": current_topic,
+                "all_topics": all_topics,
+            }
+
         return {
             "status": session_result.data.get("status", "draft"),
             "display_content": metadata.get("display_content"),
@@ -179,6 +235,7 @@ async def get_display(session_id: str):
             "total_slides": chunks.count or 0,
             "live_summary": metadata.get("live_summary"),
             "theme": metadata.get("theme", "dark"),
+            "dynamic_slide": dynamic_slide_view,
         }
 
     except HTTPException:

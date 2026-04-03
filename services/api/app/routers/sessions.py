@@ -16,6 +16,7 @@ from app.services.embedding import generate_embeddings, is_embedding_available
 from app.services.ingestion import parse_document
 from app.services.llm import chat_completion
 from app.services.narrative import build_narrative_graph, generate_session_cards
+from app.services.slides import generate_dynamic_slides
 from app.services.pdf_report import generate_report
 
 logger = logging.getLogger(__name__)
@@ -395,6 +396,25 @@ async def prepare_session(
         cards_generated = len(cards)
         logger.info("Generated %d cards for session %s", cards_generated, session_id)
 
+        # Generate dynamic slides from narrative graph
+        logger.info("Generating dynamic slides for session %s", session_id)
+        try:
+            slides_data = generate_dynamic_slides(graph, session_id)
+            # Save narrative graph + dynamic slides to metadata
+            session_meta_res = supabase.table("sessions").select("metadata").eq("id", session_id).single().execute()
+            existing_meta = (session_meta_res.data or {}).get("metadata") or {}
+            if isinstance(existing_meta, str):
+                existing_meta = json.loads(existing_meta) if existing_meta else {}
+            existing_meta["narrative_graph"] = graph
+            existing_meta["dynamic_slides"] = slides_data
+            supabase.table("sessions").update({"metadata": existing_meta}).eq("id", session_id).execute()
+            slides_count = sum(len(t.get("items", [])) for t in slides_data.get("topics", []))
+            logger.info("Dynamic slides generated: %d items across %d topics for session %s",
+                        slides_count, len(slides_data.get("topics", [])), session_id)
+        except Exception as exc:
+            logger.exception("Dynamic slides generation failed for session %s: %s", session_id, exc)
+            # Non-fatal — session can still work without dynamic slides
+
         # Update session status to ready
         supabase.table("sessions").update({"status": "ready"}).eq(
             "id", session_id
@@ -630,7 +650,7 @@ async def generate_session_summary(
                     "You are a presentation coach. Given the session events and "
                     "cards from a live presentation session, write a concise summary "
                     "(3-5 paragraphs) covering: what topics were presented, how well "
-                    "the presenter covered the material, engagement patterns, and "
+                    "the presenter covered the material, interaction patterns (Q&A activity, topic coverage, pacing), and "
                     "suggestions for improvement. Be constructive and specific."
                 ),
             },

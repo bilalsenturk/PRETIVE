@@ -45,7 +45,8 @@ const COMMAND_PATTERNS: Array<{ type: string; pattern: RegExp; label: string }> 
   { type: "generate_summary", pattern: /(özetle|özet\s*göster|toparlayalım|summarize)/i, label: "Summary" },
   { type: "generate_timeline", pattern: /(timeline|zaman\s*çizelgesi|kronoloji)/i, label: "Timeline" },
   { type: "generate_list", pattern: /(madde\s*madde|listele|liste\s*göster|bullet)/i, label: "List" },
-  { type: "next_topic", pattern: /(sonraki\s*konu|sıradaki|bu\s*konuyu?\s*kapat|next\s*topic)/i, label: "Next" },
+  { type: "next_item", pattern: /(sonraki\s*(madde|nokta|item|point)|next\s*(item|point|bullet)|devam\s*et(elim)?)/i, label: "Next Item" },
+  { type: "next_topic", pattern: /(sonraki\s*konu|sıradaki|bu\s*konuyu?\s*kapat|next\s*topic)/i, label: "Next Topic" },
 ];
 
 function detectCommand(text: string) {
@@ -407,7 +408,7 @@ export default function PresenterControlPage() {
       {/* Quick command buttons */}
       {liveState === "recording" && (
         <div className="mt-2 flex items-center gap-2 overflow-x-auto px-1 py-1">
-          {COMMAND_PATTERNS.filter((c) => c.type !== "next_topic").map((cmd) => (
+          {COMMAND_PATTERNS.filter((c) => c.type !== "next_topic" && c.type !== "next_item").map((cmd) => (
             <button
               key={cmd.type}
               onClick={() => executeCommand(cmd.type, cmd.label)}
@@ -419,9 +420,17 @@ export default function PresenterControlPage() {
             </button>
           ))}
           <button
-            onClick={() => executeCommand("next_topic", "Next")}
+            onClick={() => executeCommand("next_item", "Next Item")}
             disabled={commandLoading}
-            className="shrink-0 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 transition-colors hover:border-blue-500 hover:text-blue-500 disabled:opacity-40"
+            className="shrink-0 rounded-lg border border-green-200 bg-green-50 px-3 py-1.5 text-xs font-semibold text-green-700 transition-colors hover:bg-green-100 disabled:opacity-40"
+          >
+            <ChevronRight size={12} className="mr-1 inline-block -mt-0.5" />
+            Next Item
+          </button>
+          <button
+            onClick={() => executeCommand("next_topic", "Next Topic")}
+            disabled={commandLoading}
+            className="shrink-0 rounded-lg border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700 transition-colors hover:bg-blue-100 disabled:opacity-40"
           >
             <ChevronRight size={12} className="mr-1 inline-block -mt-0.5" />
             Next Topic

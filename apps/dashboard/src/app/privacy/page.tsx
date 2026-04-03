@@ -54,7 +54,7 @@ export default function PrivacyPolicyPage() {
             <li><strong>Content matching:</strong> Transcripts are matched against your uploaded documents using vector embeddings to display relevant support cards during live sessions.</li>
             <li><strong>AI content generation:</strong> An LLM processes your document content to generate summary cards, comparison tables, concept explanations, and transition suggestions. All AI-generated content is labeled.</li>
             <li><strong>Fact verification:</strong> Claims made during presentations are verified against your uploaded source documents only. No external internet searches are performed.</li>
-            <li><strong>Analytics:</strong> Session events are logged to provide post-session analytics (coverage, pacing, engagement metrics).</li>
+            <li><strong>Analytics:</strong> Session events are logged to provide post-session analytics (topic coverage, pacing, Q&amp;A activity, and interaction-based engagement metrics). Engagement signals are derived exclusively from transcript flow, question frequency, topic progression, timing, and tempo &mdash; never from biometric data, facial recognition, or emotion detection.</li>
             <li><strong>Account management:</strong> Email is used for authentication, billing notifications, and optional session completion alerts.</li>
           </ul>
         </section>
@@ -79,7 +79,26 @@ export default function PrivacyPolicyPage() {
             <li>You (the presenter) always have override control. AI suggestions are recommendations, not automated actions.</li>
             <li>Fact-checking results clearly show confidence levels and source references. When the system cannot verify a claim, it says so.</li>
             <li>We do not use your data to train AI models. Your content is processed in real-time and not retained for model training.</li>
+            <li><strong>No biometric emotion recognition:</strong> PRETIVE does not analyze facial expressions, voice tone, body language, or any biometric signals to infer emotions, attention, or engagement. All engagement metrics are derived from textual and interaction data only (transcript content, Q&amp;A volume, topic coverage, session timing).</li>
+            <li><strong>AI content labeling:</strong> All AI-generated outputs &mdash; including support cards, summaries, comparison tables, dynamic charts, suggested answers, and transition prompts &mdash; are clearly marked with a visible &quot;AI-generated&quot; indicator. Users are never presented with AI outputs disguised as human-authored content.</li>
           </ul>
+        </section>
+
+        <section>
+          <h2 className="text-lg font-semibold text-gray-900">5b. EU AI Act Compliance</h2>
+          <p className="mt-2">
+            PRETIVE is designed with the European Union Artificial Intelligence Act (Regulation (EU) 2024/1689) in mind. Key commitments:
+          </p>
+          <ul className="mt-2 list-disc space-y-1.5 pl-5">
+            <li><strong>Prohibited practices (Art. 5):</strong> PRETIVE does not perform emotion recognition in workplace or educational settings. We do not use subliminal techniques, exploit vulnerabilities, or engage in social scoring. Our engagement signals are derived from observable interaction data (transcript flow, Q&amp;A activity, timing, topic progression) &mdash; not from biometric or physiological inference.</li>
+            <li><strong>Transparency obligations (Art. 50):</strong> All AI-generated content is labeled. Users are informed when they interact with AI-powered features. Our privacy policy, this section, and in-product indicators ensure deployers and end-users understand when and how AI is involved.</li>
+            <li><strong>AI literacy (Art. 4):</strong> PRETIVE provides clear documentation about how each AI feature works, what data it processes, and what its limitations are. Presenters retain full override control over all AI suggestions.</li>
+            <li><strong>Risk classification:</strong> We monitor evolving guidance from the European AI Office and national authorities to ensure our classification and compliance obligations remain current. As of March 2026, we assess PRETIVE as a limited-risk AI system subject to transparency requirements.</li>
+            <li><strong>Human oversight:</strong> AI suggestions are advisory only. The presenter decides whether to act on support cards, transition prompts, or suggested answers. No automated actions are taken without explicit presenter control.</li>
+          </ul>
+          <p className="mt-2 text-xs text-gray-500">
+            Note: Prohibited-practice rules and AI literacy obligations have been enforceable since 2 February 2025. The broader transparency and general-purpose AI obligations apply from 2 August 2025, with full enforcement of the remaining provisions from 2 August 2026.
+          </p>
         </section>
 
         <section>

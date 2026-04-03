@@ -28,7 +28,7 @@ const INTEGRATIONS: IntegrationInfo[] = [
   {
     id: "zoom",
     name: "Zoom",
-    description: "Run Pretive as an overlay panel during Zoom meetings.",
+    description: "Run Pretive as an in-meeting panel during Zoom meetings.",
     icon: "Z",
     connectPath: "/api/zoom/auth-url",
   },

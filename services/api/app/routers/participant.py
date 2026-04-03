@@ -28,6 +28,7 @@ class ParticipantSessionResponse(BaseModel):
 
 class ParticipantCardResponse(BaseModel):
     cards: list[dict]
+    dynamic_slide: dict | None = None
 
 
 class ParticipantStatusResponse(BaseModel):
@@ -115,23 +116,46 @@ async def get_participant_cards(session_id: str) -> ParticipantCardResponse:
     metadata = _parse_metadata(session)
     current_card_ids = metadata.get("current_cards", [])
 
-    if not current_card_ids:
-        return ParticipantCardResponse(cards=[])
+    # Fetch cards if any active
+    cards = []
+    if current_card_ids:
+        try:
+            supabase = get_supabase()
+            cards_result = (
+                supabase.table("session_cards")
+                .select("*")
+                .in_("id", current_card_ids)
+                .execute()
+            )
+            cards = cards_result.data or []
+        except Exception as exc:
+            logger.exception("Failed to fetch participant cards for session %s: %s", session_id, exc)
+            # Non-fatal: continue with empty cards
 
-    try:
-        supabase = get_supabase()
-        cards_result = (
-            supabase.table("session_cards")
-            .select("*")
-            .in_("id", current_card_ids)
-            .execute()
-        )
-        cards = cards_result.data or []
-    except Exception as exc:
-        logger.exception("Failed to fetch participant cards for session %s: %s", session_id, exc)
-        raise HTTPException(status_code=500, detail="Failed to fetch cards")
+    # Include dynamic slide if available (filtered: only revealed items)
+    dynamic_slide = None
+    dynamic_slides = metadata.get("dynamic_slides")
+    if dynamic_slides and dynamic_slides.get("topics"):
+        topics = dynamic_slides["topics"]
+        idx = dynamic_slides.get("current_topic_index", 0)
+        if idx < len(topics):
+            topic = topics[idx]
+            filtered_items = [
+                {"text": item["text"], "revealed": True}
+                for item in topic.get("items", [])
+                if item.get("revealed")  # Only send revealed items to audience
+            ]
+            dynamic_slide = {
+                "current_topic_index": idx,
+                "total_topics": len(topics),
+                "topic": {
+                    "title": topic.get("title"),
+                    "items": filtered_items,
+                    "status": topic.get("status"),
+                },
+            }
 
-    return ParticipantCardResponse(cards=cards)
+    return ParticipantCardResponse(cards=cards, dynamic_slide=dynamic_slide)
 
 
 @router.get("/{session_id}/participant/status", response_model=ParticipantStatusResponse)
